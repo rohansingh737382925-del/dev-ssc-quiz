@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEV SSC ACADEMY - संविधान क्विज़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>DEV SSC ACADEMY</h2>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:4px 0 10px;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+<div id="score-card"  style="display:none; text-align:center; padding: 20px;">
+<h3>आपका स्कोर: <span id="score"></span>/<span id="total"></span></h3>
+<p>✔ Correct: <span id="correct"></span></p>
+<p>❌ Wrong: <span id="wrong"></span></p>
+<p>📝 Attempted: <span id="attempted"></span></p>
+<p>⏳ Unattempted: <span id="unattempted"></span></p>
+<p><b>🎯 Accuracy: <span id="accuracy"></span>%</b></p>
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+<script>
+const data = [
+{q: "Q41. भारतीय संविधान की प्रस्तावना "किस प्रकार के समाजवाद" को दर्शाती है, जिसका विवरण इस पेज के 'समाजवादी' खंड में दिया गया है?", tag: "SSC CGL Tier-2 / RRB NTPC", o: ["कार्ल मार्क्स का समाजवाद", "लोकतांत्रिक समाजवाद (गांधीवादी और मार्क्सवादी विचारधारा का मिश्रण)", "चीनी साम्यवाद", "फेबियन समाजवाद"], a: 1, e: "पेज पर साफ लिखा है कि भारतीय समाजवाद 'लोकतांत्रिक समाजवाद' है जो मिश्रित अर्थव्यवस्था का समर्थन करता है, और सुप्रीम कोर्ट के अनुसार यह गांधीवाद और मार्क्सवाद का मिलाजुला रूप है जिसका झुकाव गांधीवाद की ओर है।"},
+{q: "Q42. 'प्रस्तावना की प्रकृति' के तहत संप्रभुता (Sovereignty) का क्या अर्थ है? क्या भारत राष्ट्रमंडल (Commonwealth) का सदस्य होने के कारण अपनी संप्रभुता खो देता है?", tag: "SSC CPO / RRB JE", o: ["हाँ, भारत ब्रिटिश राजा के अधीन है", "नहीं, राष्ट्रमंडल की सदस्यता एक स्वैच्छिक घोषणा है जो भारत की संप्रभुता को प्रभावित नहीं करती", "भारत केवल आंतरिक मामलों में संप्रभु है", "भारत विदेशी संधियाँ स्वयं नहीं कर सकता"], a: 1, e: "संप्रभुता का अर्थ है कि कोई भी बाहरी शक्ति भारत सरकार को निर्देश नहीं दे सकती। राष्ट्रमंडल या UNO की सदस्यता से भारत की संप्रभुता पर कोई आंच नहीं आती।"},
+{q: "Q43. इस पेज की थ्योरी के अनुसार निम्नलिखित में से कौन सा कथन 'प्रस्तावना' के महत्व के बारे में गलत है?", tag: "SSC CGL / RRB NTPC", o: ["यह संविधान की मूल भावना को समझने में सहायक है", "यह संविधान का सार और दर्शन है", "इसके प्रावधानों के उल्लंघन पर सरकार को सीधे सजा दी जा सकती है", "इसे संविधान निर्माण के सबसे अंत में स्वीकार किया गया था"], a: 2, e: "प्रस्तावना 'गैर-न्यायोचित' (Non-justiciable) है, यानी इसके आधार पर सरकार के खिलाफ कोई कानूनी प्रवर्तन (Enforcement) नहीं कराया जा सकता।"},
+{q: "Q44. केशवानंद भारती मामले (1973) में सुप्रीम कोर्ट ने बेरुबारी मामले (1960) के किस निष्कर्ष को पूरी तरह खारिज (पलट) कर दिया था?", tag: "SSC CHSL / RRB ALP", o: ["कि प्रस्तावना एक कुंजी है", "कि प्रस्तावना संविधान का हिस्सा नहीं है", "कि संसद सर्वशक्तिमान है", "कि मौलिक अधिकार अपरिवर्तनीय हैं"], a: 1, e: "बेरुबारी केस में कहा गया था कि प्रस्तावना संविधान का भाग नहीं है, जिसे केशवानंद भारती केस में पलटते हुए इसे संविधान का 'अभिन्न अंग' स्वीकार किया गया।"},
+{q: "Q45. इस पेज के सबसे नीचे दिए गए बॉक्स 'प्रस्तावना की प्रवर्तनीयता' के अनुसार, प्रस्तावना की वास्तविक कानूनी उपयोगिता क्या है?", tag: "SSC CGL Tier-2", o: ["यह संसद को नए कानून बनाने की असीमित शक्ति देती है", "यह केवल संविधान की कानूनी व्याख्या में सहायक के रूप में मानी जा सकती है", "यह मौलिक अधिकारों को रद्द कर सकती है", "इसकी कोई कानूनी उपयोगिता नहीं है"], a: 1, e: "पेज की अंतिम लाइनों में स्पष्ट लिखा है कि यह विधायिका पर कोई प्रतिबंध या शक्ति तो नहीं लगाती, लेकिन संविधान की कानूनी व्याख्या करने में न्यायपालिका की मदद जरूर करती है।"}
+];
+let currentQ = 0, score = 0;
+let answered = new Array(data.length).fill(false);
+function showQ() {
+document.getElementById('q-text').innerText = data[currentQ].q;
+const tagBox=document.getElementById('exam-tag');
+if(tagBox){if(data[currentQ].tag){tagBox.innerText=data[currentQ].tag;tagBox.style.display='block';}else{tagBox.style.display='none';}}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerText = opt;
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score++;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+}
+answered[currentQ] = true;
+document.getElementById('feedback').innerHTML = "<b>व्याख्या:</b> " + data[currentQ].e;
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let wrong=attempted-score;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((score/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=score;
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=score;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+</script>
+</body>
+</html>
