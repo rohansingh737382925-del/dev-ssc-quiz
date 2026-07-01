@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
+background:transparent;opacity:0;pointer-events:none;transition:.25s;
+}
+#streakPopup.show{opacity:1;}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:absolute;width:10px;height:10px;border-radius:50%;
+background:#ffd54f;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container">
+<h2>DREAM TO DESTINY</h2>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+<div style="margin:16px 0;font-size:20px;">⏱️ <b id="timeTaken"></b></div>
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "Q1. भारतीय संविधान की प्रस्तावना (Preamble) के संबंध में निम्नलिखित में से कौन सा कथन सही नहीं है?", tag: "", o: ["यह संविधान का एक परिचयात्मक कथन है।", "इसमें संविधान का सार या सारांश निहित है।", "यह संविधान के दर्शन (philosophy) के बारे में बताता है।", "इसे संविधान पूरी तरह तैयार होने से पहले बनाया गया था।"], a: 3, e: "प्रस्तावना संविधान पूरी तरह तैयार होने के बाद बनाया गया था, न कि पहले।"},
+  {q: "Q2. संविधान सभा के समक्ष उद्देश्य प्रस्ताव (Objectives Resolution) कब प्रस्तुत किया गया था?", tag: "", o: ["13 दिसंबर, 1946", "22 जनवरी, 1947", "26 नवंबर, 1949", "9 दिसंबर, 1946"], a: 0, e: "जवाहरलाल नेहरू द्वारा संविधान सभा के समक्ष उद्देश्य प्रस्ताव 13 दिसंबर, 1946 को प्रस्तुत किया गया था।"},
+  {q: "Q3. उद्देश्य प्रस्ताव (Objectives Resolution) को संविधान सभा द्वारा कब अपनाया गया था?", tag: "", o: ["13 दिसंबर, 1946", "22 जनवरी, 1947", "26 जनवरी, 1950", "26 नवंबर, 1949"], a: 1, e: "उद्देश्य प्रस्ताव को संविधान सभा द्वारा 22 जनवरी, 1947 को अपनाया गया था।"},
+  {q: "Q4. 'संविधान की पहचान पत्र' (Identity card of the Constitution) के रूप में संविधान की प्रस्तावना का वर्णन किसने किया है?", tag: "", o: ["के.एम. मुंशी", "पंडित ठाकुरदास", "एन. ए. पालकीवाला", "बी. आर. अंबेडकर"], a: 2, e: "एन. ए. पालकीवाला ने प्रस्तावना को संविधान का 'पहचान पत्र' कहा था।"},
+  {q: "Q5. संविधान की प्रस्तावना को 'राजनीतिक कुंडली' (Political horoscope) किसने कहा था?", tag: "", o: ["पंडित ठाकुरदास", "के.एम. मुंशी", "एन. ए. पालकीवाला", "जवाहरलाल नेहरू"], a: 1, e: "प्रस्तावना को 'संविधान की राजनीतिक कुंडली' के.एम. मुंशी ने कहा था।"},
+  {q: "Q6. प्रस्तावना का 'आभूषण समूह' (Ornaments collection) किसे माना जाता है?", tag: "", o: ["पंडित ठाकुरदास", "के.एम. मुंशी", "एन. ए. पालकीवाला", "डॉ. राजेंद्र प्रसाद"], a: 0, e: "पंडित ठाकुरदास ने प्रस्तावना को संविधान का 'आभूषण' या 'आभूषण समूह' कहा था।"},
+  {q: "Q7. भारतीय संविधान की प्रस्तावना में 'संविधान की शक्ति का स्रोत' (Source of authority) किसे बताया गया है?", tag: "", o: ["संविधान सभा", "भारत की जनता (हम, भारत के लोग)", "संसद", "सर्वोच्च न्यायालय"], a: 1, e: "प्रस्तावना में 'हम, भारत के लोग' शब्दावली यह दर्शाती है कि संविधान लोगों द्वारा अपने प्रतिनिधियों के माध्यम से तैयार और अधिनियमित किया गया है।"},
+  {q: "Q8. भारतीय संविधान के अंतर्गत 'संप्रभुता' (Sovereignty) का क्या अर्थ है?", tag: "", o: ["आंतरिक मामलों में निर्णय लेने का सर्वोच्च अधिकार।", "बाहरी मामलों में निर्णय लेने का सर्वोच्च अधिकार।", "केवल आंतरिक मामलों में निर्णय लेने का अधिकार।", "आंतरिक और बाहरी मामलों में निर्णय लेने का सर्वोच्च अधिकार।"], a: 3, e: "संप्रभुता का अर्थ है कि भारत सरकार को कोई भी बाहरी शक्ति निर्देशित नहीं कर सकती और भारत के पास आंतरिक व बाहरी मामलों में निर्णय लेने का सर्वोच्च अधिकार है।"},
+  {q: "Q9. भारतीय संविधान में वर्णित 'समाजवादी' (Socialist) स्वरूप का मुख्य उद्देश्य क्या है?", tag: "", o: ["धन का केंद्रीकरण करना।", "सामाजिक-आर्थिक असमानताओं को कम करना।", "केवल सरकारी क्षेत्र को बढ़ावा देना।", "निजी उद्योगों को समाप्त करना।"], a: 1, e: "समाजवादी स्वरूप का अर्थ है कि धन सामाजिक रूप से उत्पन्न होता है और इसे समाज द्वारा समान रूप से साझा किया जाना चाहिए, जिससे सामाजिक-आर्थिक असमानताएँ कम हों।"},
+  {q: "Q10. भारतीय संविधान में 'धर्मनिरपेक्षता' (Secularism) का स्वरूप कैसा है?", tag: "", o: ["राज्य का अपना आधिकारिक धर्म है।", "राज्य धार्मिक मामलों में पूर्णतः तटस्थ है।", "भारत में धर्मनिरपेक्षता एक सकारात्मक अवधारणा है।", "राज्य धर्म के आधार पर भेदभाव करता है।"], a: 2, e: "भारत में धर्मनिरपेक्षता एक सकारात्मक अवधारणा है जहाँ राज्य धार्मिक मामलों में भागीदारी (हस्तक्षेप/सहयोग) करता है।"},
+  {q: "Q11. भारतीय संविधान के अनुसार, 'गणतंत्र' (Republic) प्रणाली में क्या आवश्यक है?", tag: "", o: ["राज्य का मुखिया वंशानुगत आधार पर चुना जाता है।", "राज्य का मुखिया जनता द्वारा चुना जाता है।", "संसद में केवल चुने हुए सदस्य होते हैं।", "प्रधानमंत्री का पद वंशानुगत होता है।"], a: 1, e: "गणतंत्र का अर्थ है कि राज्य का मुखिया (राष्ट्रपति) जनता द्वारा चुना जाता है, न कि वंशानुगत उत्तराधिकार के आधार पर।"},
+  {q: "Q12. प्रस्तावना में कितने प्रकार के 'न्याय' (Justice) का उल्लेख किया गया है?", tag: "", o: ["दो", "तीन", "चार", "पाँच"], a: 1, e: "प्रस्तावना में तीन प्रकार के न्याय: सामाजिक, आर्थिक और राजनीतिक का उल्लेख है।"},
+  {q: "Q13. प्रस्तावना में स्वतंत्रता के कितने रूपों का उल्लेख है?", tag: "", o: ["तीन", "चार", "पाँच", "छह"], a: 2, e: "प्रस्तावना में विचारों, अभिव्यक्ति, विश्वास, धर्म और उपासना की स्वतंत्रता का उल्लेख है।"},
+  {q: "Q14. 'स्वतंत्रता, समानता और बंधुत्व' (Liberty, Equality and Fraternity) के आदर्श भारतीय संविधान ने किस देश के संविधान से लिए हैं?", tag: "", o: ["सोवियत संघ (रूस)", "फ्रांस", "अमेरिका", "ब्रिटेन"], a: 1, e: "स्वतंत्रता, समानता, बंधुत्व और गणराज्य शब्द फ्रांस की क्रांति से प्रेरित हैं।"},
+  {q: "Q15. 'न्याय' के आदर्शों को भारतीय संविधान ने किस देश के संविधान से लिया है?", tag: "", o: ["सोवियत संघ (रूस)", "फ्रांस", "अमेरिका", "ब्रिटेन"], a: 0, e: "सामाजिक, आर्थिक और राजनीतिक न्याय का आदर्श रूसी क्रांति (1917) से लिया गया है।"},
+  {q: "Q16. बेरुबारी संघ मामला (Berubari Union case) किस वर्ष का है?", tag: "", o: ["1960", "1973", "1995", "1950"], a: 0, e: "बेरुबारी संघ मामला 1960 में सर्वोच्च न्यायालय के समक्ष आया था।"},
+  {q: "Q17. बेरुबारी संघ मामले (1960) में सर्वोच्च न्यायालय ने प्रस्तावना के बारे में क्या निर्णय दिया था?", tag: "", o: ["यह संविधान का हिस्सा है और इसे संशोधित किया जा सकता है।", "यह संविधान का हिस्सा नहीं है और इसे संशोधित नहीं किया जा सकता।", "यह संविधान की कुंजी है और इसे संशोधित किया जा सकता है।", "यह कानून द्वारा लागू करने योग्य है।"], a: 1, e: "बेरुबारी मामले में न्यायालय ने माना कि प्रस्तावना संविधान का हिस्सा नहीं है और इसे संशोधित नहीं किया जा सकता।"},
+  {q: "Q18. किस ऐतिहासिक मामले में सर्वोच्च न्यायालय ने बेरुबारी मामले के दृष्टिकोण को खारिज करते हुए माना कि प्रस्तावना संविधान का एक हिस्सा है?", tag: "", o: ["मिनर्वा मिल्स मामला", "केशवानंद भारती मामला", "भारतीय जीवन बीमा निगम (LIC) मामला", "गोलकनाथ मामला"], a: 1, e: "केशवानंद भारती मामले (1973) में सर्वोच्च न्यायालय ने माना कि प्रस्तावना संविधान का हिस्सा है।"},
+  {q: "Q19. 42वें संविधान संशोधन अधिनियम (1976) के माध्यम से प्रस्तावना में कौन से नए शब्द जोड़े गए थे?", tag: "", o: ["अखंडता, समाजवादी, पंथनिरपेक्ष (धर्मनिरपेक्ष)", "बंधुत्व, संप्रभुता, न्याय", "समानता, स्वतंत्रता, लोकतंत्र", "गणराज्य, न्याय, सुरक्षा"], a: 0, e: "1976 के 42वें संशोधन द्वारा अखंडता, समाजवादी और धर्मनिरपेक्ष शब्द जोड़े गए थे।"},
+  {q: "Q20. प्रस्तावना की प्रवर्तनीयता (Justiciability) के संबंध में निम्नलिखित में से कौन सा कथन सही है?", tag: "", o: ["यह न्यायालय में प्रवर्तनीय (justiciable) है।", "यह न्यायालय में प्रवर्तनीय नहीं है।", "यह कानून की व्याख्या में सहायक नहीं है।", "यह केवल आपातकाल में लागू होती है।"], a: 1, e: "प्रस्तावना न्यायालय में प्रवर्तनीय नहीं है, न ही यह विधायिका पर कोई प्रतिबंध लगाती है।"}
+];
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+function showQ() {
+document.getElementById('q-text').innerText = data[currentQ].q;
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerText=data[currentQ].tag;tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerText = opt;
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="👑 10 Correct Streak!";
+else if(currentStreak===15) msg="💯 15 Correct Streak!";
+else if(currentStreak===20) msg="⚡ 20 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Legend!':
+currentStreak===15?'Unstoppable!':
+'Ultimate Master!'
+);
+}
+}else{
+currentStreak=0;
+}
+answered[currentQ] = true;
+document.getElementById('feedback').innerHTML = "<b>व्याख्या:</b> " + data[currentQ].e;
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+</script>
+</body>
+</html>
