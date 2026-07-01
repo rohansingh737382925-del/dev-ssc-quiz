@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
+background:transparent;opacity:0;pointer-events:none;transition:.25s;
+}
+#streakPopup.show{opacity:1;}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:absolute;width:10px;height:10px;border-radius:50%;
+background:#ffd54f;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container">
+<h2>DREAM TO DESTINY</h2>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+<div style="margin:16px 0;font-size:20px;">⏱️ <b id="timeTaken"></b></div>
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "Q1. भारत के संविधान की प्रकृति के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए: (1)भारत का संविधान पूर्ण रूप से कठोर है। (2)भारत का संविधान आंशिक रूप से लचीला है। उपर्युक्त में से कौन-सा/से कथन सही है/हैं?", tag: "", o: ["केवल 1", "केवल 2", "1 और 2 दोनों", "न तो 1 और न ही 2"], a: 1, e: "भारत का संविधान आंशिक रूप से कठोर और आंशिक रूप से लचीला है।"},
+  {q: "Q2. संयुक्त राज्य अमेरिका (United States of America) की स्वतंत्रता किस वर्ष में हुई थी?", tag: "", o: ["1776", "1787", "1789", "1791"], a: 0, e: "संयुक्त राज्य अमेरिका की स्वतंत्रता 4 जुलाई 1776 को हुई थी।"},
+  {q: "Q3. निम्नलिखित में से किस प्रकार की सरकार में शासक का नागरिकों के जीवन पर पूर्ण नियंत्रण होता है?", tag: "", o: ["साम्यवादी (Communist)", "अल्पतंत्र (Oligarchic)", "सर्वसत्तावादी (Totalitarian)", "राजशाही (Monarchic)"], a: 2, e: "सर्वसत्तावादी (Totalitarian) सरकार का तात्पर्य है कि जो भी शासक है, उसका नागरिकों के जीवन पर पूर्ण नियंत्रण होता है।"},
+  {q: "Q4. 1928 में लखनऊ में आयोजित सर्वदलीय सम्मेलन (All-Party Conference) द्वारा प्रस्तुत भारतीय संविधान के प्रारंभिक प्रारूप, जिसे नेहरू रिपोर्ट के नाम से जाना जाता है, की अध्यक्षता किसने की थी?", tag: "", o: ["जवाहरलाल नेहरू", "मोतीलाल नेहरू", "एम. एन. रॉय", "सी. राजगोपालाचारी"], a: 1, e: "1928 में प्रस्तुत नेहरू रिपोर्ट की अध्यक्षता मोतीलाल नेहरू ने की थी।"},
+  {q: "Q5. भारत के लिए संविधान सभा (Constituent Assembly) का विचार सर्वप्रथम किसने प्रस्तुत किया था?", tag: "", o: ["भारतीय राष्ट्रीय कांग्रेस", "महात्मा गांधी", "मोतीलाल नेहरू", "एम. एन. रॉय"], a: 3, e: "1934 में एम. एन. रॉय ने पहली बार भारत के लिए संविधान सभा का विचार प्रस्तुत किया था।"},
+  {q: "Q6. कैबिनेट मिशन योजना (Cabinet Mission Plan) के तहत संविधान सभा के लिए कुल कितनी सीटें आवंटित की गई थीं?", tag: "", o: ["296", "299", "389", "392"], a: 2, e: "कैबिनेट मिशन योजना के तहत कुल 389 सीटें आवंटित की गई थीं।"},
+  {q: "Q7. कैबिनेट मिशन योजना के अंतर्गत, संविधान सभा में ब्रिटिश प्रांतों (British Provinces) के लिए कितनी सीटें निर्धारित की गई थीं?", tag: "", o: ["93", "292", "296", "389"], a: 2, e: "कैबिनेट मिशन योजना के अनुसार 296 सीटें ब्रिटिश प्रांतों के लिए थीं, जिनमें से 292 गवर्नर के प्रांतों से और 4 चीफ कमिश्नर के प्रांतों से थे।"},
+  {q: "Q8. कैबिनेट मिशन योजना के अनुसार, संविधान सभा में रियासतों (Princely States) के प्रतिनिधियों का चयन कैसे किया जाना था?", tag: "", o: ["सीधे चुनाव द्वारा", "अप्रत्यक्ष चुनाव द्वारा", "गवर्नर द्वारा नामांकन", "शासकों द्वारा मनोनयन"], a: 3, e: "रियासतों की 93 सीटों पर प्रतिनिधियों का चुनाव नहीं होता था, उन्हें वहां के शासकों द्वारा मनोनीत किया जाता था।"},
+  {q: "Q9. कैबिनेट मिशन योजना के तहत संविधान सभा के चुनाव में किस पद्धति का उपयोग किया गया था?", tag: "", o: ["साधारण बहुमत प्रणाली", "आनुपातिक प्रतिनिधित्व और एकल संक्रमणीय मत", "प्रत्यक्ष निर्वाचन प्रणाली", "द्वितीय मतदान प्रणाली"], a: 1, e: "संविधान सभा के लिए चुनाव आनुपातिक प्रतिनिधित्व और एकल संक्रमणीय मत प्रणाली के माध्यम से हुआ था।"},
+  {q: "Q10. जुलाई-अगस्त 1946 में हुए संविधान सभा के चुनावों में भारतीय राष्ट्रीय कांग्रेस (INC) ने कितनी सीटें जीतीं?", tag: "", o: ["73", "208", "299", "389"], a: 1, e: "जुलाई-अगस्त 1946 के चुनावों में कांग्रेस ने 208 सीटें जीतीं।"},
+  {q: "Q11. 'डोमिनियन स्टेटस' (Dominion Status) का मुख्य अर्थ क्या है?", tag: "", o: ["पूर्ण स्वतंत्रता और संप्रभुता", "विदेशी मामलों का पूर्ण नियंत्रण", "ब्रिटिश साम्राज्य का हिस्सा बने रहने के दौरान स्व-शासन का अधिकार", "केवल आर्थिक स्वतंत्रता"], a: 2, e: "डोमिनियन स्टेटस का अर्थ उस अधिकार से है जिसके तहत ब्रिटिश साम्राज्य का हिस्सा बने रहने के दौरान स्व-शासन की अनुमति प्राप्त होती है।"},
+  {q: "Q12. 2 सितंबर 1946 को गठित अंतरिम सरकार (Interim Government) में रक्षा मंत्री (Defence Minister) किसे बनाया गया था?", tag: "", o: ["सरदार वल्लभभाई पटेल", "बलदेव सिंह", "लियाकत अली खान", "जगजीवन राम"], a: 1, e: "अंतरिम सरकार में रक्षा विभाग का कार्यभार बलदेव सिंह के पास था।"},
+  {q: "Q13. अंतरिम सरकार में वित्त (Finance) विभाग का नेतृत्व किसके पास था?", tag: "", o: ["लियाकत अली खान", "डॉ. राजेन्द्र प्रसाद", "सी. राजगोपालाचारी", "जॉन मथाई"], a: 0, e: "अंतरिम सरकार में वित्त विभाग का जिम्मा मुस्लिम लीग के लियाकत अली खान को सौंपा गया था।"},
+  {q: "Q14. संविधान सभा में उद्देश्य प्रस्ताव (Objective Resolution) किसके द्वारा प्रस्तुत किया गया था?", tag: "", o: ["डॉ. राजेन्द्र प्रसाद", "जवाहरलाल नेहरू", "सी. राजगोपालाचारी", "सरदार वल्लभभाई पटेल"], a: 1, e: "जवाहरलाल नेहरू ने 13 दिसंबर 1946 को संविधान सभा के समक्ष उद्देश्य प्रस्ताव प्रस्तुत किया था।"},
+  {q: "Q15. संविधान सभा ने उद्देश्य प्रस्ताव (Objective Resolution) को कब स्वीकार किया?", tag: "", o: ["13 दिसंबर 1946", "2 सितंबर 1946", "22 जनवरी 1947", "15 अगस्त 1947"], a: 2, e: "संविधान सभा द्वारा उद्देश्य प्रस्ताव को 22 जनवरी 1947 को स्वीकार किया गया।"},
+  {q: "Q16. निम्नलिखित में से किस समिति के अध्यक्ष डॉ. राजेंद्र प्रसाद नहीं थे?", tag: "", o: ["संघ शक्ति समिति", "कार्यवाही नियम समिति", "संचालन समिति", "राष्ट्रीय ध्वज संबंधी तदर्थ समिति"], a: 0, e: "संघ शक्ति समिति के अध्यक्ष जवाहरलाल नेहरू थे, जबकि शेष तीनों समितियों के अध्यक्ष डॉ. राजेंद्र प्रसाद थे।"},
+  {q: "Q17. संविधान सभा की 'प्रान्तीय संविधान समिति' (Provincial Constitution Committee) के अध्यक्ष कौन थे?", tag: "", o: ["जवाहरलाल नेहरू", "सरदार पटेल", "डॉ. बी. आर. अंबेडकर", "अल्लादी कृष्णस्वामी अय्यर"], a: 1, e: "प्रान्तीय संविधान समिति और मौलिक अधिकार, अल्पसंख्यक एवं जनजातीय क्षेत्रों के लिए सलाहकार समिति के अध्यक्ष सरदार पटेल थे।"},
+  {q: "Q18. संविधान सभा की 'सदन समिति' (House Committee) के अध्यक्ष के रूप में किसे नियुक्त किया गया था?", tag: "", o: ["बी. पट्टाभि सीतारमैय्या", "जी. वी. मावलंकर", "एस. वरदाचारी", "उषा नाथ सेन"], a: 0, e: "सदन समिति और मुख्य आयुक्त प्रांतों की समिति के अध्यक्ष बी. पट्टाभि सीतारमैय्या थे।"},
+  {q: "Q19. संविधान के प्रारूप (Draft) पर चर्चा के संदर्भ में, पहला मसौदा कब प्रकाशित किया गया था?", tag: "", o: ["4 नवंबर 1948", "21 फरवरी 1948", "26 नवंबर 1949", "29 अगस्त 1947"], a: 1, e: "संविधान का पहला मसौदा 21 फरवरी 1948 को प्रकाशित हुआ था।"},
+  {q: "Q20. संविधान सभा के कुल सत्रों के आयोजन में कितने दिनों का समय लगा था?", tag: "", o: ["2 वर्ष 11 महीने 18 दिन", "165 दिन", "11 सत्र", "211 दिन"], a: 1, e: "संविधान सभा के कुल सत्रों का आयोजन 165 दिनों में किया गया था।"},
+  {q: "Q21. 26 नवंबर 1949 को संविधान के कौन से प्रावधान लागू किए गए थे?", tag: "", o: ["केवल मौलिक अधिकार", "नागरिकता और चुनाव संबंधी प्रावधान", "पूरे 395 अनुच्छेद", "राज्य के नीति निर्देशक तत्व"], a: 1, e: "26 नवंबर 1949 को नागरिकता (अनुच्छेद 5-9) और चुनाव (अनुच्छेद 324-329) संबंधी प्रावधान लागू किए गए थे।"},
+  {q: "Q22. भारत के संविधान को लागू करने के लिए 26 जनवरी की तिथि ही क्यों चुनी गई थी?", tag: "", o: ["क्योंकि इस दिन संविधान सभा की अंतिम बैठक हुई थी", "क्योंकि 1930 में इसी दिन लाहौर अधिवेशन के बाद पूर्ण स्वराज दिवस मनाया गया था", "क्योंकि इस दिन प्रथम राष्ट्रपति का चुनाव हुआ था", "क्योंकि इसी दिन भारत को डोमिनियन स्टेटस मिला था"], a: 1, e: "26 जनवरी 1930 को लाहौर अधिवेशन के बाद पूर्ण स्वराज दिवस मनाया गया था, इसलिए इसी तिथि को संविधान लागू करने हेतु चुना गया।"},
+  {q: "Q23. मूल संविधान (Original Constitution) में कुल कितने भाग (Parts) शामिल थे?", tag: "", o: ["22 भाग", "25 भाग", "12 भाग", "8 भाग"], a: 0, e: "मूल संविधान में 395 अनुच्छेद, 8 अनुसूचियां और 22 भाग शामिल थे।"},
+  {q: "Q24. संविधान सभा के अस्थाई अध्यक्ष (Temporary President) कौन थे?", tag: "", o: ["डॉ. राजेंद्र प्रसाद", "जी. वी. मावलंकर", "सच्चिदानंद सिन्हा", "एच. सी. मुखर्जी"], a: 2, e: "चुनाव से पूर्व सच्चिदानंद सिन्हा संविधान सभा के अस्थाई अध्यक्ष थे।"},
+  {q: "Q25. संविधान सभा ने भारत का राष्ट्रगान (National Anthem) कब अपनाया?", tag: "", o: ["22 जुलाई 1947", "24 जनवरी 1950", "26 जनवरी 1950", "15 अगस्त 1947"], a: 1, e: "संविधान सभा ने 24 जनवरी 1950 को राष्ट्रगान (जन गण मन) और राष्ट्रगीत (वंदे मातरम) को अपनाया।"},
+  {q: "Q26. प्रारूप समिति (Drafting Committee) के गठन की तिथि क्या थी?", tag: "", o: ["29 अगस्त 1947", "15 अगस्त 1947", "26 नवंबर 1949", "4 नवंबर 1948"], a: 0, e: "प्रारूप समिति की स्थापना 29 अगस्त 1947 को हुई थी।"},
+  {q: "Q27. प्रारूप समिति में डॉ. बी. आर. अंबेडकर के अलावा कुल कितने सदस्य थे?", tag: "", o: ["6", "7", "8", "5"], a: 0, e: "प्रारूप समिति में कुल 7 सदस्य थे (अध्यक्ष सहित), अतः अध्यक्ष को छोड़कर सदस्यों की संख्या 6 थी।"},
+  {q: "Q28. संविधान सभा के संवैधानिक सलाहकार (Legal Advisor) के रूप में किसे नियुक्त किया गया था?", tag: "", o: ["एस. एन. मुखर्जी", "बी. एन. राव", "एच. वी. अयंगर", "प्रेम बिहारी नारायण रायज़ादा"], a: 1, e: "संविधान सभा के कानूनी/संवैधानिक सलाहकार बी. एन. राव थे।"},
+  {q: "Q29. भारतीय संविधान पर हस्ताक्षर करने वाले कुल सदस्यों की संख्या कितनी थी?", tag: "", o: ["389", "299", "284", "211"], a: 2, e: "संविधान पर हस्ताक्षर करने वाले सदस्यों की कुल संख्या 284 थी, जिसमें 15 महिला सदस्य भी शामिल थीं।"},
+  {q: "Q30. संविधान सभा की अंतिम बैठक में किस तिथि को हस्ताक्षर किए गए थे?", tag: "", o: ["26 नवंबर 1949", "24 जनवरी 1950", "26 जनवरी 1950", "15 अगस्त 1947"], a: 1, e: "संविधान सभा की अंतिम बैठक में 24 जनवरी 1950 को हस्ताक्षर किए गए थे।"},
+  {q: "Q31. भारतीय संविधान की मूल प्रति के हिंदी सुलेखन (Calligrapher) कौन थे?", tag: "", o: ["प्रेम बिहारी नारायण रायज़ादा", "वसंत कृष्ण वैद्य", "नंद लाल बोस", "व्योहार राममनोहर सिन्हा"], a: 1, e: "संविधान की मूल प्रति का हिंदी सुलेखन वसंत कृष्ण वैद्य ने किया था, जबकि अंग्रेजी सुलेखन प्रेम बिहारी नारायण रायज़ादा द्वारा किया गया था।"},
+  {q: "Q32. भारतीय संविधान की मूल प्रति की चित्रकारी (Decoration/Illustration) में निम्नलिखित में से कौन शामिल थे?", tag: "", o: ["नंद लाल बोस और वसंत कृष्ण वैद्य", "नंद लाल बोस और व्योहार राममनोहर सिन्हा", "व्योहार राममनोहर सिन्हा और एस. एन. मुखर्जी", "प्रेम बिहारी नारायण रायज़ादा और नंद लाल बोस"], a: 1, e: "संविधान की मूल प्रति की चित्रकारी नंद लाल बोस और व्योहार राममनोहर सिन्हा द्वारा की गई थी।"},
+  {q: "Q33. भारतीय संविधान का प्रतीक चिह्न (Symbol) क्या है?", tag: "", o: ["कमल", "अशोक चक्र", "हाथी", "शेर"], a: 2, e: "भारत का संविधान सबसे बड़ा लिखित संविधान है और इसका प्रतीक चिह्न 'हाथी' है।"},
+  {q: "Q34. निम्नलिखित में से कौन सा युग्म सही सुमेलित है?", tag: "", o: ["राजकुमारी अमृत कौर - उत्तर प्रदेश की प्रथम महिला मुख्यमंत्री", "सुचेता कृपलानी - उत्तर प्रदेश की प्रथम राज्यपाल", "सरोजिनी नायडू - उत्तर प्रदेश की प्रथम राज्यपाल", "सरोजिनी नायडू - प्रथम स्वास्थ्य मंत्री"], a: 2, e: "सरोजिनी नायडू उत्तर प्रदेश की प्रथम राज्यपाल थीं, जबकि राजकुमारी अमृत कौर प्रथम स्वास्थ्य मंत्री और सुचेता कृपलानी उत्तर प्रदेश की प्रथम महिला मुख्यमंत्री थीं।"}
+];
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+function showQ() {
+document.getElementById('q-text').innerText = data[currentQ].q;
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerText=data[currentQ].tag;tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerText = opt;
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="👑 10 Correct Streak!";
+else if(currentStreak===15) msg="💯 15 Correct Streak!";
+else if(currentStreak===20) msg="⚡ 20 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Legend!':
+currentStreak===15?'Unstoppable!':
+'Ultimate Master!'
+);
+}
+}else{
+currentStreak=0;
+}
+answered[currentQ] = true;
+document.getElementById('feedback').innerHTML = "<b>व्याख्या:</b> " + data[currentQ].e;
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+</script>
+</body>
+</html>
