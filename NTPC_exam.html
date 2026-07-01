@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
+background:transparent;opacity:0;pointer-events:none;transition:.25s;
+}
+#streakPopup.show{opacity:1;}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:absolute;width:10px;height:10px;border-radius:50%;
+background:#ffd54f;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container">
+<h2>DREAM TO DESTINY</h2>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+<div style="margin:16px 0;font-size:20px;">⏱️ <b id="timeTaken"></b></div>
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+{q:"Q.1 10 पुरुष और 15 महिलाएं मिलकर एक परियोजना को 12 दिनों में पूरा कर सकते हैं। यदि 8 दिनों के बाद कार्य का केवल \\frac{2}{3} भाग पूरा हुआ है, तो अगले 2 दिनों में कार्य पूरा करने के लिए कितनी और महिलाओं को शामिल करना होगा, यह मानते हुए कि सभी पुरुष काम करते रहेंगे?", tag:"RRB NTPC UnderGraduate CBT I", o:["25", "30", "35", "20"], a:0, e:""},
+{q:"Q.2 23^{3}+(-15)^{3}+(-8)^{3} का मान ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["8050", "8059", "8280", "8133"], a:2, e:""},
+{q:"Q.3 2\\frac{1}{4}\\div2\\frac{2}{5}-2\\frac{1}{4} of 3\\frac{1}{5}) का मान ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["-2.95", "2.95", "-1.48", "1.48"], a:0, e:""},
+{q:"Q.4 120 m और 180m लंबाई की दो ट्रेनें एक ही दिशा में क्रमशः 60 km/h और 40 km/h की चाल से चल रही हैं। ट्रेनों द्वारा एक-दूसरे को पार करने में लगने वाला समय ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["54 सेकंड", "76.9 सेकंड", "59.3 सेकंड", "67.9 सेकंड"], a:0, e:""},
+{q:"Q.5 एक सेल के दौरान, 50% माल 12% के लाभ पर बेचा जाता है, शेष माल का 40% माल 16% के लाभ पर बेचा जाता है और शेष माल 19% की हानि पर बेचा जाता है। यदि कुल लाभ x% है, तो x का मान कितना होगा?", tag:"RRB NTPC UnderGraduate CBT I", o:["4.5", "3.5", "5.5", "2.5"], a:1, e:""},
+{q:"Q.6 \\frac{\\frac{12}{24}}{\\frac{12}{6}}\\div(\\frac{2}{9}\\times\\frac{18}{6}+\\frac{4}{8})+\\frac{6}{9}\\div\\frac{28}{11}of\\frac{11}{9}= सरलीकृत मान ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["\\frac{4}{3}", "\\frac{1}{6}", "\\frac{3}{7}", "\\frac{11}{2}"], a:2, e:""},
+{q:"Q.7 समतल भूमि पर 10m और 30 m लंबाई के दो खंभे एक-दूसरे से d दूरी पर लंबवत खड़े हैं। उनके बीच स्थित एक बिंदु से, उनके आधारों को जोड़ने वाली रेखा के अनुदिश, लंबे और छोटे खंभों के शिखरों के उन्नयन कोण क्रमशः 60° और 30° हैं। खंभों के बीच की दूरी d ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["30\\sqrt{3} मीटर", "20\\sqrt{3} मीटर", "25\\sqrt{3} मीटर", "10\\sqrt{3} मीटर"], a:1, e:""},
+{q:"Q.8 एक साइकिल सवार बिंदु A से B तक और फिर B से A तक एक ही मार्ग पर यात्रा करता है। जाते समय वह एक तिहाई दूरी 12 km/hr की चाल से और शेष दूरी 18 km/hr की चाल से तय करता है। लौटते समय वह आधी दूरी 9 km/hr की चाल से और शेष दूरी 18 km/hr की चाल से तय करता है। पूरी यात्रा के लिए औसत चाल (km/hr में) ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["11.5 km/hr", "9 km/hr", "13.5 km/hr", "15 km/hr"], a:2, e:""},
+{q:"Q.9 एक पिता की वर्तमान आयु उसके पुत्र की आयु की तिगुनी है। 15 वर्ष बाद पिता की आयु उसके पुत्र की आयु की दुगुनी होगी। पिता की वर्तमान आयु (वर्ष में) क्या है?", tag:"RRB NTPC UnderGraduate CBT I", o:["42", "52", "48", "45"], a:3, e:""},
+{q:"Q.10 6.5, 10.8, 20 और a का औसत 15 है, तो a का मान ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["21.7", "22.7", "23.7", "24.7"], a:1, e:""},
+{q:"Q.11 1.2 को सरल कीजिए। 0.3 5", tag:"RRB NTPC UnderGraduate CBT I", o:["3.6", "4", "3.4", "3.2"], a:0, e:""},
+{q:"Q.12 ₹3,000 की धनराशि पर 20% वार्षिक ब्याज दर से 2 वर्ष के लिए चक्रवृद्धि ब्याज कितना होगा जबकि ब्याज वार्षिक रूप से संयोजित किया जाता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["₹1,440", "₹1,320", "₹1,200", "₹1,300"], a:1, e:""},
+{q:"Q.13 गिरीश ने एक परीक्षा में 448 अंक प्राप्त किए, जो अधिकतम अंकों के 46% से 81 अंक कम थे। उसी परीक्षा में उसके मित्र ने 805 अंक प्राप्त किए। उसके मित्र द्वारा प्राप्त अंकों का प्रतिशत कितना है?", tag:"RRB NTPC UnderGraduate CBT I", o:["70%", "72%", "71%", "67%"], a:0, e:""},
+{q:"Q.14 निम्नलिखित आंकड़ों में 15 विद्यार्थियों द्वारा गणित की परीक्षा पूरी करने में लगने वाले मिनटों की संख्या: 42, 38, 55, 47, 50, 44, 60, 39, 48, 52, 45, 41, 49, 46, 53 दर्शाई गई है। विद्यार्थियों द्वारा लिए गए समय की माध्यिका ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["46 मिनट", "48 मिनट", "47.5 मिनट", "47 मिनट"], a:3, e:""},
+{q:"Q.15 स्कूल ड्रम प्रत्येक 12 मिनट में बजता है और स्कूल बेल प्रत्येक 18 मिनट में बजती है। यदि दोनों 9:00 AM पर एक साथ बजते हैं, तो 11:00 AM से पहले वे कितनी बार पुनः एक साथ बजेंगे?", tag:"RRB NTPC UnderGraduate CBT I", o:["3", "5", "4", "6"], a:0, e:""},
+{q:"Q.16 एक धनराशि वार्षिक रूप से संयोजित होने वाले वार्षिक चक्रवृद्धि ब्याज की समान दर से 2 वर्षों में ₹7,865 और 3 वर्षों में ₹8,651.50 हो जाती है। वह धनराशि ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["₹7,200", "₹7,000", "₹6,800", "₹6,500"], a:3, e:""},
+{q:"Q.17 ₹8,400 का पुरस्कार, A और B के बीच 3:5 के अनुपात में बांटा जाना है। B का हिस्सा ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["₹5,200", "₹5,000", "₹5,150", "₹5,250"], a:3, e:""},
+{q:"Q.18 दो अंकों की एक संख्या के अंकों का योग 11 है। यदि अंकों को उत्क्रमित कर दिया जाए, तो नई संख्या वास्तविक संख्या से 27 अधिक होती है। वास्तविक संख्या ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["47", "56", "38", "65"], a:0, e:""},
+{q:"Q.19 यदि 2, x और 18 वितत समानुपात (continued proportion) में हैं, तो x का धनात्मक मान ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["9", "4", "6", "12"], a:0, e:""},
+{q:"Q.20 एक व्यक्ति दो वस्तुएँ, एक 20% लाभ पर और दूसरी 10% हानि पर बेचता है। यदि दोनों वस्तुओं की लागत ₹100 प्रत्येक है, तो कुल लाभ या हानि प्रतिशत ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["10% लाभ", "10% हानि", "5% लाभ", "5% हानि"], a:2, e:""},
+{q:"Q.21 A और B एक काम को क्रमशः 12 और 12 दिनों में पूरा कर सकते हैं। दोनों 3 दिन तक काम करते हैं और फिर A काम छोड़कर चला जाता है। शेष काम को पूरा करने में B को कितने दिन लगेंगे?", tag:"RRB NTPC UnderGraduate CBT I", o:["8", "5", "6", "7"], a:2, e:""},
+{q:"Q.22 पानी की एक बेलनाकार टंकी की त्रिज्या 7 cm और ऊँचाई 10 cm है। इसका आयतन ज्ञात कीजिए। (rt= 22/7 का प्रयोग कीजिए)", tag:"RRB NTPC UnderGraduate CBT I", o:["2200~cm^{3}", "440 cm³", "1540~cm^{3}", "700~cm^{3}"], a:2, e:""},
+{q:"Q.23 एक गोलाकार टैंक की त्रिज्या 2 मीटर है। यदि टैंक को उसके कुल आयतन के 80% तक पानी से भर दिया जाए, तो टैंक में पानी का आयतन कितना (निकटतम घन मीटर में पूर्णांकित) होगा?", tag:"RRB NTPC UnderGraduate CBT I", o:["21", "33", "38", "27"], a:3, e:""},
+{q:"Q.24 चार अंकों की वह सबसे बड़ी संख्या ज्ञात कीजिए, जिसे 14, 15 और 8 से भाग देने पर प्रत्येक स्थिति में शेषफल 4 प्राप्त हो?", tag:"RRB NTPC UnderGraduate CBT I", o:["9199", "9686", "9196", "9244"], a:3, e:""},
+{q:"Q.25 एक दुकानदार एक ही अंकित मूल्य वाले खिलौनों पर निम्नलिखित स्कीमें प्रदान करता है-\n(A) कितनी भी संख्या में खरीदे गए खिलौनों पर 5% और 21% की क्रमिक छूट\n(B) कितनी भी संख्या में खरीदे गए खिलौनों पर 38%, 33% और 21% की क्रमिक छूट\n(C) पहले 6 खिलौनों पर 8% की छूट और उसके बाद प्रत्येक खिलौने पर 27% की छूट\n(D) 7 खिलौने खरीदने पर 3 खिलौने मुफ्त\nएक ग्राहक 7 खिलौने खरीदना चाहती है। ऊपर दी गई स्कीमों में से कौन-सी स्कीम उसके लिए सबसे कम लाभप्रद है?", tag:"RRB NTPC UnderGraduate CBT I", o:["C", "A", "B", "D"], a:1, e:""},
+{q:"Q.26 एक थोक विक्रेता ₹80,000 अंकित मूल्य वाले सोफा सेट के लिए दो विकल्प प्रदान करता है: या तो 30% की फ्लैट छूट, या 20% और 12% की दो क्रमिक छूट। दोनों विकल्पों के बीच विक्रय मूल्य में कितना अंतर है?", tag:"RRB NTPC UnderGraduate CBT I", o:["₹400", "₹320", "₹480", "₹240"], a:1, e:""},
+{q:"Q.27 निम्नलिखित में से कौन-sa संख्या, 7 से विभाज्य है?", tag:"RRB NTPC UnderGraduate CBT I", o:["24017", "24019", "21234", "23452"], a:0, e:""},
+{q:"Q.28 ₹2,288 को पंकज, मीरा और अशोक के बीच इस प्रकार विभाजित किया जाता है कि यदि उनके हिस्सों में से क्रमशः ₹39, ₹47 और ₹40 घटा दिए जाएं, तो उनके पास शेष राशियों का अनुपात 17:15:14 हो जाता है। कटौती के बाद मीरा का हिस्सा ज्ञात कीजिए।", tag:"RRB NTPC UnderGraduate CBT I", o:["₹705", "₹605", "₹805", "₹855"], a:1, e:""},
+{q:"Q.29 वर्ष के आरंभ में किसी कस्बे की जनसंख्या 5,000 थी। पहले वर्ष के दौरान, जनसंख्या में 10% की कमी आई। अगले वर्ष, जनसंख्या में 20% की वृद्धि हुई। दो वर्ष के अंत में कस्बे की जनसंख्या कितनी थी?", tag:"RRB NTPC UnderGraduate CBT I", o:["5400", "5200", "5500", "5800"], a:1, e:""},
+{q:"Q.30 यदि एक समद्विबाहु त्रिभुज का एक कोण 110° है, तो त्रिभुज के अन्य कोणों का माप क्या होगा?", tag:"RRB NTPC UnderGraduate CBT I", o:["25° और 25°", "25° और 35°", "35° और 35°", "25° और 45°"], a:2, e:""},
+{q:"Q.31 सतत विकास रिपोर्ट 2025 के सितंबर-अक्टूबर 2025 के कवरेज में रेखांकित किए गए तथ्यों के अनुसार, UN SDG सूचकांक 2025 में भारत का स्थान और स्कोर क्या था?", tag:"RRB NTPC UnderGraduate CBT I", o:["99 स्थान और लगभग 67 अंकों का समग्र SDG सूचकांक स्कोर", "89वां स्थान और लगभग 69 अंकों का समग्र SDG सूचकांक स्कोर", "109वां स्थान और लगभग 65 अंकों का समग्र SDG सूचकांक स्कोर", "79वां स्थान और लगभग 71 अंकों का समग्र SDG सूचकांक स्कोर"], a:2, e:""},
+{q:"Q.32 2025 की रिपोर्ट के अनुसार, कौन-सा नॉर्डिक देश खुशहाली के मामले में लगातार शीर्ष पर रहता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["नॉर्वे", "फिनलैंड", "swedan", "आइसलैंड"], a:1, e:""},
+{q:"Q.33 किस देश ने भारत को प्रोजेक्ट चीता के अगले चरण के लिए आठ चीते उपहार में दिए हैं, जैसा कि नवंबर 2025 में मोकोलोडी नेचर रिजर्व में एक प्रतीकात्मक रिलीज के दौरान देखा गया था?", tag:"RRB NTPC UnderGraduate CBT I", o:["बोत्सवाना", "नामीबिया", "दक्षिण अफ्रीका", "केन्या"], a:0, e:""},
+{q:"Q.34 निम्नलिखित में से कौन-सा उद्योग, कपास को अपने मुख्य कच्चे माल के रूप में उपयोग करता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["लोहा एवं इस्पात उद्योग", "खनन उद्योग", "सीमेंट उद्योग", "वस्त्र उद्योग"], a:3, e:""},
+{q:"Q.35 माइक्रोसॉफ्ट वर्ड 2016 और उसके बाद के संस्करणों में, जब कई पैराग्राफ में विस्तारित टेक्स्ट को हाइलाइट किया जाता है और उपयोगकर्ता Ctrl + C प्रेस करता है, तो कौन-सा ऑपरेशन किया जाता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["हाइलाइट किए गए पैराग्राफ को क्लिपबोर्ड में स्थानांतरित करता है ताकि डुप्लिकेशन (duplication) कहीं और हो सके", "हाइलाइट किए गए पैराग्राफों को स्थायी रूप से इरेज़ (erase) कर देता है", "पूरे डॉक्यूमेंट को अपडेट किए गए पैराग्राफ के साथ ऑटोमैटिक रूप से सेव कर देता है", "पैराग्राफों को तुरंत डॉक्यूमेंट के प्रारंभ में इन्सर्ट कर देता है"], a:0, e:""},
+{q:"Q.36 अम्लीय मृदा को प्रभावी रूप से उदासीन करने के लिए निम्नलिखित में से किस पदार्थ को मिलाना चाहिए?", tag:"RRB NTPC UnderGraduate CBT I", o:["साधारण नमक", "बेकिंग सोडा (सोडियम बाइकार्बोनेट)", "बिना बुझा चूना (कैल्शियम ऑक्साइड)", "सिरका (चूना)"], a:2, e:""},
+{q:"Q.37 मार्च 2025 में, किस राज्य सरकार ने कोचिंग सेंटर (नियंत्रण एवं विनियमन) विधेयक 2025 पारित किया है, जिसका उद्देश्य राज्य भर में कोचिंग सेंटरों को विनियमित करना है?", tag:"RRB NTPC UnderGraduate CBT I", o:["आंध्र प्रदेश", "मध्य-प्रदेश", "केरल", "राजस्थान"], a:3, e:""},
+{q:"Q.38 मौलिक कर्तव्यों पर वर्मा समिति की रिपोर्ट केंद्र सरकार को कब सौंपी गई थी?", tag:"RRB NTPC UnderGraduate CBT I", o:["2000", "1999", "1998", "2001"], a:1, e:""},
+{q:"Q.39 अलाउद्दीन खिलजी के दक्कन अभियानों को सफलतापूर्वक क्रियान्वित करने के लिए उत्तरदायी महान सेनापति कौन था?", tag:"RRB NTPC UnderGraduate CBT I", o:["मलिक काफूर", "कुतुबुद्दीन ऐबक", "गियासुद्दीन तुगलक", "बलबन"], a:0, e:""},
+{q:"Q.40 वैश्विक व्यापार सहभागिता को बढ़ावा देने के लिए भारत, विश्व व्यापार संगठन (WTO) का सदस्य बना। भारत किस वर्ष WTO में शामिल हुआ था?", tag:"RRB NTPC UnderGraduate CBT I", o:["1995", "1991", "1993", "2001"], a:0, e:""},
+{q:"Q.41 निम्नलिखित में से किस चार्टर अधिनियम ने भारत के साथ व्यापार पर ईस्ट इंडिया कंपनी के एकाधिकार को समाप्त कर दिया था?", tag:"RRB NTPC UnderGraduate CBT I", o:["1793 का चार्टर अधिनियम", "1833 का चार्टर अधिनियम", "1813 का चार्टर अधिनियम", "1853 का चार्टर अधिनियम"], a:2, e:""},
+{q:"Q.42 भारतीय संविधान के अनुसार, भारत के कार्यकारी मुख्य न्यायमूर्ति की नियुक्ति किस अनुच्छेद के अंतर्गत होती है?", tag:"RRB NTPC UnderGraduate CBT I", o:["अनुच्छेद 130", "अनुच्छेद 126", "अनुच्छेद 122", "अनुच्छेद 120"], a:1, e:""},
+{q:"Q.43 तराई बेल्ट का सबसे सटीक वर्णन निम्नलिखित में से कौन-सा है?", tag:"RRB NTPC UnderGraduate CBT I", o:["समुद्री निक्षेपों से बना तटीय मैदान", "उच्च जल स्तर और घने जंगलों वाला एक दलदली क्षेत्र", "ऊंचाई पर स्थित बर्फ से ढका मैदान", "चूना पत्थर के निक्षेपों से बना शुष्क क्षेत्र"], a:1, e:""},
+{q:"Q.44 निम्नलिखित में से किस अंतरराष्ट्रीय समझौते का उद्देश्य ओजोन क्षयकारी पदार्थों को चरणबद्ध तरीके से समाप्त करना है?", tag:"RRB NTPC UnderGraduate CBT I", o:["मॉन्ट्रियल प्रोटोकॉल (Montreal Protocol)", "रामसर कन्वेंशन (Ramsar Convention)", "पेरिस समझौता (Kyoto Protocol)", "क्योटो प्रोटोकॉल (Kyoto Protocol)"], a:0, e:""},
+{q:"Q.45 भौतिकी के एक प्रयोगशाला प्रयोग में तापमान को सही SI मात्रक का उपयोग करके मापना आवश्यक है। SI प्रणाली के अनुसार, तापमान की रीडिंग दर्ज करने के लिए छात्र को किस मात्रक का उपयोग करना चाहिए?", tag:"RRB NTPC UnderGraduate CBT I", o:["जूल", "केल्विन", "फारेनहाइट", "सेल्सियस"], a:1, e:""},
+{q:"Q.46 विदेशी नागरिकता कार्डधारकों को आजीवन वीजा सुविधा प्राप्त होती है, लेकिन वे भारत में निम्नलिखित में से कौन-सा अधिकार प्राप्त नहीं कर सकते हैं?", tag:"RRB NTPC UnderGraduate CBT I", o:["भारत में अध्ययन करना", "भारत में संपत्ति का स्वामी बनना", "मतदान करना या सरकारी नौकरी करना", "करों का भुगतान करना"], a:2, e:""},
+{q:"Q.47 जुआरी ज्वारनदमुख (Zuari estuary) के प्रवेश द्वार पर स्थित किस भारतीय बंदरगाह ने, जापान को लौह- अयस्क निर्यात का प्रहस्तन करने के लिए 1961 में किए गए पुनर्निर्माण के बाद महत्व प्राप्त किया?", tag:"RRB NTPC UnderGraduate CBT I", o:["कांडला बंदरगाह (Kandla Port)", "न्यू मैंगलोर बंदरगाह (New Mangalore Port)", "मोरमुगाओ बंदरगाह (Marmagao Port)", "जवाहरलाल नेहरू बंदरगाह (Jawaharlal Nehru Port)"], a:2, e:""},
+{q:"Q.48 निम्नलिखित में से कौन-सा सॉफ्टवेयर, सिस्टम को मेंटेन रखने और ऑप्टिमाइज करने में सहायता करता है जिसमें उदाहरण के लिए डिस्क क्लीनअप शामिल है?", tag:"RRB NTPC UnderGraduate CBT I", o:["फर्मवेयर", "यूटिलिटी सॉफ्टवेयर", "प्रोग्रामिंग सॉफ्टवेयर", "एप्लीकेशन सॉफ्टवेयर"], a:1, e:""},
+{q:"Q.49 भारत के निम्नलिखित में से किस राज्य में दिलवाड़ा मंदिर स्थित है, जो एक विशिष्ट स्थापत्य शैली को प्रदर्शित करता है जिसमें जैन, हिंदू और यहाँ तक कि मुगल शिल्प कौशल के तत्वों का भी मिश्रण है?", tag:"RRB NTPC UnderGraduate CBT I", o:["राजस्थान", "पंजाब", "गुजरात", "केरल"], a:0, e:""},
+{q:"Q.50 भारत के संविधान में निम्नलिखित में से किस संशोधन द्वारा अनुच्छेद 51A के रूप में मौलिक कर्तव्यों को शामिल किया गया था?", tag:"RRB NTPC UnderGraduate CBT I", o:["24 संशोधन, 1971", "52 संशोधन, 1985", "42 संशोधन, 1976", "44 संशोधन, 1978"], a:2, e:""},
+{q:"Q.51 इलाहाबाद की संधि के किस प्रावधान ने पूर्वी भारत में ब्रिटिश राजनीतिक सत्ता को सबसे अधिक सुदृढ़ किया?", tag:"RRB NTPC UnderGraduate CBT I", o:["सभी उत्तरी सूबों से कंपनी के राजस्व दावों को तत्काल वापस लेना।", "कंपनी को बंगाल, बिहार और ओडिशा के दीवानी अधिकार प्रदान करना।", "अवध के क्षेत्रों का स्थायी रूप से कंपनी के सीथे कब्जे में स्थानांतरण।", "मुगल सम्राट के अधीन बंगाल की संप्रभु सत्ता की बहाली।"], a:1, e:""},
+{q:"Q.52 अखिल भारतीय ग्रामीण वित्तीय समावेशन सर्वेक्षण (NAFIS) किस संगठन द्वारा आयोजित किया जाता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["RBI", "NABARD", "FICCI", "CII"], a:1, e:""},
+{q:"Q.53 \"ICT में युवाओं की आवाजों को बुलंद करना\" विषय वस्तु के तहत अंतर्राष्ट्रीय दूरसंचार संघ (ITU) वैश्विक युवा शिखर सम्मेलन 2025 (GYS-25), 11-13 मार्च 2025 तक किस स्थान पर आयोजित किया गया?", tag:"RRB NTPC UnderGraduate CBT I", o:["हवाना, क्यूबा (Havana, Cuba)", "वरादेरो, क्यूबा (Varadero, Cuba)", "सेंटो डोमिंगो, डोमिनिकन रिपब्लिक (Santo Domingo, Dominican Republic)", "किंग्स्टन, जमैका (Kingston, Jamaica)"], a:1, e:""},
+{q:"Q.54 निम्नलिखित में से कौन-sa अभिलेख, समुद्रगुप्त की सैन्य उपलब्धियों की सूचना का मुख्य स्रोत है?", tag:"RRB NTPC UnderGraduate CBT I", o:["नासिक गुहा अभिलेख", "इलाहाबाद स्तंभ अभिलेख", "जूनागढ़ शिलालेख", "महरौली लौह स्तंभ अभिलेख"], a:1, e:""},
+{q:"Q.55 निम्नलिखित में से कौन-सा भारतीय बैडमिंटन खिलाड़ी प्रतिष्ठित ऑल इंग्लैंड चैंपियनशिप (All England Championship) जीतने वाला देश का पहला खिलाड़ी बना?", tag:"RRB NTPC UnderGraduate CBT I", o:["प्रकाश पादुकोण", "साइना नेहवाल", "किदांबी श्रीकांत", "एच. एस. प्रणय"], a:0, e:""},
+{q:"Q.56 निम्नलिखित में से कौन-सी, राजस्थान राज्य की एक पारंपरिक लोक संगीत शैली है जो अपनी ऊर्जावान ताल और जीवंत धुन के लिए जानी जाती है?", tag:"RRB NTPC UnderGraduate CBT I", o:["मांड", "लावणी", "बाउल", "भटियाली"], a:0, e:""},
+{q:"Q.57 DRDO ने अप्रैल 2025 में किस नए लेजर-आधारित हथियार प्रणाली का सफलतापूर्वक फील्ड परीक्षण किया, जिसे अब प्राइवेट क्षेत्र के उत्पादन के लिए स्थानांतरित किया जा रहा है?", tag:"RRB NTPC UnderGraduate CBT I", o:["2 kW पोर्टेबल लेजर (2 kW Portable Laser)", "100 kW सूर्य लेजर सिस्टम (100 kW Surya Laser System)", "इन्फ्रारेड ड्रोन इंटरसेप्टर (Infrared Drone Interceptor)", "30 kW IDD&IS Mk-IIA"], a:3, e:""},
+{q:"Q.58 1875 में आर्य समाज आंदोलन की शुरुआत किसने की थी?", tag:"RRB NTPC UnderGraduate CBT I", o:["राजा राम मोहन राय", "महात्मा गांधी", "दयानंद सरस्वती", "रामकृष्ण परमहंस"], a:2, e:""},
+{q:"Q.59 तप्त पृष्ठ से गर्म वायु के ऊपर उठने के लिए कौन-सी प्रक्रिया उत्तरदायी है?", tag:"RRB NTPC UnderGraduate CBT I", o:["विकिरण", "चालन", "रोधन", "संवहन"], a:3, e:""},
+{q:"Q.60 निम्नलिखित में से किस पुरातात्विक युग के दौरान हड़प्पा सभ्यता मुख्य रूप से विकसित हुई?", tag:"RRB NTPC UnderGraduate CBT I", o:["ताम्रपाषाण युग", "लौह युग", "कांस्य युग", "नवपाषाण युग"], a:2, e:""},
+{q:"Q.61 निम्नलिखित में से कौन-सा डिवाइस, इनपुट और आउटपुट दोनों प्रकार से कार्य कर सकता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["टचस्क्रीन", "प्लॉटर", "बारकोड रीडर", "डिजिटल कैमरा"], a:0, e:""},
+{q:"Q.62 विश्व उपभोक्ता अधिकार दिवस 2025 की थीम क्या थी?", tag:"RRB NTPC UnderGraduate CBT I", o:["\"निष्पक्ष डिजिटल वित्त (Fair Digital Finance)\"", "\"स्वच्छ ऊर्जा संक्रमण के माध्यम से उपभोक्ताओं को सशक्त बनाना (Empowering Consumers Through Clean Energy Transitions)\"", "\"संधारणीय जीवन शैली के लिये एक उचित बदलाव (A Just Transition to Sustainable Lifestyles)\"", "\"उपभोक्ताओं के लिए निष्पक्ष और जिम्मेदार एआई (Fair and Responsible Al for Consumers)\""], a:3, e:""},
+{q:"Q.63 रदरफोर्ड के स्वर्ण झिल्ली प्रयोग द्वारा परमाणु में किस भाग के अस्तित्व को सिद्ध किया गया था?", tag:"RRB NTPC UnderGraduate CBT I", o:["इलेक्ट्रॉन", "न्यूट्रॉन", "प्रोटॉन", "नाभिक"], a:3, e:""},
+{q:"Q.64 वायु में कार्बन मोनोऑक्साइड के संबंध में निम्नलिखित में से कौन-सा कथन सही है?", tag:"RRB NTPC UnderGraduate CBT I", o:["यह हानिकारक नहीं है क्योंकि यह शीघ्र ही ऑक्सीजन में परिवर्तित हो जाती है।", "यह केवल प्राकृतिक वनाग्नि और ज्वालामुखियों से मुक्त होती है।", "जीवाश्म ईथनों के अपूर्ण दहन से इसका उत्पादन होता है और यह हीमोग्लोबिन में ऑक्सीजन को प्रतिस्थापित कर देती है।", "यह मानव स्वास्थ्य के लिए कार्बन डाइऑक्साइड की तुलना में कम खतरनाक है।"], a:2, e:""},
+{q:"Q.65 2011 की जनगणना के अनुसार निम्नलिखित में से कौन-सा राज्य, देश का दूसरा सबसे अधिक आबादी वाला राज्य था?", tag:"RRB NTPC UnderGraduate CBT I", o:["पश्चिम बंगाल", "कर्नाटक", "बिहार", "महाराष्ट्र"], a:3, e:""},
+{q:"Q.66 तेलंगाना का लक्ष्य किस वर्ष तक राज्य की GDP को $3 ट्रिलियन तक पहुंचाना है?", tag:"RRB NTPC UnderGraduate CBT I", o:["2047", "2035", "2030", "2042"], a:2, e:""},
+{q:"Q.67 भारतीय संविधान का कौन-सा अनुच्छेद, ग्राम सभा के गठन का प्रावधान करता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["अनुच्छेद 224A", "अनुच्छेद 243B", "अनुच्छेद 243A", "अनुच्छेद 224B"], a:2, e:""},
+{q:"Q.68 विंडोज 10 OS सेटिंग्स के किस भाग का उपयोग करके यह बदल सकते हैं कि कंप्यूटर कब पावर सेविंग मोड में जाएगा?", tag:"RRB NTPC UnderGraduate CBT I", o:["अपडेट और सिक्योरिटी (Updates & Security)", "पॉवर और स्लीप सेटिंग (Power & Sleep Settings)", "नेटवर्क और इंटरनेट (Network & Internet)", "डिस्प्ले सेटिंग (Display Settings)"], a:1, e:""},
+{q:"Q.69 निम्नलिखित में से कौन-सा, भारतीय संदर्भ में 'प्रच्छन्न बेरोजगारी (disguised unemployment)' का सर्वोत्तम रूप से वर्णन करता है?", tag:"RRB NTPC UnderGraduate CBT I", o:["आर्थिक मंदी के दौरान श्रमिक अस्थायी रूप से बेरोजगार हो जाते हैं", "वास्तविक आवश्यकता से अधिक व्यक्ति कार्यरत हैं, सीमांत उत्पादकता शून्य है", "श्रमिक प्रायः एक जॉब से दूसरी जॉब पर शिफ्ट हो जाते हैं", "श्रमिक कार्य करने के इच्छुक नहीं हैं"], a:1, e:""},
+{q:"Q.70 बलवंत राय मेहता समिति ने पंचायती राज व्यवस्था से संबंधित अपनी रिपोर्ट कब प्रस्तुत की थी?", tag:"RRB NTPC UnderGraduate CBT I", o:["1957", "1962", "1956", "1958"], a:0, e:""},
+{q:"Q.71 सात डिब्बे A, B, C, D, E, F और G एक के ऊपर एक रखे गए हैं, लेकिन जरूरी नहीं कि उनका क्रम यही हो। केवल D को G के ऊपर रखा गया है। G और A के बीच केवल दो डिब्बे रखे गए हैं। केवल B को E के नीचे रखा गया है। F को A के ठीक ऊपर नहीं रखा गया है। E और F के बीच कितने डिब्बे रखे गए हैं?", tag:"RRB NTPC UnderGraduate CBT I", o:["3", "4", "2", "1"], a:2, e:""},
+{q:"Q.72 यदि 'D' का अर्थ '÷' है, 'B' का अर्थ 'x' है, 'A' का अर्थ '+' है और 'C' का अर्थ '-' है, तो निम्नलिखित समीकरण में प्रश्न चिह्न (?) के स्थान पर क्या आएगा? 16 C 92 D 4 A 12 B 7 C 15 = ?", tag:"RRB NTPC UnderGraduate CBT I", o:["87", "62", "91", "32"], a:1, e:""},
+{q:"Q.73 एक निश्चित कूट भाषा में, A>B का अर्थ है कि 'A, B की बहन है', A=B का अर्थ है कि 'A, B का पिता है', A! B का अर्थ है कि 'A, B की पत्नी है' और A-B का अर्थ है कि 'A, B का पुत्र है'। यदि 'S > C = P ! E' है, तो S का E से क्या संबंध है?", tag:"RRB NTPC UnderGraduate CBT I", o:["पत्नी का भाई", "पत्नी की माता", "पत्नी की बहन", "पत्नी की पुत्री"], a:2, e:""},
+{q:"Q.74 दी गई श्रृंखला में '?' के स्थान पर क्या आना चाहिए? 118 149 211 242 304 335 ?", tag:"RRB NTPC UnderGraduate CBT I", o:["387", "407", "427", "397"], a:3, e:""},
+{q:"Q.75 अंग्रेजी वर्णमाला क्रम के आधार पर दी गई श्रृंखला में'?' के स्थान पर क्या आना चाहिए? CBY WVS QPM KJG ?", tag:"RRB NTPC UnderGraduate CBT I", o:["EDA", "FCB", "HDP", "GCA"], a:0, e:""},
+{q:"Q.76 X, F की माता है। F, T की बहन है। U, K का पिता है। K, T का पति है। K का X से क्या संबंध है?", tag:"RRB NTPC UnderGraduate CBT I", o:["पुत्री का पुत्र", "पुत्री का पति", "पिता", "भाई"], a:1, e:""},
+{q:"Q.77 सात डिब्बे B, C, D, E, Q, R और S एक के ऊपर एक रखे गए हैं, लेकिन जरूरी नहीं कि वे इसी क्रम में रखे गए हों। E के ऊपर कोई डिब्बा नहीं रखा गया है। E और Q के बीच केवल B को रखा गया है। C के नीचे केवल R को रखा गया है। Q और D के बीच केवल एक डिब्बा रखा गया है। S और R के बीच कितने डिब्बे रखे गए हैं?", tag:"RRB NTPC UnderGraduate CBT I", o:["दो", "चार", "तीन", "एक"], a:0, e:""},
+{q:"Q.78 यदि शब्द ORANGEY के प्रत्येक अक्षर को अंग्रेजी वर्णमाला क्रम में व्यवस्थित किया जाए, तो कितने अक्षरों की स्थिति अपरिवर्तित रहेगी?", tag:"RRB NTPC UnderGraduate CBT I", o:["दो", "तीन", "एक", "चार"], a:0, e:""},
+{q:"Q.79 संख्या 4738165 के प्रत्येक अंक को बाएं से दाएं आरोही क्रम में व्यवस्थित किया जाता है। मूल संख्या की तुलना में कितने अंकों की स्थिति अपरिवर्तित रहेगी?", tag:"RRB NTPC UnderGraduate CBT I", o:["दो", "एक भी नहीं", "तीन", "एक"], a:1, e:""},
+{q:"Q.80 अंग्रेजी वर्णमाला क्रम के आधार पर दी गई श्रृंखला में प्रश्न-चिन्ह (?) के स्थान पर क्या आना चाहिए? TAV SZU RYT QXS ?", tag:"RRB NTPC UnderGraduate CBT I", o:["OXS", "NOT", "PWR", "NWT"], a:2, e:""},
+{q:"Q.81 सात व्यक्ति P1, P2, P3, P4, P5, P6 और P7, एक गोल मेज के परितः उसके केंद्र की ओर अभिमुख होकर बैठे हैं। P7, P1 के दाई ओर दूसरे स्थान पर बैठा है। P1 के दाई ओर से जांच करने पर, P1 और P6 के बीच ठीक दो व्यक्ति बैठे हैं। P5 और P6 के ঠিক बीच में P2 बैठा है। P3, P4 के दाई ओर दूसरे स्थान पर बैठा है। P6 और P3 के ठीक बीच में कौन बैठा है?", tag:"RRB NTPC UnderGraduate CBT I", o:["P1", "P7", "P4", "P5"], a:1, e:""},
+{q:"Q.82 निम्नलिखित त्रिकों में, अक्षरों का प्रत्येक समूह एक निश्चित तर्क का अनुसरण करते हुए अगले अक्षर-समूह से संबंधित है। दिए गए विकल्पों में से उस विकल्प का चयन कीजिए जो समान तर्क का अनुसरण करता हो। DISK-DKSI - KSID; LEAF-LFAE - FAEL", tag:"RRB NTPC UnderGraduate CBT I", o:["POEM-PMEOMEOP", "PRAY-PRYA - RAYP", "WEST-EWST-TESW", "GOAT-GAOT-TAOG"], a:0, e:""},
+{q:"Q.83 एक निश्चित कूट भाषा में, 'XEQA' को '49' के रूप में कूटबद्ध किया जाता है और 'KLCH' को '36' के रूप में कूटबद्ध किया जाता है। दी गई कूट भाषा में 'NJDX' का कूट क्या होगा?", tag:"RRB NTPC UnderGraduate CBT I", o:["55", "49", "54", "51"], a:0, e:""},
+{q:"Q.84 दिए गए कथनों और निष्कर्षों को ध्यानपूर्वक पढ़ें। यह मानते हुए कि कथनों में दी गई जानकारी सत्य है, भले ही वह सामान्य रूप से ज्ञात तथ्यों से भिन्न प्रतीत हो, यह तय करें कि दिए गए निष्कर्षों में से कौन-से निष्कर्ष, कथनों का तार्किक रूप से अनुसरण करते हैं।\nकथनः सभी चमगादड़, चूजे हैं। सभी चमगादड़, चटाई हैं।\nनिष्कर्षः (1) कुछ चूजे, चटाई हैं। (II) सभी चटाई, चमगादड़ हैं।", tag:"RRB NTPC UnderGraduate CBT I", o:["न तो निष्कर्ष (1) और न ही (II) अनुसरण करता है", "केवल निष्कर्ष (1) अनुसरण करता है", "केवल निष्कर्ष (II) अनुसरण करता है", "निष्कर्ष (I) और (II) दोनों अनुसरण करते हैं"], a:1, e:""},
+{q:"Q.85 दी गई श्रृंखला में '?' के स्थान पर क्या आना चाहिए? 314 277 244 215 190 169 ?", tag:"RRB NTPC UnderGraduate CBT I", o:["149", "155", "146", "152"], a:3, e:""},
+{q:"Q.86 अंग्रेजी वर्णमाला क्रम पर आधारित, निम्नलिखित चार अक्षर-समूह युग्मों में से तीन अक्षर-समूह युग्म एक निश्चित प्रकार से एकसमान हैं और इस प्रकार एक ग्रुप बनाते हैं। कौन-सा, उस ग्रुप से संबंधित नहीं है? (नोटः असंगत अक्षर-समूह युग्म, व्यंजनों/स्वरों की संख्या या उनकी स्थिति पर आधारित नहीं है)", tag:"RRB NTPC UnderGraduate CBT I", o:["ML-IH", "UT-PR", "JI-FE", "ZY-VU"], a:1, e:""},
+{q:"Q.87 अंग्रेज़ी वर्णमाला क्रम पर आधारित दी गई श्रृंखला में, '?' के स्थान पर क्या आना चाहिए? POR VUX BAD HGJ ?", tag:"RRB NTPC UnderGraduate CBT I", o:["NMP", "NLO", "NOQ", "NNO"], a:0, e:""},
+{q:"Q.88 शब्द WRENCHINGLY के प्रत्येक स्वर को अंग्रेजी वर्णमाला क्रम में उसके ठीक बाद आने वाले अक्षर से बदल दिया जाता है और प्रत्येक व्यंजन को अंग्रेजी वर्णमाला क्रम में उसके पहले आने वाले दूसरे अक्षर से बदल दिया जाता है। इस प्रकार बने अक्षरों के समूह में कितने अक्षर ठीक दो बार आएंगे?", tag:"RRB NTPC UnderGraduate CBT I", o:["चार", "एक", "दो", "तीन"], a:1, e:""},
+{q:"Q.89 यमन बिंदु A से ड्राइव करना शुरू करता है और पश्चिम की ओर 18 km ड्राइव करता है। फिर वह दाएँ मुड़ता है और 19 km ड्राइव करता है, फिर से दाएँ मुड़ता है और 21 km ड्राइव करता है। वह फिर से दाएँ मुड़ता है और 23 km ड्राइव करता है। वह अंतिम बार दाएँ मुड़ता है और 3 km ड्राइव करके बिंदु P पर रुक जाता है। बिंदु A पर वापस पहुँचने के लिए उसे कितनी दूरी (न्यूनतम दूरी) और किस दिशा में ड्राइव करना चाहिए? (जब तक निर्दिष्ट न किया जाए, सभी मोड़ केवल 90 डिग्री के मोड़ हैं।)", tag:"RRB NTPC UnderGraduate CBT I", o:["3 km, दक्षिण की ओर", "4 km, उत्तर की ओर", "5 km, उत्तर की ओर", "2 km, दक्षिण की ओर"], a:1, e:""},
+{q:"Q.90 दिए गए कथनों और निष्कर्षों को ध्यानपूर्वक पढ़िए। यह मानते हुए कि कथनों में दी गई जानकारी सत्य है, भले ही यह सामान्यतः ज्ञात तथ्यों से भिन्न प्रतीत हो, तय कीजिए कि दिए गए निष्कर्षों में से कौन-सा/से निष्कर्ष, कथनों का तार्किक रूप से अनुसरण करता/करते है/हैं।\nकथनः सभी कार, बार हैं। कोई भी कार, सूर्य नहीं है।\nनिष्कर्षः (1) कुछ सूर्य, बार हैं। (II) सभी बार, सूर्य हैं।", tag:"RRB NTPC UnderGraduate CBT I", o:["न तो निष्कर्ष (1) और न ही (II) अनुसरण करता है", "निष्कर्ष (I) और (II), दोनों अनुसरण करते हैं", "केवल निष्कर्ष (1) अनुसरण करता है", "केवल निष्कर्ष (II) अनुसरण करता है"], a:0, e:""},
+{q:"Q.91 निम्नलिखित संख्या युग्मों में, पहली संख्या पर कुछ गणितीय संक्रियाएं करके दूसरी संख्या प्राप्त की गई है। उस सेट का चयन कीजिए, जिसमें संख्याएं उसी प्रकार संबंधित हैं जैसे कि निम्नलिखित सेटों की संख्याएं संबंधित हैं। (नोट: संख्याओं को उनके घटक अंकों में तोड़े बिना, पूर्ण संख्याओं पर संक्रियाएं की जानी चाहिए। उदाहरण के लिए 13 को लीजिए, 13 पर संक्रियाएं, जैसे कि 13 में जोड़ना / घटाना / गुणा करना आदि, 13 पर की जा सकती हैं। 13 को 1 और 3 में तोड़ना तथा फिर 1 और 3 पर गणितीय संक्रियाएं करने की अनुमति नहीं है।) 18, 323; 19, 360", tag:"RRB NTPC UnderGraduate CBT I", o:["21, 440", "22, 485", "14, 196", "20, 400"], a:0, e:""},
+{q:"Q.92 उस युग्म का चयन कीजिए जो नीचे दिए गए दो युग्मों के सेटों के समान पैटर्न का अनुसरण करता है। दोनों युग्म समान पैटर्न का अनुसरण करते हैं। FGJ: HAE; KLO: MFJ", tag:"RRB NTPC UnderGraduate CBT I", o:["BMV: DGQ", "MGQ: OAM", "FJL: HDH", "HMG: JGC"], a:0, e:""},
+{q:"Q.93 अंग्रेजी वर्णमाला क्रम के आधार पर, निम्नलिखित चार अक्षर-समूह युग्मों में से तीन एक निश्चित तरीके से एकसमान हैं और इस प्रकार वे एक ग्रुप बनाते हैं। कौन-सा अक्षर-समूह युग्म, उस ग्रुप से संबंधित नहीं है? (नोटः असंगत अक्षर-समूह युग्म, व्यंजनों/स्वरों की संख्या या उनकी स्थिति पर आधारित नहीं है।)", tag:"RRB NTPC UnderGraduate CBT I", o:["BP-XL", "KF-GA", "UC-QY", "TR - PN"], a:1, e:""},
+{q:"Q.94 उस त्रिक का चयन कीजिए जो नीचे दिए गए दो त्रिकों के समान पैटर्न का अनुसरण करता है। दोनों त्रिक समान पैटर्न का अनुसरण करते हैं। TO-UP-VY; QL-RM-SV", tag:"RRB NTPC UnderGraduate CBT I", o:["NI-OJ-PS", "MI-OK-PR", "MI-OJ-PR", "NI-OJ-PR"], a:0, e:""},
+{q:"Q.95 यदि 'A' का अर्थ '÷' है, 'B' का अर्थ 'x' है, 'C' का अर्थ '+' है और 'D' का अर्थ '-' है, तो निम्नलिखित समीकरण में प्रश्न चिह्न '?' के स्थान पर क्या आएगा? 19 C 6 B 5 D 72 A 8 = ?", tag:"RRB NTPC UnderGraduate CBT I", o:["43", "40", "47", "45"], a:1, e:""},
+{q:"Q.96 राकेश अपनी कक्षा में ऊपर से 39वें स्थान पर है और नीचे से 46वें स्थान पर है। उसकी कक्षा में कुल कितने विद्यार्थी हैं?", tag:"RRB NTPC UnderGraduate CBT I", o:["86", "83", "85", "84"], a:3, e:""},
+{q:"Q.97 अंग्रेजी वर्णमाला क्रम के आधार पर, निम्नलिखित चार अक्षर-समूह युग्मों में से three एक निश्चित तरीके से एकसमान हैं और इस प्रकार वे एक ग्रुप बनाते हैं। कौन-सा अक्षर-समूह युग्म, उस ग्रुप से संबंधित नहीं है? (नोटः असंगत अक्षर-समूह युग्म, व्यंजनों/स्वरों की संख्या या उनकी स्थिति पर आधारित नहीं है।)", tag:"RRB NTPC UnderGraduate CBT I", o:["WB-PY", "TY-MV", "IN-BK", "EJ-RG"], a:3, e:""},
+{q:"Q.98 उस विकल्प का चयन कीजिए जो दिए गए शब्दों के उस सही क्रम को निरूपित करता है, जिस प्रकार वे अंग्रेजी शब्दकोश में दिखाई देंगे। 1. Roast 2. Router 3. Road 4. Robust 5. Rope", tag:"RRB NTPC UnderGraduate CBT I", o:["1, 4, 3, 5, 2", "3, 1, 5, 4, 2", "1, 4, 3, 2, 5", "3, 1, 4, 5, 2"], a:3, e:""},
+{q:"Q.99 एक निश्चित कूट भाषा में, 'zebra peak blue' को 'sr dt tx' के रूप में कूटबद्ध किया जाता है और 'bee zebra chest' को 'dt bm qb' के रूप में कूटबद्ध किया जाता है। दी गई भाषा में 'zebra' को किस प्रकार कूटबद्ध किया जाएगा?", tag:"RRB NTPC UnderGraduate CBT I", o:["sr", "tx", "bm", "dt"], a:3, e:""},
+{q:"Q.100 सात व्यक्ति P1, P2, P3, P4, P5, P6 और P7, एक गोल मेज के परितः मेज के केंद्र की ओर अभिमुख होकर बैठे हैं। P1, P3 के ठीक दाई ओर पड़ोस में बैठा है। P6, P3 के बाई ओर तीसरे स्थान पर बैठा है। P3 और P7 के ठीक बीच में P2 बैठा है। P5, P6 के ठीक बाई ओर पड़ोस में बैठा है। P1 के सापेक्ष P4 की स्थिति क्या है?", tag:"RRB NTPC UnderGraduate CBT I", o:["ठीक दाई ओर पड़ोस में", "ठीक बाई ओर पड़ोस में", "बाई ओर दूसरे स्थान पर", "दाई ओर दूसरे स्थान पर"], a:0, e:""}
+];
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="👑 10 Correct Streak!";
+else if(currentStreak===15) msg="💯 15 Correct Streak!";
+else if(currentStreak===20) msg="⚡ 20 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Legend!':
+currentStreak===15?'Unstoppable!':
+'Ultimate Master!'
+);
+}
+}else{
+currentStreak=0;
+}
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+</script>
+</body>
+</html>
