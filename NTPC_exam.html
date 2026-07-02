@@ -67,7 +67,7 @@ to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
 <div class="container">
 <h2>DREAM TO DESTINY</h2>
-<div style="display:flex;gap:8px;margin:10px 0 15px;">
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
 <input id="jumpNo" type="number" placeholder="Question No"
 style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 <button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
@@ -347,6 +347,7 @@ function celebrate(msg,sub){
 function showScore(){
 document.getElementById('quiz-box').style.display='none';
 document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
 let attempted=answered.filter(v=>v).length;
 let correct=0;
 for(let i=0;i<data.length;i++){
