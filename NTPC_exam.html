@@ -271,6 +271,8 @@ const startTime = Date.now();
 let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
 let currentStreak=0,maxStreak=0;
 let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
 function showQ() {
 document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
 const tagBox=document.getElementById('exam-tag');
@@ -278,6 +280,7 @@ if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox
 let oBox = document.getElementById('options');
 oBox.innerHTML = "";
 document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
 data[currentQ].o.forEach((opt, idx) => {
 let btn = document.createElement("button");
 btn.innerHTML = formatContent(opt);
@@ -301,28 +304,48 @@ if(currentStreak>maxStreak) maxStreak=currentStreak;
 let msg="";
 if(currentStreak===3) msg="🔥 3 Correct Streak!";
 else if(currentStreak===5) msg="🚀 5 Correct Streak!";
-else if(currentStreak===10) msg="👑 10 Correct Streak!";
-else if(currentStreak===15) msg="💯 15 Correct Streak!";
-else if(currentStreak===20) msg="⚡ 20 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
 if(msg){
 celebrate(
 msg,
 currentStreak===3?'Keep Going!':
 currentStreak===5?'Awesome!':
-currentStreak===10?'Legend!':
-currentStreak===15?'Unstoppable!':
-'Ultimate Master!'
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
 );
 }
 }else{
 currentStreak=0;
 }
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
 answered[currentQ] = true;
 document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
 document.getElementById('feedback').style.display = "block";
 };
 oBox.appendChild(btn);
 });
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
 }
 
 
