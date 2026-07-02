@@ -67,6 +67,11 @@ to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
 <div class="container">
 <h2>DREAM TO DESTINY</h2>
+<div style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
 <div id="quiz-box">
 <div id="q-text" class="question"></div>
 <div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
@@ -610,12 +615,17 @@ const data = [
     e: "अक्षरों के स्थान में +7 का पैटर्न है。"
   },
   {
-    q: "Q.73 दि ए गए कथनों और नि ष्कर्षों को ध्या नपूर्वक पढ़ि ए...",
-    tag: "RRB Level 01 Stage I",
-    o: ["A. केवल नि ष्कर्ष (II) सत्य है", "B. नि ष्कर्ष (I) और (II) दो नों सत्य हैं", "C. केवल नि ष्कर्ष (I) सत्य है", "D. न तो नि ष्कर्ष (I) और न ही (II) सत्य है"],
-    a: 3,
-    e: "कथनों के आधार पर निष्कर्षों का तार्किक मिलान नहीं होता。"
-  },
+  q: "Q.73 दिए गए कथनों और निष्कर्षों को ध्यानपूर्वक पढ़िए। यह मानते हुए कि कथनों में दी गई जानकारी सत्य है, भले ही वह सामान्यतः ज्ञात तथ्यों से भिन्न प्रतीत होती हो, तय कीजिए कि दिए गए निष्कर्षों में से कौन-सा/से निष्कर्ष कथनों का तार्किक रूप से अनुसरण करता है/करते हैं।<br><br>कथन:<br>कुछ घड़ौड़े, स्क्रूड्राइवर हैं।<br>कोई स्क्रूड्राइवर, रिंच नहीं है।<br>सभी रिंच, प्लायर हैं।<br><br>निष्कर्ष:<br>(I) कुछ रिंच, स्क्रूड्राइवर हैं।<br>(II) कुछ स्क्रूड्राइवर, प्लायर हैं।",
+  tag: "RRB Level 01 Stage I",
+  o: [
+    "A. केवल निष्कर्ष (II) सत्य है।",
+    "B. निष्कर्ष (I) और (II) दोनों सत्य हैं।",
+    "C. केवल निष्कर्ष (I) सत्य है।",
+    "D. न तो निष्कर्ष (I) और न ही (II) सत्य है।"
+  ],
+  a: 3,
+  e: "कथनों के आधार पर निष्कर्ष (I) तथा (II) में से कोई भी निश्चित रूप से सिद्ध नहीं होता। अतः सही उत्तर 'न तो निष्कर्ष (I) और न ही (II) सत्य है'।"
+},
   {
     q: "Q.74 उत्तर की ओर अभिमुख 54 व्यक्ति यों की एक पंक्ति में, मोहित दाएँ छोर से 22वें स्था न पर बैठा है。 यदि चारु पंक्ति के बाएँ छोर से 15वें स्थान पर बैठी है, तो मोहित और चारु के बीच कितने व्यक्ति बैठे हैं?",
     tag: "RRB Level 01 Stage I",
@@ -652,12 +662,17 @@ const data = [
     e: "श्रृंखला में 'सम-सम-विषम' का पैटर्न तीन बार आता है。"
   },
   {
-    q: "Q.79 किसी निश्चित कूट भाषा में... यदि 'T+O&RxN-M' है, तो T का M से क्या संबंध है?",
-    tag: "RRB Level 01 Stage I",
-    o: ["A. भाई की पत्नी के पिता", "B. पत्नी के पिता", "C. पत्नी का भाई", "D. भाई की पत्नी का भाई"],
-    a: 3,
-    e: "रक्त संबंधों का आरेख बनाने पर यह संबंध प्राप्त होता है。"
-  },
+  q: "Q.79 किसी निश्चित कूट भाषा में,<br><br>A + B का अर्थ है कि 'A, B का पुत्र है',<br>A - B का अर्थ है कि 'A, B का भाई है',<br>A x B का अर्थ है कि 'A, B की पत्नी है',<br>और A & B का अर्थ है कि 'A, B का पिता है'।<br><br>यदि 'T+O&RxN-M' है, तो T का M से क्या संबंध है?",
+  tag: "RRB Level 01 Stage I",
+  o: [
+    "A. भाई की पत्नी के पिता",
+    "B. पत्नी के पिता",
+    "C. पत्नी का भाई",
+    "D. भाई की पत्नी का भाई"
+  ],
+  a: 3,
+  e: "N - M ⇒ N, M का भाई है। R x N ⇒ R, N की पत्नी है। O & R ⇒ O, R का पिता है। T + O ⇒ T, O का पुत्र है। इसलिए T, R का भाई है। R, N की पत्नी है और N, M का भाई है। अतः T का M से संबंध 'भाई की पत्नी का भाई' है।"
+},
   {
     q: "Q.80 अंग्रेजी वर्णमा ला क्रम के आधा र पर दी गई श्रृंखला में प्रश्न-चि ह्न (?) के स्था न पर क्या आना चा हि ए? BOM DQL FSK HUJ ?",
     tag: "RRB Level 01 Stage I",
@@ -982,6 +997,18 @@ function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
 function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
 function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
 showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
 </script>
 </body>
 </html>
