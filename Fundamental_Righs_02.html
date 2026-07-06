@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
+background:transparent;opacity:0;pointer-events:none;transition:.25s;
+}
+#streakPopup.show{opacity:1;}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:absolute;width:10px;height:10px;border-radius:50%;
+background:#ffd54f;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. भारतीय संविधान के किस अनुच्छेद (Article) के तहत शिक्षा के अधिकार (Right to Education) को मौलिक अधिकार बनाया गया है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 21",
+      "B. अनुच्छेद 21(A)",
+      "C. अनुच्छेद 19",
+      "D. अनुच्छेद 22"
+    ],
+    a: 1,
+    e: "अनुच्छेद 21(A) को 86वें संविधान संशोधन अधिनियम (Constitutional Amendment Act), 2002 द्वारा जोड़ा गया, जो शिक्षा के अधिकार की गारंटी देता है।"
+  },
+  {
+    q: "Q2. 86वें संविधान संशोधन अधिनियम, 2002 द्वारा कितने वर्ष के बच्चों के लिए निःशुल्क और अनिवार्य शिक्षा (Free and Compulsory Education) का प्रावधान किया गया है?",
+    tag: "",
+    o: [
+      "A. 6 से 14 वर्ष",
+      "B. 5 से 11 वर्ष",
+      "C. 6 से 18 वर्ष",
+      "D. 0 से 14 वर्ष"
+    ],
+    a: 0,
+    e: "इस पृष्ठ के अनुसार, अनुच्छेद 21(A) के तहत 6 से 14 वर्ष की आयु के बच्चों के लिए निःशुल्क और अनिवार्य शिक्षा के अधिकार की गारंटी दी गई है।"
+  },
+  {
+    q: "Q3. किसी गिरफ्तार व्यक्ति को कितने समय के भीतर निकटतम मजिस्ट्रेट (Magistrate) के समक्ष पेश किया जाना अनिवार्य है?",
+    tag: "",
+    o: [
+      "A. 12 घंटे",
+      "B. 48 घंटे",
+      "C. 24 घंटे",
+      "D. 36 घंटे"
+    ],
+    a: 2,
+    e: "अनुच्छेद 22 के तहत गिरफ्तार किए गए व्यक्ति को यात्रा के समय को छोड़कर 24 घंटे के भीतर मजिस्ट्रेट के समक्ष पेश किया जाना आवश्यक है।"
+  },
+  {
+    q: "Q4. 'निवारक निरोध' (Preventive Detention) का मुख्य उद्देश्य क्या होता है?",
+    tag: "",
+    o: [
+      "A. अपराध करने के बाद सजा देना",
+      "B. भविष्य में संभावित अपराध को रोकना",
+      "C. अपराधी से जुर्माना वसूलना",
+      "D. सामाजिक सेवा करवाना"
+    ],
+    a: 1,
+    e: "दंडात्मक निरोध (Punitive Detention) अपराध के बाद होता है, जबकि निवारक निरोध (Preventive Detention) का उद्देश्य भविष्य में संभावित अपराध को होने से रोकना है।"
+  },
+  {
+    q: "Q5. बिना किसी उच्च न्यायालय के न्यायाधीशों के सलाहकार बोर्ड (Advisory Board) की मंजूरी के, निवारक निरोध (Preventive Detention) के तहत किसी व्यक्ति को अधिकतम कितने समय तक हिरासत में रखा जा सकता है?",
+    tag: "",
+    o: [
+      "A. 1 महीना",
+      "B. 6 महीने",
+      "C. 2 महीने",
+      "D. 3 महीने"
+    ],
+    a: 3,
+    e: "सलाहकार बोर्ड की मंजूरी के बिना निवारक निरोध के तहत किसी व्यक्ति को 3 महीने से अधिक समय तक हिरासत में नहीं रखा जा सकता है।"
+  },
+  {
+    q: "Q6. भारतीय संविधान का कौन सा अनुच्छेद 'मानव तस्करी' (Human Trafficking) और 'जबरन श्रम' (Forced Labor/Begar) को प्रतिबंधित करता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 24",
+      "B. अनुच्छेद 23",
+      "C. अनुच्छेद 25",
+      "D. अनुच्छेद 22"
+    ],
+    a: 1,
+    e: "अनुच्छेद 23 मानव तस्करी और जबरन श्रम (बेगार) का निषेध (Prohibition) करता है।"
+  },
+  {
+    q: "Q7. अनुच्छेद 23 के तहत राज्य किस स्थिति में नागरिकों को अनिवार्य सेवाएँ (Compulsory Services) देने के लिए मजबूर कर सकता है?",
+    tag: "",
+    o: [
+      "A. आर्थिक मंदी के दौरान",
+      "B. युद्ध के दौरान (सार्वजनिक उद्देश्यों के लिए)",
+      "C. चुनावों के दौरान",
+      "D. महामारी के समय"
+    ],
+    a: 1,
+    e: "अनुच्छेद 23 का अपवाद (Exception) यह है कि राज्य लोगों को सार्वजनिक उद्देश्यों जैसे युद्ध के दौरान अनिवार्य सेवाएँ देने के लिए बाध्य कर सकता है।"
+  },
+  {
+    q: "Q8. अनुच्छेद 24 के अनुसार, कितने वर्ष से कम आयु के बच्चों को कारखानों, खदानों या अन्य खतरनाक स्थानों (Hazardous Places) पर नियोजित (Employ) नहीं किया जा सकता?",
+    tag: "",
+    o: [
+      "A. 14 वर्ष",
+      "B. 18 वर्ष",
+      "C. 16 वर्ष",
+      "D. 12 वर्ष"
+    ],
+    a: 0,
+    e: "अनुच्छेद 24 के तहत 14 वर्ष से कम आयु के बच्चों के खतरनाक रोजगार पर पूरी तरह से प्रतिबंध (Prohibition) लगाया गया है।"
+  },
+  {
+    q: "Q9. अनुच्छेद 24 के संदर्भ में बच्चे स्कूल के समय के अलावा किन स्थानों पर काम कर सकते हैं?",
+    tag: "",
+    o: [
+      "A. रासायनिक कारखानों में",
+      "B. कोयला खदानों में",
+      "C. सुरक्षित स्थानों (Safe Places) पर",
+      "D. पटाखों की फैक्ट्री में"
+    ],
+    a: 2,
+    e: "अनुच्छेद 24 के अनुसार, बच्चे स्कूल के समय के अलावा केवल सुरक्षित स्थानों पर काम कर सकते हैं, खतरनाक स्थानों पर नहीं।"
+  },
+  {
+    q: "Q10. भारतीय संविधान के किस अनुच्छेद समूह को 'धार्मिक स्वतंत्रता का अधिकार' (Right to Freedom of Religion) कहा जाता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 19-22",
+      "B. अनुच्छेद 23-24",
+      "C. अनुच्छेद 29-30",
+      "D. अनुच्छेद 25-28"
+    ],
+    a: 3,
+    e: "संविधान के अनुच्छेद 25 से 28 तक धार्मिक स्वतंत्रता से संबंधित विभिन्न अधिकारों का प्रावधान किया गया है।"
+  },
+  {
+    q: "Q11. अंतःकरण की स्वतंत्रता (Freedom of Conscience) और किसी भी धर्म को अबाध रूप से मानने, आचरण करने और प्रचार करने की स्वतंत्रता किस अनुच्छेद में वर्णित है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 25",
+      "B. अनुच्छेद 26",
+      "C. अनुच्छेद 27",
+      "D. अनुच्छेद 28"
+    ],
+    a: 0,
+    e: "अनुच्छेद 25 प्रत्येक नागरिक को अपने अंतःकरण के अनुसार किसी भी धर्म को मानने और उसका प्रचार करने की आजादी देता है।"
+  },
+  {
+    q: "Q12. 'धार्मिक मामलों के प्रबंधन की स्वतंत्रता' (Freedom to Manage Religious Affairs) का अधिकार किस अनुच्छेद के तहत प्रदान किया गया है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 25",
+      "B. अनुच्छेद 26",
+      "C. अनुच्छेद 27",
+      "D. अनुच्छेद 28"
+    ],
+    a: 1,
+    e: "अनुच्छेद 26 धार्मिक संस्थाओं की स्थापना, उनके रखरखाव और अपने धार्मिक मामलों का स्वयं प्रबंधन (Management) करने का अधिकार देता है।"
+  },
+  {
+    q: "Q13. अनुच्छेद 27 के अनुसार, राज्य किसी विशेष धर्म के प्रचार या विकास के लिए नागरिकों पर क्या लागू नहीं कर सकता?",
+    tag: "",
+    o: [
+      "A. शुल्क (Fee)",
+      "B. कर (Tax)",
+      "C. चंदा (Donation)",
+      "D. जुर्माना (Fine)"
+    ],
+    a: 1,
+    e: "अनुच्छेद 27 केवल 'कर' (Tax) लगाने पर प्रतिबंध लगाता है, 'शुल्क' (Fee) लगाने पर नहीं।"
+  },
+  {
+    q: "Q14. राज्य द्वारा पूर्णतः वित्तपोषित (Fully Funded by State) किसी भी शैक्षणिक संस्थान (Educational Institution) में किस प्रकार की शिक्षा नहीं दी जा सकती?",
+    tag: "",
+    o: [
+      "A. नैतिक शिक्षा",
+      "B. वैज्ञानिक शिक्षा",
+      "C. धार्मिक शिक्षा (Religious Instruction)",
+      "D. शारीरिक शिक्षा"
+    ],
+    a: 2,
+    e: "अनुच्छेद 28 के तहत सरकारी या राज्य द्वारा पूर्णतः पोषित शैक्षणिक संस्थानों में कोई भी धार्मिक शिक्षा प्रदान नहीं की जा सकती।"
+  },
+  {
+    q: "Q15. भारतीय संविधान का कौन सा अनुच्छेद 'संस्कृति एवं शिक्षा संबंधी अधिकार' (Cultural and Educational Rights) से संबंधित है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 29-30",
+      "B. अनुच्छेद 25-28",
+      "C. अनुच्छेद 32-35",
+      "D. अनुच्छेद 14-18"
+    ],
+    a: 0,
+    e: "अनुच्छेद 29 और 30 नागरिकों के सांस्कृतिक और शैक्षणिक हितों के संरक्षण (Protection) से संबंधित हैं।"
+  },
+  {
+    q: "Q16. नागरिकों के किसी भी वर्ग को अपनी विशिष्ट भाषा, लिपि या संस्कृति को संरक्षित (Conserve) करने का अधिकार किस अनुच्छेद के तहत मिला है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 30",
+      "B. अनुच्छेद 29",
+      "C. अनुच्छेद 28",
+      "D. अनुच्छेद 26"
+    ],
+    a: 1,
+    e: "अनुच्छेद 29 विशेष रूप से अल्पसंख्यकों और नागरिकों के किसी भी वर्ग के हितों के संरक्षण (Protection of Interests) की बात करता है।"
+  },
+  {
+    q: "Q17. 'अल्पसंख्यकों को शैक्षणिक संस्थान स्थापित करने और उनका प्रशासन करने का अधिकार' किस अनुच्छेद में है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 29",
+      "B. अनुच्छेद 30",
+      "C. अनुच्छेद 31",
+      "D. अनुच्छेद 32"
+    ],
+    a: 1,
+    e: "अनुच्छेद 30 अल्पसंख्यकों (Minorities) को अपनी पसंद के शिक्षण संस्थान खोलने और उन्हें संचालित करने का अधिकार देता है।"
+  },
+  {
+    q: "Q18. भारतीय संविधान में 'अल्पसंख्यक' (Minority) शब्द को कहाँ परिभाषित (Defined) किया गया है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 29 में",
+      "B. अनुच्छेद 30 in",
+      "C. प्रस्तावना (Preamble) में",
+      "D. संविधान में कहीं भी नहीं"
+    ],
+    a: 3,
+    e: "संविधान में कहीं भी 'अल्पसंख्यक' शब्द की परिभाषा (Definition) नहीं दी गई है।"
+  },
+  {
+    q: "Q19. राज्य सहायता (State Aid) प्रदान करते समय किन आधारों पर शैक्षणिक संस्थानों के साथ भेदभाव (Discrimination) नहीं करेगा?",
+    tag: "",
+    o: [
+      "A. जाति या लिंग",
+      "B. धर्म या भाषा",
+      "C. जन्मस्थान या मूलवंश",
+      "D. आय या वर्ग"
+    ],
+    a: 1,
+    e: "अनुच्छेद 30 के अनुसार, राज्य सहायता देते समय धर्म (Religion) या भाषा (Language) के आधार पर किसी भी शिक्षण संस्थान के साथ भेदभाव नहीं करेगा।"
+  },
+  {
+    q: "Q20. 'संवैधानिक उपचारों का अधिकार' (Right to Constitutional Remedies) किस अनुच्छेद के अंतर्गत आता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 32",
+      "B. अनुच्छेद 226",
+      "C. अनुच्छेद 14",
+      "D. अनुच्छेद 19"
+    ],
+    a: 0,
+    e: "अनुच्छेद 32 से 35 तक संवैधानिक उपचारों का अधिकार शामिल है, जिसके तहत मौलिक अधिकारों के प्रवर्तन (Enforcement) के लिए सर्वोच्च न्यायालय जाने का अधिकार है।"
+  },
+  {
+    q: "Q21. संसद सर्वोच्च न्यायालय और उच्च न्यायालय के अतिरिक्त किसी अन्य न्यायालय को रिट (Writ) जारी करने की शक्ति किस माध्यम से प्रदान कर सकती है?",
+    tag: "",
+    o: [
+      "A. राष्ट्रपति के अध्यादेश द्वारा",
+      "B. संविधान संशोधन द्वारा",
+      "C. कानून (Act) बनाकर",
+      "D. सर्वोच्च न्यायालय के परामर्श पर"
+    ],
+    a: 2,
+    e: "संविधान के अनुसार, संसद (Parliament) कानून बनाकर सर्वोच्च और उच्च न्यायालय के अलावा किसी अन्य न्यायालय को भी रिट जारी करने का अधिकार दे सकती है।"
+  },
+  {
+    q: "Q22. रिट क्षेत्राधिकार (Writ Jurisdiction) के मामले में सर्वोच्च न्यायालय (Supreme Court) और उच्च न्यायालय (High Court) में से किसका क्षेत्राधिकार अधिक व्यापक (Broader) है?",
+    tag: "",
+    o: [
+      "A. सर्वोच्च न्यायालय का",
+      "B. उच्च न्यायालय का",
+      "C. दोनों का बराबर है",
+      "D. किसी का भी नहीं"
+    ],
+    a: 1,
+    e: "सर्वोच्च न्यायालय केवल मौलिक अधिकारों (Fundamental Rights) के उल्लंघन पर रिट जारी कर सकता है, जबकि उच्च न्यायालय मौलिक अधिकारों के साथ-साथ सामान्य कानूनी अधिकारों (Legal Rights) के लिए भी रिट जारी कर सकता है। इसलिए उच्च न्यायालय का रिट क्षेत्राधिकार व्यापक है।"
+  },
+  {
+    q: "Q23. क्षेत्रीय सीमा (Territorial Jurisdiction) के आधार पर रिट जारी करने के मामले में किसका क्षेत्राधिकार संपूर्ण भारत में विस्तृत है?",
+    tag: "",
+    o: [
+      "A. उच्च न्यायालय का",
+      "B. जिला न्यायालय का",
+      "C. सर्वोच्च न्यायालय का",
+      "D. दोनों का समान है"
+    ],
+    a: 2,
+    e: "सर्वोच्च न्यायालय का क्षेत्राधिकार संपूर्ण भारत (Whole of India) है, जबकि उच्च न्यायालय का क्षेत्राधिकार केवल संबंधित राज्य (Respective State) की सीमा तक ही सीमित होता है।"
+  },
+  {
+    q: "Q24. कौन सा न्यायालय मौलिक अधिकारों के उल्लंघन की स्थिति में रिट जारी करने से इनकार (Refuse) नहीं कर सकता?",
+    tag: "",
+    o: [
+      "A. उच्च न्यायालय (High Court)",
+      "B. सर्वोच्च न्यायालय (Supreme Court)",
+      "C. जिला न्यायालय (District Court)",
+      "D. उपभोक्ता न्यायालय (Consumer Court)"
+    ],
+    a: 1,
+    e: "सर्वोच्च न्यायालय (अनुच्छेद 32) रिट जारी करने से इनकार नहीं कर सकता, जबकि उच्च न्यायालय (अनुच्छेद 226) रिट जारी करने से इनकार कर सकता है।"
+  },
+  {
+    q: "Q25. 'बंदी प्रत्यक्षीकरण' (Habeas Corpus) रिट का शाब्दिक अर्थ (Literal Meaning) क्या है?",
+    tag: "",
+    o: [
+      "A. हम आदेश देते हैं",
+      "B. प्रमाणित होना",
+      "C. सशरीर न्यायालय के समक्ष प्रस्तुत करना",
+      "D. किस अधिकार से"
+    ],
+    a: 2,
+    e: "बंदी प्रत्यक्षीकरण (Habeas Corpus) का अर्थ है \"सशरीर न्यायालय के समक्ष प्रस्तुत करना\" (To have the body of)। यह गैरकानूनी नजरबंदी के खिलाफ व्यक्तिगत स्वतंत्रता सुनिश्चित करता है।"
+  },
+  {
+    q: "Q26. किस प्रसिद्ध मामले को 'बंदी प्रत्यक्षीकरण केस' (Habeas Corpus Case) के नाम से भी जाना जाता है?",
+    tag: "",
+    o: [
+      "A. एडीएम जबलपुर केस (ADM Jabalpur Case)",
+      "B. केशवानंद भारती केस",
+      "C. गोलकनाथ केस",
+      "D. मेनका गांधी केस"
+    ],
+    a: 0,
+    e: "एडीएम जबलपुर केस को 'बंदी प्रत्यक्षीकरण केस' के नाम से भी जाना जाता है, जो सीधे तौर पर व्यक्तिगत स्वतंत्रता से संबंधित है।"
+  },
+  {
+    q: "Q27. 'परमादेश' (Mandamus) रिट का शाब्दिक अर्थ क्या होता है?",
+    tag: "",
+    o: [
+      "A. प्रतिषेध करना",
+      "B. सूचित करना",
+      "C. सशरीर उपस्थित करना",
+      "D. हम आदेश देते हैं"
+    ],
+    a: 3,
+    e: "परमादेश (Mandamus) का अर्थ \"हम आदेश देते हैं\" (We Command) होता है। यह किसी सार्वजनिक अधिकारी या प्राधिकरण को उसका कर्तव्य निभाने का आदेश देने के लिए जारी किया जाता है।"
+  },
+  {
+    q: "Q28. 'परमादेश' (Mandamus) रिट निम्नलिखित में से किसके खिलाफ जारी नहीं की जा सकती?",
+    tag: "",
+    o: [
+      "A. किसी सार्वजनिक निगम (Public Corporation) के खिलाफ",
+      "B. निजी व्यक्ति, राष्ट्रपति या राज्यपाल (Private Person, President, or Governor) के खिलाफ",
+      "C. किसी निचली अदालत के खिलाफ",
+      "D. किसी सरकारी विभाग के अधिकारी के खिलाफ"
+    ],
+    a: 1,
+    e: "परमादेश रिट किसी निजी व्यक्ति, भारत के राष्ट्रपति, या राज्यों के राज्यपालों के खिलाफ तब जारी नहीं की जा सकती जब उनका कर्तव्य अनिवार्य न हो।"
+  },
+  {
+    q: "Q29. 'प्रतिषेध/निषेध' (Prohibition) रिट का मुख्य कार्य क्या है?",
+    tag: "",
+    o: [
+      "A. सरकारी अधिकारी को काम करने का आदेश देना",
+      "B. किसी व्यक्ति को नजरबंदी से रिहा करना",
+      "C. निचली अदालत को उसके अधिकार क्षेत्र का अतिक्रमण करने से रोकना",
+      "D. सार्वजनिक पद के दुरुपयोग को रोकना"
+    ],
+    a: 2,
+    e: "निषेध (Prohibition) का अर्थ \"निषेध करना\" है। यह किसी उच्च न्यायालय द्वारा निचली अदालत को उसके अधिकार क्षेत्र (Jurisdiction) का अतिक्रमण करने से रोकने के लिए जारी किया जाता है।"
+  },
+  {
+    q: "Q30. अनुच्छेद 26 के तहत धार्मिक संस्थाओं को निम्नलिखित में से कौन सा अधिकार प्राप्त है?",
+    tag: "",
+    o: [
+      "A. धार्मिक संस्थानों की स्थापना और रखरखाव (Establishment and Maintenance)",
+      "B. चल और अचल संपत्ति का स्वामित्व और अधिग्रहण (Ownership of Property)",
+      "C. कानून के अनुसार संपत्ति का प्रशासन (Administration of Property)",
+      "D. उपर्युक्त सभी"
+    ],
+    a: 3,
+    e: "अनुच्छेद 26 के तहत धार्मिक संस्थाओं को स्थापना, रखरखाव, चल-अचल संपत्ति के स्वामित्व और उसके कानूनी प्रशासन का अधिकार प्राप्त है (बिंदु a, b, c, d)।"
+  },
+  {
+    q: "Q31. अनुच्छेद 22 के अनुसार, किसी गिरफ्तार व्यक्ति को अपनी पसंद के किस व्यक्ति से परामर्श (Consult) करने और बचाव कराने का अधिकार है?",
+    tag: "",
+    o: [
+      "A. कानूनी व्यवसायी (Legal Practitioner / Advocate)",
+      "B. केवल सरकारी वकील से",
+      "C. मजिस्ट्रेट से",
+      "D. पुलिस अधिकारी से"
+    ],
+    a: 0,
+    e: "अनुच्छेद 22 के तहत गिरफ्तार किए गए व्यक्ति को अपनी पसंद के कानूनी व्यवसायी (वकील) से परामर्श करने और अपने बचाव का अधिकार प्राप्त है।"
+  },
+  {
+    q: "Q32. यदि किसी व्यक्ति को मजिस्ट्रेट की अनुमति के बिना 24 घंटे से अधिक समय तक हिरासत (Detention) में रखा जाता है, तो उसे क्या अधिकार प्राप्त है?",
+    tag: "",
+    o: [
+      "A. पुलिस हिरासत में रहने का",
+      "B. रिहा किए जाने का अधिकार (Right to be Released)",
+      "C. जेल बदलने की मांग करने का",
+      "D. सीधे उच्च न्यायालय में अपील करने का"
+    ],
+    a: 1,
+    e: "अनुच्छेद 22 के अनुसार, 24 घंटे के बाद व्यक्ति को रिहा किए जाने का अधिकार है, जब तक कि मजिस्ट्रेट उसे और हिरासत में रखने के लिए अधिकृत (Authorize) न करे।"
+  },
+  {
+    q: "Q33. किसी व्यक्ति को गिरफ्तार किए जाने पर पुलिस के लिए सबसे पहला अनिवार्य कर्तव्य क्या है?",
+    tag: "",
+    o: [
+      "A. उसका मेडिकल टेस्ट कराना",
+      "B. उसे तुरंत जमानत (Bail) देना",
+      "C. गिरफ्तारी के कारणों को सूचित करना (To Inform the Grounds of Arrest)",
+      "D. उसका बयान दर्ज करना"
+    ],
+    a: 2,
+    e: "अनुच्छेद 22 के तहत गिरफ्तार किए गए व्यक्ति को यथाशीघ्र गिरफ्तारी के कारणों से अवगत या सूचित कराना अनिवार्य है।"
+  },
+  {
+    q: "Q34. निवारक निरोध (Preventive Detention) कानून के तहत गठित 'सलाहकार बोर्ड' (Advisory Board) में कौन शामिल होते हैं?",
+    tag: "",
+    o: [
+      "A. जिला स्तर के मजिस्ट्रेट",
+      "B. पुलिस महानिदेशक (DGP)",
+      "C. उच्च न्यायालय के न्यायाधीश (Judges of High Court)",
+      "D. केंद्रीय गृह मंत्री"
+    ],
+    a: 2,
+    e: "इस पृष्ठ के अनुसार, 3 महीने से अधिक हिरासत के लिए उच्च न्यायालय के न्यायाधीशों के सलाहकार बोर्ड के विस्तार की मंजूरी आवश्यक है।"
+  },
+  {
+    q: "Q35. भारतीय संविधान का अनुच्छेद 26 किस प्रकार की स्वतंत्रता की गारंटी देता है?",
+    tag: "",
+    o: [
+      "A. व्यक्तिगत धार्मिक स्वतंत्रता",
+      "B. सामूहिक धार्मिक स्वतंत्रता (Collective Religious Freedom)",
+      "C. शैक्षणिक संस्थानों में प्रवेश की स्वतंत्रता",
+      "D. केवल अल्पसंख्यकों की धार्मिक स्वतंत्रता"
+    ],
+    a: 1,
+    e: "अनुच्छेद 25 व्यक्तिगत स्वतंत्रता देता है, जबकि अनुच्छेद 26 'धार्मिक मामलों के प्रबंधन' के माध्यम से सामूहिक धार्मिक स्वतंत्रता की गारंटी प्रदान करता है।"
+  },
+  {
+    q: "Q36. भारतीय संविधान का कौन सा अनुच्छेद यह स्पष्ट करता है कि राज्य किसी नागरिक पर किसी धर्म विशेष के लिए 'कर' (Tax) नहीं लगा सकता?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 26",
+      "B. अनुच्छेद 28",
+      "C. अनुच्छेद 25",
+      "D. अनुच्छेद 27"
+    ],
+    a: 3,
+    e: "अनुच्छेद 27 किसी विशेष धर्म के प्रचार के लिए करों के भुगतान के संबंध में स्वतंत्रता (Freedom as to payment of taxes) प्रदान करता है।"
+  },
+  {
+    q: "Q37. अनुच्छेद 29 के संदर्भ में निम्नलिखित में से कौन सा कथन पूरी तरह सत्य है?",
+    tag: "",
+    o: [
+      "A. यह अनुच्छेद केवल अल्पसंख्यकों (Minorities) के लिए ही है।",
+      "B. यह अनुच्छेद केवल बहुसंख्यकों के लिए है।",
+      "C. यह केवल अल्पसंख्यकों के लिए नहीं है, बल्कि नागरिकों के 'किसी भी वर्ग' (Any Section of Citizens) के लिए है।",
+      "D. यह केवल भाषाई अल्पसंख्यकों के लिए है।"
+    ],
+    a: 2,
+    e: "पृष्ठ पर दिए गए विशेष नोट के अनुसार, अनुच्छेद 29 केवल अल्पसंख्यकों के लिए नहीं है, क्योंकि इसमें 'नागरिकों के किसी भी वर्ग' शब्द का उपयोग किया गया है।"
+  },
+  {
+    q: "Q38. अनुच्छेद 30 विशेष रूप से किस वर्ग को शैक्षणिक संस्थान स्थापित करने और उनका प्रशासन करने का अधिकार देता है?",
+    tag: "",
+    o: [
+      "A. अनुसूचित जाति और जनजाति को",
+      "B. केवल अल्पसंख्यकों को (Specifically for Minorities)",
+      "C. सभी नागरिकों को समान रूप से",
+      "D. पिछड़े वर्गों को (OBC)"
+    ],
+    a: 1,
+    e: "अनुच्छेद 30 विशेष रूप से अल्पसंख्यकों (Minorities) के लिए है, जो उन्हें अपनी पसंद के शैक्षणिक संस्थान स्थापित करने का अधिकार देता है।"
+  },
+  {
+    q: "Q39. मौलिक अधिकारों के प्रवर्तन (Enforcement of Fundamental Rights) के लिए सर्वोच्च न्यायालय जाने की गारंटी कौन सा अनुच्छेद देता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 14",
+      "B. अनुच्छेद 226",
+      "C. अनुच्छेद 19",
+      "D. अनुच्छेद 32"
+    ],
+    a: 3,
+    e: "अनुच्छेद 32 भाग 3 द्वारा प्रदत्त अधिकारों के प्रवर्तन के लिए उपचार (Remedies) प्रदान करता है, जिसे संवैधानिक उपचारों का अधिकार कहा जाता है।"
+  },
+  {
+    q: "Q40. भारतीय संविधान के किस भाग (Part) के अंतर्गत अनुच्छेद 32 से 35 तक के प्रावधान शामिल हैं?",
+    tag: "",
+    o: [
+      "A. भाग II (नागरिकता)",
+      "B. भाग III (मौलिक अधिकार / Fundamental Rights)",
+      "C. भाग IV (नीति निदेशक तत्व)",
+      "D. भाग V (संघ)"
+    ],
+    a: 1,
+    e: "अनुच्छेद 32 से 35 तक के प्रावधान मौलिक अधिकारों के प्रवर्तन हेतु 'संवैधानिक उपचारों का अधिकार' के रूप में भाग III में शामिल हैं।"
+  },
+  {
+    q: "Q41. भारतीय संविधान के अनुच्छेद 32 और अनुच्छेद 226 के तहत न्यायालयों द्वारा कुल कितनी रिटें (Writs) जारी की जा सकती हैं?",
+    tag: "",
+    o: [
+      "A. चार (4)",
+      "B. छह (6)",
+      "C. पाँच (5)",
+      "D. तीन (3)"
+    ],
+    a: 2,
+    e: "भारतीय संविधान के तहत सर्वोच्च न्यायालय और उच्च न्यायालय द्वारा कुल पाँच प्रकार की रिटें (जैसे- बंदी प्रत्यक्षीकरण, परमादेश, प्रतिषेध आदि) जारी की जा सकती हैं।"
+  },
+  {
+    q: "Q42. \"हम आदेश देते हैं\" (We Command) किस रिट का शाब्दिक अर्थ (Literal Meaning) है?",
+    tag: "",
+    o: [
+      "A. बंदी प्रत्यक्षीकरण (Habeas Corpus)",
+      "B. परमादेश (Mandamus)",
+      "C. प्रतिषेध (Prohibition)",
+      "D. अधिकार पृच्छा (Quo-Warranto)"
+    ],
+    a: 1,
+    e: "'परमादेश' (Mandamus) का अर्थ \"हम आदेश देते हैं\" होता है, जो सार्वजनिक कर्तव्य निभाने में विफल रहने पर जारी किया जाता है।"
+  },
+  {
+    q: "Q43. 'निषेध/प्रतिषेध' (Prohibition) रिट किसके खिलाफ जारी की जा सकती है?",
+    tag: "",
+    o: [
+      "A. किसी निजी व्यक्ति के खिलाफ",
+      "B. संसद के खिलाफ",
+      "C. निचली अदालत या अर्द्ध-न्यायिक निकायों (Lower Court / Quasi-judicial bodies) के खिलाफ",
+      "D. भारत के राष्ट्रपति के खिलाफ"
+    ],
+    a: 2,
+    e: "निषेध रिट किसी उच्च न्यायालय द्वारा किसी निचली अदालत को अपने अधिकार क्षेत्र का उल्लंघन करने से रोकने के लिए जारी की जाती है।"
+  },
+  {
+    q: "Q44. एडीएम जबलपुर केस (ADM Jabalpur Case) का संबंध मुख्य रूप से संविधान के किस मौलिक अधिकार से है?",
+    tag: "",
+    o: [
+      "A. समानता का अधिकार",
+      "B. धार्मिक स्वतंत्रता का अधिकार",
+      "C. व्यक्तिगत स्वतंत्रता (Personal Liberty) / बंदी प्रत्यक्षीकरण",
+      "D. शिक्षा का अधिकार"
+    ],
+    a: 2,
+    e: "एडीएम जबलपुर केस को 'बंदी प्रत्यक्षीकरण केस' भी कहा जाता है, जो सीधे तौर पर व्यक्तिगत स्वतंत्रता से संबंधित है।"
+  },
+  {
+    q: "Q45. अनुच्छेद 22 के तहत मजिस्ट्रेट के समक्ष पेश करने की 24 घंटे की अवधि में किसे शामिल नहीं किया जाता है?",
+    tag: "",
+    o: [
+      "A. रविवार के दिन को",
+      "B. यात्रा में लगे समय को (Time taken for Journey)",
+      "C. रात के समय को",
+      "D. वकीलों से परामर्श के समय को"
+    ],
+    a: 1,
+    e: "24 घंटे की गणना करते समय गिरफ्तारी के स्थान से मजिस्ट्रेट के कोर्ट तक की 'यात्रा के समय' को घटा दिया जाता है।"
+  },
+  {
+    q: "Q46. यदि कोई सार्वजनिक अधिकारी (Public Official) अपने कानूनी या सार्वजनिक कर्तव्यों का पालन करने से इनकार करता है, तो कौन सी रिट जारी की जाएगी?",
+    tag: "",
+    o: [
+      "A. प्रतिषेध (Prohibition)",
+      "B. परमादेश (Mandamus)",
+      "C. बंदी प्रत्यक्षीकरण (Habeas Corpus)",
+      "D. अधिकार पृच्छा (Quo-Warranto)"
+    ],
+    a: 1,
+    e: "सार्वजनिक अधिकारी या प्राधिकरण द्वारा कर्तव्य न निभाने या विफल रहने पर 'परमादेश' (Mandamus) रिट जारी की जाती है।"
+  },
+  {
+    q: "Q47. धार्मिक स्वतंत्रता के अधिकार (अनुच्छेद 25-28) के तहत 'शुल्क' (Fee) और 'कर' (Tax) में क्या अंतर स्पष्ट किया गया है?",
+    tag: "",
+    o: [
+      "A. राज्य कर लगा सकता है, शुल्क नहीं।",
+      "B. राज्य न तो कर लगा सकता है और न ही शुल्क।",
+      "C. राज्य कर और शुल्क दोनों लगा सकता है।",
+      "D. राज्य कर (Tax) नहीं लगा सकता, लेकिन शुल्क (Fee) लगा सकता है।"
+    ],
+    a: 3,
+    e: "अनुच्छेद 27 केवल किसी विशेष धर्म के संवर्धन के लिए कर (Tax) लगाने पर प्रतिबंध लगाता है, लेकिन सेवाओं के बदले शुल्क (Fee) लगाया जा सकता है।"
+  },
+  {
+    q: "Q48. अनुच्छेद 24 के तहत बच्चों को खतरनाक उद्योगों (Hazardous Industries) में नियोजित करने पर किस प्रकार का प्रतिबंध है?",
+    tag: "",
+    o: [
+      "A. आंशिक प्रतिबंध",
+      "B. पूर्ण प्रतिबंध (Absolute Prohibition)",
+      "C. केवल रात के समय प्रतिबंध",
+      "D. केवल फैक्ट्रियों के मालिकों की अनुमति से छूट"
+    ],
+    a: 1,
+    e: "14 वर्ष से कम आयु के बच्चों को कारखानों, खदानों या अन्य खतरनाक स्थानों पर नियोजित करने पर पूर्ण प्रतिबंध लगाया गया है।"
+  },
+  {
+    q: "Q49. भारतीय संविधान के तहत रिट (Writ) जारी करने की मूल शक्तियाँ किन न्यायालयों के पास हैं?",
+    tag: "",
+    o: [
+      "A. केवल सर्वोच्च न्यायालय (Supreme Court)",
+      "B. केवल उच्च न्यायालय (High Court)",
+      "C. सर्वोच्च न्यायालय और उच्च न्यायालय दोनों (Both SC and HC)",
+      "D. भारत के सभी जिला न्यायालयों के पास"
+    ],
+    a: 2,
+    e: "अनुच्छेद 32 के तहत सर्वोच्च न्यायालय और अनुच्छेद 226 के तहत उच्च न्यायालय को मौलिक अधिकारों की रक्षा के लिए रिट जारी करने की शक्ति प्राप्त है।"
+  },
+  {
+    q: "Q50. रिट क्षेत्राधिकार के मामले में, कौन सा न्यायालय केवल मौलिक अधिकारों (Fundamental Rights) के उल्लंघन पर ही रिट जारी कर सकता है?",
+    tag: "",
+    o: [
+      "A. सर्वोच्च न्यायालय (Supreme Court)",
+      "B. उच्च न्यायालय (High Court)",
+      "C. जिला सत्र न्यायालय (District Sessions Court)",
+      "D. उपभोक्ता फोरम"
+    ],
+    a: 0,
+    e: "सर्वोच्च न्यायालय केवल मौलिक अधिकारों के उल्लंघन की स्थिति में ही रिट जारी कर सकता है, जबकि उच्च न्यायालय कानूनी अधिकारों के लिए भी रिट जारी कर सकता है।"
+  }
+];
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
