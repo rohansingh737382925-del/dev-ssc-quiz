@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
+background:transparent;opacity:0;pointer-events:none;transition:.25s;
+}
+#streakPopup.show{opacity:1;}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:absolute;width:10px;height:10px;border-radius:50%;
+background:#ffd54f;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. मौलिक अधिकारों (Fundamental Rights) की प्रकृति और विशेषताओं के संदर्भ में निम्नलिखित में से कौन सा कथन असत्य है?",
+    tag: "",
+    o: [
+      "A) मौलिक अधिकार पूर्ण (Absolute) होते हैं और इनकी कोई सीमाएं नहीं होती हैं।",
+      "B) मौलिक अधिकार 'अक्षुण्ण' या स्थायी नहीं होते हैं।",
+      "C) आपातकाल के दौरान मौलिक अधिकारों को कम या निलंबित किया जा सकता है।",
+      "D) मौलिक अधिकार स्वभाव से न्यायालय द्वारा न्याययोग्य (Justiciable) होते हैं।"
+    ],
+    a: 0,
+    e: "दिए गए पृष्ठ के अनुसार, मौलिक अधिकार पूर्ण नहीं होते हैं बल्कि उनकी अपनी सीमाएं (Limits) होती हैं।"
+  },
+  {
+    q: "Q2. राष्ट्रीय आपातकाल (National Emergency) के दौरान भी भारतीय संविधान के किन अनुच्छेदों के अंतर्गत दिए गए मौलिक अधिकारों को कभी भी निलंबित नहीं किया जा सकता है?",
+    tag: "",
+    o: [
+      "A) अनुच्छेद 14 एवं 19",
+      "B) अनुच्छेद 19 एवं 20",
+      "C) अनुच्छेद 20 एवं 21",
+      "D) अनुच्छेद 21 एवं 22"
+    ],
+    a: 2,
+    e: "आपातकाल के दौरान अन्य मौलिक अधिकार कम किए जा सकते हैं, लेकिन अनुच्छेद 20 एवं 21 को कभी भी निलंबित नहीं किया जा सकता है।"
+  },
+  {
+    q: "Q3. भारतीय संविधान में मौलिक अधिकारों (Fundamental Rights) की अवधारणा को किस देश के संविधान से लिया गया है?",
+    tag: "",
+    o: [
+      "A) ब्रिटेन के संविधान से",
+      "B) अमेरिका के संविधान (अधिकार घोषणा पत्र - Bill of Rights) से",
+      "C) आयरलैंड के संविधान से",
+      "D) ऑस्ट्रेलिया के संविधान से"
+    ],
+    a: 1,
+    e: "पृष्ठ के महत्वपूर्ण बिंदुओं के अनुसार, इन्हें अमेरिका के संविधान (अधिकार घोषणा पत्र - Bill of Rights) से उधार लिया गया है।"
+  },
+  {
+    q: "Q4. भारतीय संविधान के किस भाग को \"भारत का मैग्ना कार्टा\" (Magna Carta of India) और \"संविधान का अंतरात्मा\" कहा जाता है?",
+    tag: "",
+    o: [
+      "A) भाग II",
+      "B) भाग III",
+      "C) भाग IV",
+      "D) भाग V"
+    ],
+    a: 1,
+    e: "संविधान के भाग III में निहित मौलिक अधिकारों (अनुच्छेद 12-35) को \"संविधान का अंतरात्मा\" और \"भारत का मैग्ना कार्टा\" कहा जाता है।"
+  },
+  {
+    q: "Q5. भारतीय संविधान में दिए गए मौलिक अधिकारों का मुख्य उद्देश्य निम्नलिखित में से किसे लागू करना या बढ़ावा देना है?",
+    tag: "",
+    o: [
+      "A) सामाजिक लोकतंत्र (Social Democracy)",
+      "B) आर्थिक लोकतंत्र (Economic Democracy)",
+      "C) राजनीतिक लोकतंत्र (Political Democracy)",
+      "D) धार्मिक लोकतंत्र (Religious Democracy)"
+    ],
+    a: 2,
+    e: "पृष्ठ के तथ्यों के अनुसार, मौलिक अधिकार राजनीतिक लोकतंत्र लागू करना चाहते हैं।"
+  },
+  {
+    q: "Q6. मूल रूप से भारतीय संविधान द्वारा कितने मौलिक अधिकार प्रदान किए गए थे और वर्तमान में इनकी संख्या कितनी है?",
+    tag: "",
+    o: [
+      "A) मूलतः 6 अधिकार थे, वर्तमान में 7 हैं",
+      "B) मूलतः 7 अधिकार थे, वर्तमान में 6 हैं",
+      "C) मूलतः 5 अधिकार थे, वर्तमान में 6 हैं",
+      "D) मूलतः 7 अधिकार थे, वर्तमान में 5 हैं"
+    ],
+    a: 1,
+    e: "मूलतः संविधान में 7 मौलिक अधिकार थे, लेकिन वर्तमान में केवल 6 मौलिक अधिकार ही शेष हैं।"
+  },
+  {
+    q: "Q7. संपत्ति के अधिकार (Right to Property) को किस संविधान संशोधन द्वारा और किस वर्ष मौलिक अधिकारों की सूची (भाग III) से हटा दिया गया था?",
+    tag: "",
+    o: [
+      "A) 42वें संविधान संशोधन द्वारा, 1976 में",
+      "B) 44वें संविधान संशोधन द्वारा, 1978 में",
+      "C) 52वें संविधान संशोधन द्वारा, 1985 में",
+      "D) 86वें संविधान संशोधन द्वारा, 2002 में"
+    ],
+    a: 1,
+    e: "संपत्ति का अधिकार 1978 में 44वें संविधान संशोधन द्वारा भाग III से हटा दिया गया था।"
+  },
+  {
+    q: "Q8. मौलिक अधिकारों की सूची से हटाए जाने के बाद, वर्तमान में संपत्ति का अधिकार किस भाग और अनुच्छेद के तहत एक कानूनी अधिकार (Legal Right) है?",
+    tag: "",
+    o: [
+      "A) भाग XI, अनुच्छेद 300",
+      "B) भाग XII, अनुच्छेद 300 A",
+      "C) भाग III, अनुच्छेद 31",
+      "D) भाग IV, अनुच्छेद 300 A"
+    ],
+    a: 1,
+    e: "संपत्ति का अधिकार अब भाग XII के अनुच्छेद 300 A के अंतर्गत एक कानूनी अधिकार के रूप में स्थापित है।"
+  },
+  {
+    q: "Q9. निम्नलिखित में से कौन सा मौलिक अधिकार और उससे संबंधित अनुच्छेदों का युग्म सही सुमेलित नहीं है?",
+    tag: "",
+    o: [
+      "A) समानता का अधिकार: अनुच्छेद 14-18",
+      "B) स्वतंत्रता का अधिकार: अनुच्छेद 19-22",
+      "C) शोषण के विरुद्ध अधिकार: अनुच्छेद 23-24",
+      "D) धार्मिक स्वतंत्रता का अधिकार: अनुच्छेद 29-30"
+    ],
+    a: 3,
+    e: "धार्मिक स्वतंत्रता का अधिकार अनुच्छेद 25-28 के अंतर्गत आता है, जबकि अनुच्छेद 29-30 में सांस्कृतिक और शैक्षिक अधिकार का प्रावधान है।"
+  },
+  {
+    q: "Q10. भारतीय संविधान के अनुच्छेद 12 के तहत दिए गए 'राज्य' (State) की परिभाषा में निम्नलिखित में से कौन सा निकाय शामिल नहीं है?",
+    tag: "",
+    o: [
+      "A) भारत की संसद और संघ कार्यपालिका",
+      "B) प्रत्येक राज्य का विधानमंडल",
+      "C) भारत के क्षेत्र के भीतर सभी स्थानीय या अन्य प्राधिकरण",
+      "D) विदेशी राजनयिक और अंतर्राष्ट्रीय न्यायालय"
+    ],
+    a: 3,
+    e: "अनुच्छेद 12 के अनुसार 'राज्य' शब्द में सरकार, संघ कार्यपालिका, भारत की संसद, प्रत्येक राज्य का विधानमंडल और भारत के क्षेत्र के भीतर सभी स्थानीय या अन्य प्राधिकरण शामिल हैं।"
+  },
+  {
+    q: "Q11. भारतीय संविधान के अनुच्छेद 13 के संदर्भ में सत्य कथन की पहचान कीजिए:",
+    tag: "",
+    o: [
+      "A) संविधान लागू होने से पहले बनाया गया कोई भी कानून यदि मौलिक अधिकारों का उल्लंघन करता है, तो वह प्रभावी रहेगा।",
+      "B) अनुच्छेद 13 के तहत 'कानून' में केवल संसद के अधिनियम शामिल हैं, अध्यादेश या नियम नहीं।",
+      "C) अनुच्छेद 13 के प्रावधान अनुच्छेद 368 के तहत किए गए किसी भी संविधान संशोधन पर लागू नहीं होंगे।",
+      "D) यह अनुच्छेद न्यायपालिका को कानूनों की समीक्षा करने की शक्ति नहीं देता है।"
+    ],
+    a: 2,
+    e: "पृष्ठ पर स्पष्ट लिखा है कि अनुच्छेद 13 का नियम अनुच्छेद 368 के तहत किए गए किसी भी संविधान संशोधन पर लागू नहीं होगा।"
+  },
+  {
+    q: "Q12. अनुच्छेद 13 के अंतर्गत 'कानून' (Law) शब्द के व्यापक दायरे में भारत के क्षेत्र में निम्नलिखित में से किसे शामिल किया गया है?",
+    tag: "",
+    o: [
+      "A) अध्यादेश (Ordinance) और आदेश (Order)",
+      "B) उप-कानून (By-law) and नियम (Rule)",
+      "C) विनियमन (Regulation) और अधिसूचना (Notification)",
+      "D) उपर्युक्त सभी विकल्प शामिल हैं"
+    ],
+    a: 3,
+    e: "पृष्ठ के अनुसार, कानून में भारत के क्षेत्र में कोई भी अध्यादेश, आदेश, उप-कानून, नियम, विनियमन और अधिसूचना शामिल है।"
+  },
+  {
+    q: "Q13. सुप्रसिद्ध विधिनेता ए.वी. डाइसी (A.V. Dicey) ने निम्नलिखित में से किस अवधारणा को 'कानून के शासन' (Rule of Law) का एक मौलिक सिद्धांत माना है?",
+    tag: "",
+    o: [
+      "A) कानून का समान संरक्षण",
+      "B) कानून के समक्ष समानता",
+      "C) अवसरों की समानता",
+      "D) योग्यता के आधार पर संरक्षण"
+    ],
+    a: 1,
+    e: "ए.वी. डाइसी ने 'कानून के समक्ष समानता' को कानून के शासन का एक मौलिक सिद्धांत माना था।"
+  },
+  {
+    q: "Q14. 'कानून के समक्ष समानता' (Equality before Law) के संबंध में निम्नलिखित में से कौन सा तथ्य सही है?",
+    tag: "",
+    o: [
+      "A) यह अमेरिका से ली गई एक सकारात्मक अवधारणा है।",
+      "B) यह ब्रिटेन से ली गई एक नकारात्मक (Negative) अवधारणा है।",
+      "C) इसके तहत परिस्थितियों की परवाह किए बिना असमान लोगों के साथ भी एक जैसा व्यवहार होना चाहिए।",
+      "D) यह अवधारणा भारतीय नागरिकों पर लागू नहीं होती है।"
+    ],
+    a: 1,
+    e: "कानून के समक्ष समानता ब्रिटेन से ली गई एक नकारात्मक अवधारणा है, जिसमें कहा गया है कि कानून की नजर में सभी के साथ समान व्यवहार किया जाना चाहिए।"
+  },
+  {
+    q: "Q15. 'कानूनों का समान संरक्षण' (Equal Protection of Laws) के संबंध में निम्नलिखित में से कौन सा कथन सत्य है?",
+    tag: "",
+    o: [
+      "A) यह ब्रिटेन से ली गई एक नकारात्मक अवधारणा है।",
+      "B) यह अमेरिका से ली गई एक सकारात्मक (Positive) अवधारणा है।",
+      "C) इसमें कहा गया है कि कानून की नजर में सभी के साथ हमेशा समान व्यवहार होना चाहिए।",
+      "D) यह भारतीय संविधान के अनुच्छेद 15 के अंतर्गत मुख्य रूप से आता है।"
+    ],
+    a: 1,
+    e: "'कानून का समान संरक्षण' अमेरिका से ली गई एक सकारात्मक अवधारणा है, जो कहती है कि कानून के तहत समान परिस्थितियों वाले लोगों के साथ एक जैसा व्यवहार किया जाना चाहिए।"
+  },
+  {
+    q: "Q16. भारतीय संविधान के अनुच्छेद 14 के तहत दीवानी या आपराधिक मामलों में गिरफ्तारी से छूट (अपवाद) के रूप में पृष्ठ में निम्नलिखित में से किन व्यक्तियों का उल्लेख नहीं है?",
+    tag: "",
+    o: [
+      "A) राष्ट्रपति एवं राज्यपाल",
+      "B) विधायक एवं सांसद",
+      "C) विदेशी राजनयिक व्यक्ति",
+      "D) संघ लोक सेवा आयोग के अध्यक्ष"
+    ],
+    a: 3,
+    e: "अनुच्छेद 14 के अपवादों के अंतर्गत राष्ट्रपति, विधायक/सांसद, राज्यपाल और विदेशी गणमान्य/राजनयिक व्यक्तियों को दीवानी/अपराधिक मामलों में गिरफ्तार नहीं किया जा सकता है।"
+  },
+  {
+    q: "Q17. भारतीय संविधान का अनुच्छेद 15(1) राज्य को किसी भी नागरिक के विरुद्ध 'केवल' किन आधारों पर भेदभाव करने से प्रतिबंधित करता है?",
+    tag: "",
+    o: [
+      "A) धर्म, मूलवंश, जाति, लिंग या जन्म स्थान",
+      "B) धर्म, जाति, भाषा, निवास या आर्थिक स्थिति",
+      "C) धर्म, मूलवंश, जाति, लिंग, वंश या निवास",
+      "D) भाषा, संस्कृति, जाति, लिंग या जन्म स्थान"
+    ],
+    a: 0,
+    e: "अनुच्छेद 15(1) के अनुसार, राज्य किसी भी नागरिक के विरुद्ध केवल धर्म, मूलवंश, जाति, लिंग, जन्म स्थान के आधार पर कोई भेदभाव नहीं करेगा।"
+  },
+  {
+    q: "Q18. अनुच्छेद 15(2) के अनुसार, नागरिकों को दुकानों, सार्वजनिक रेस्तरां, होटलों और राज्य निधि से पूर्णतः या आंशिक रूप से संचालित कुओं, तालाबों, स्नानघाटों तथा सड़कों के उपयोग से किस आधार पर वंचित नहीं किया जा सकता है?",
+    tag: "",
+    o: [
+      "A) केवल राजनीतिक विचारधारा के आधार पर",
+      "B) केवल शैक्षणिक योग्यता के आधार पर",
+      "C) केवल धर्म, मूलवंश, जाति, लिंग या जन्म स्थान के आधार पर",
+      "D) केवल राष्ट्रीयता के आधार पर"
+    ],
+    a: 2,
+    e: "अनुच्छेद 15(2) के तहत इन निर्दिष्ट आधारों (धर्म, मूलवंश, जाति, लिंग, जन्म स्थान) पर किसी भी नागरिक पर कोई निर्योग्यता, दायित्व, प्रतिबंध या शर्त लागू नहीं होगी।"
+  },
+  {
+    q: "Q19. भारतीय संविधान के किस अनुच्छेद के तहत राज्य को महिलाओं और बच्चों (Women and Children) के लिए विशेष प्रावधान करने की सकारात्मक शक्ति प्राप्त है?",
+    tag: "",
+    o: [
+      "A) अनुच्छेद 15(1)",
+      "B) अनुच्छेद 15(2)",
+      "C) अनुच्छेद 15(3)",
+      "D) अनुच्छेद 15(4)"
+    ],
+    a: 2,
+    e: "अनुच्छेद 15(3) के अनुसार, राज्य महिलाओं और बच्चों के लिए विशेष प्रावधान कर सकता है।"
+  },
+  {
+    q: "Q20. भारतीय संविधान का कौन सा अनुच्छेद राज्य को अनुसूचित जातियों (SC) और अनुसूचित जनजातियों (ST) की उन्नति के लिए विशेष प्रावधान करने का अधिकार देता है?",
+    tag: "",
+    o: [
+      "A) अनुच्छेद 15(2)",
+      "B) अनुच्छेद 15(4)",
+      "C) अनुच्छेद 16(2)",
+      "D) अनुच्छेद 16(4)"
+    ],
+    a: 1,
+    e: "अनुच्छेद 15(4) में यह प्रावधान है कि राज्य अनुसूचित जातियों और अनुसूचित जनजातियों की उन्नति के लिए विशेष प्रावधान कर सकता है।"
+  },
+  {
+    q: "Q21. सार्वजनिक रोजगार के मामलों में अवसर की समानता (Equality of Opportunity in Public Employment) का प्रावधान संविधान के किस अनुच्छेद में विस्तार से दिया गया है?",
+    tag: "",
+    o: [
+      "A) अनुच्छेद 14",
+      "B) अनुच्छेद 15",
+      "C) अनुच्छेद 16",
+      "2) अनुच्छेद 17"
+    ],
+    a: 2,
+    e: "अनुच्छेद 16 सार्वजनिक रोजगार के मामलों में अवसर की समानता से संबंधित है।"
+  },
+  {
+    q: "Q22. अनुच्छेद 16(2) के तहत राज्य के अधीन किसी भी कार्यालय में रोजगार या नियुक्ति के मामले में नागरिकों के साथ भेदभाव न करने के लिए कुल कितने आधार दिए गए हैं?",
+    tag: "",
+    o: [
+      "A) 5 आधार (धर्म, मूलवंश, जाति, लिंग, जन्म स्थान)",
+      "B) 7 आधार (धर्म, मूलवंश, जाति, लिंग, वंश, जन्म स्थान, निवास)",
+      "C) 4 आधार (धर्म, जाति, लिंग, भाषा)",
+      "D) 6 आधार (धर्म, मूलवंश, जाति, लिंग, जन्म स्थान, भाषा)"
+    ],
+    a: 1,
+    e: "अनुच्छेद 16(2) के अनुसार, किसी भी नागरिक को केवल धर्म, मूलवंश, जाति, लिंग, वंश, जन्म स्थान, निवास के आधार पर राज्य के अधीन किसी रोजगार या पद के लिए अयोग्य नहीं ठहराया जाएगा, न ही भेदभाव किया जाएगा।"
+  },
+  {
+    q: "Q23. भारतीय संविधान के किस अनुच्छेद के तहत राज्य उन \"पिछड़े वर्गों\" (Backward Classes) के लिए नौकरियों या पदों को आरक्षित करने के लिए नियम बना सकता है जिनका राज्य की सेवाओं में प्रतिनिधित्व कम है?",
+    tag: "",
+    o: [
+      "A) अनुच्छेद 16(1)",
+      "B) अनुच्छेद 16(2)",
+      "C) अनुच्छेद 16(3)",
+      "D) अनुच्छेद 16(4)"
+    ],
+    a: 3,
+    e: "अनुच्छेद 16(4) के अनुसार, राज्य उन \"पिछड़े वर्गों\" के लिए नौकरियों या पदों को आरक्षित करने के लिए नियम बना सकता है जिनका राज्य सेवाओं में प्रतिनिधित्व कम है।"
+  },
+  {
+    q: "Q24. अनुच्छेद 16(3) के अनुसार, स्थानीय रोजगार या नियुक्तियों के मामले में उन लोगों को प्राथमिकता देने के लिए नियम निर्धारित करने की शक्ति किसके पास है जो उस विशेष क्षेत्र के निवासी हैं?",
+    tag: "",
+    o: [
+      "A) केवल निजी कंपनियों के पास",
+      "B) राज्य (प्राधिकरण) के पास",
+      "C) केवल स्थानीय पंचायतों के पास",
+      "D) विदेशी रोजगार बोर्डों के पास"
+    ],
+    a: 1,
+    e: "अनुच्छेद 16(3) के तहत राज्य ऐसे नियम निर्धारित कर सकता है जो स्थानीय रोजगार या नियुक्तियों के मामले में उन लोगों को प्राथमिकता देता है जो क्षेत्र के निवासी हैं।"
+  },
+  {
+    q: "Q25. वर्ष 1953 में गठित 'कालेलकर आयोग' निम्नलिखित में से किस विषय से संबंधित था?",
+    tag: "",
+    o: [
+      "A) प्रथम पिछड़ा वर्ग आयोग (First Backward Class Commission)",
+      "B) द्वितीय पिछड़ा वर्ग आयोग",
+      "C) संघ और राज्यों के बीच संबंध",
+      "D) आधिकारिक भाषा आयोग"
+    ],
+    a: 0,
+    e: "पृष्ठ के तथ्यों के अनुसार, 1953 में काका कालेलकर की अध्यक्षता में 'कालेलकर आयोग' का गठन किया गया था, जो प्रथम पिछड़ा वर्ग आयोग था।"
+  },
+  {
+    q: "Q26. वर्ष 1979 में गठित 'मंडल आयोग' (Mandal Commission) के अध्यक्ष निम्नलिखित में से कौन थे?",
+    tag: "",
+    o: [
+      "A) काका कालेलकर",
+      "B) बी.पी. मंडल",
+      "C) वी.पी. सिंह",
+      "D) इंद्रा साहनी"
+    ],
+    a: 1,
+    e: "पृष्ठ पर स्पष्ट लिखा है कि 1979 में गठित दूसरा पिछड़ा वर्ग आयोग 'मंडल आयोग' था, जिसके अध्यक्ष बी.पी. मंडल थे।"
+  },
+  {
+    q: "Q27. मंडल आयोग की सिफारिशों के आधार पर अन्य पिछड़ा वर्ग (OBC) को नौकरियों में 27% आरक्षण देने का निर्णय 1990 में किस प्रधानमंत्री के कार्यकाल के दौरान लागू किया गया?",
+    tag: "",
+    o: [
+      "A) मोरारजी देसाई",
+      "B) वी.पी. सिंह",
+      "C) इंदिरा गांधी",
+      "D) राजीव गांधी"
+    ],
+    a: 1,
+    e: "पृष्ठ के अनुसार, 1990 में प्रधानमंत्री वी.पी. सिंह द्वारा ओबीसी को 27% आरक्षण देने की सिफारिश को लागू किया गया था।"
+  },
+  {
+    q: "Q28. ऐतिहासिक 'इंद्रा साहनी मामला (1992)' जिसे 'मंडल केस' के नाम से भी जाना जाता है, में सर्वोच्च न्यायालय ने निम्नलिखित में से क्या निर्णय दिया था?",
+    tag: "",
+    o: [
+      "A) ओबीसी के लिए 27% आरक्षण को असंवैधानिक घोषित कर दिया।",
+      "B) ओबीसी के लिए 27% आरक्षण बरकरार रखा, लेकिन कुल आरक्षण पर 50% की सीमा तय की।",
+      "C) आरक्षण की कुल सीमा को बढ़ाकर 75% कर दिया।",
+      "D) क्रीमी लेयर (Creamy Layer) की पहचान को पूरी तरह खारिज कर दिया।"
+    ],
+    a: 1,
+    e: "सर्वोच्च न्यायालय ने सरकारी नौकरियों में ओबीसी के लिए 27% आरक्षण को बरकरार रखा, लेकिन कुल आरक्षण पर 50% की सीमा भी तय की।"
+  },
+  {
+    q: "Q29. भारतीय संविधान में 'जनहित याचिका' (PIL - Public Interest Litigation) की अवधारणा निम्नलिखित में से किस देश के संविधान से ली गई है?",
+    tag: "",
+    o: [
+      "A) ब्रिटेन",
+      "B) संयुक्त राज्य अमेरिका",
+      "C) ऑस्ट्रेलिया",
+      "D) कनाडा"
+    ],
+    a: 1,
+    e: "पृष्ठ पर स्पष्ट रूप से उल्लिखित है कि जनहित याचिका (PIL) संयुक्त राज्य अमेरिका के संविधान से ली गई है।"
+  },
+  {
+    q: "Q30. भारतीय संविधान के अनुच्छेद 17 (अस्पृश्यता का उन्मूलन) के संबंध में निम्नलिखित में से कौन सा कथन सही है?",
+    tag: "",
+    o: [
+      "A) यह केवल राज्य के विरुद्ध प्राप्त है, किसी निजी व्यक्ति के विरुद्ध नहीं।",
+      "B) संविधान में 'अस्पृश्यता' (Untouchability) शब्द को विस्तार से परिभाषित किया गया है।",
+      "C) राज्य और किसी भी निजी व्यक्ति को अस्पृश्यता का अभ्यास करने से प्रतिबंधित किया गया है।",
+      "D) संसद ने इस शब्द को परिभाषित करने के लिए विशेष अनुसूची बनाई है।"
+    ],
+    a: 2,
+    e: "अनुच्छेद 17 के तहत राज्य और किसी भी निजी व्यक्ति को अस्पृश्यता का अभ्यास करने से प्रतिबंधित किया गया है, और संविधान में कहीं भी 'अस्पृश्यता' शब्द को परिभाषित नहीं किया गया है।"
+  },
+  {
+    q: "Q31. भारतीय संविधान के अनुच्छेद 18 (उपाधियों का उन्मूलन) के तहत राज्य निम्नलिखित में से किस क्षेत्र के अलावा कोई अन्य उपाधि प्रदान नहीं करेगा?",
+    tag: "",
+    o: [
+      "A) सेना या शिक्षा (शैक्षणिक)",
+      "B) राजनीति या खेल",
+      "C) कला या साहित्य",
+      "D) समाज सेवा या व्यवसाय"
+    ],
+    a: 0,
+    e: "पृष्ठ के अनुसार, राज्य द्वारा सेना या शैक्षणिक उपाधि के अलावा कोई अन्य उपाधि प्रदान नहीं की जाएगी।"
+  },
+  {
+    q: "Q32. अनुच्छेद 18 के प्रावधानों के अनुसार, यदि कोई व्यक्ति लाभ का पद धारण करता है, तो वह किसकी सहमति के बिना किसी विदेशी राज्य से कोई उपाधि प्राप्त नहीं करेगा?",
+    tag: "",
+    o: [
+      "A) प्रधानमंत्री",
+      "B) भारत के मुख्य न्यायाधीश",
+      "C) राष्ट्रपति",
+      "D) संसद"
+    ],
+    a: 2,
+    e: "कोई भी व्यक्ति जो लाभ का पद धारण करता है, वह राष्ट्रपति की सहमति के बिना किसी विदेशी राज्य से कोई उपाधि प्राप्त नहीं करेगा।"
+  },
+  {
+    q: "Q33. भारतीय संविधान के अनुच्छेद 19(1)(A) के तहत दी गई 'वाक् (Speech) एवं अभिव्यक्ति की स्वतंत्रता' को निम्नलिखित में से क्या कहा गया है?",
+    tag: "",
+    o: [
+      "A) लोकतंत्र की पहचान",
+      "B) न्यायपालिका की शक्ति",
+      "C) संसद की संप्रभुता",
+      "D) राज्य का मूल आधार"
+    ],
+    a: 0,
+    e: "पृष्ठ के अनुसार, वाक् (Speech) एवं अभिव्यक्ति की स्वतंत्रता को \" लोकतंत्र की पहचान\" कहा गया है।"
+  },
+  {
+    q: "Q34. 97वें संविधान संशोधन द्वारा अनुच्छेद 19(1)(C) के तहत नागरिकों को निम्नलिखित में से कौन सा नया अधिकार प्रदान किया गया?",
+    tag: "",
+    o: [
+      "A) शांतिपूर्वक एकत्र होने का अधिकार",
+      "B) सहकारी समितियां (Cooperative Societies) बनाने का अधिकार",
+      "C) भारत के किसी भी भाग में निवास करने का अधिकार",
+      "D) कोई भी पेशा अपनाने का अधिकार"
+    ],
+    a: 1,
+    e: "97वें संशोधन द्वारा अनुच्छेद 19(1)(C) के तहत सहकारी समितियां बनाने का अधिकार जोड़ा गया।"
+  },
+  {
+    q: "Q35. भारतीय संविधान के अनुच्छेद 19 में दी गई स्वतंत्रताओं पर किस आधार पर उचित प्रतिबंध (Reasonable Restrictions) लगाया जा सकता है?",
+    tag: "",
+    o: [
+      "A) सार्वजनिक व्यवस्था और शालीनता",
+      "B) नैतिकता, संप्रभुता और अखंडता",
+      "C) न्यायालय की अवमानना",
+      "D) उपर्युक्त सभी आधारों पर"
+    ],
+    a: 3,
+    e: "पृष्ठ के अनुसार, सार्वजनिक व्यवस्था, शालीनता, नैतिकता, संप्रभुता, अखंडता, मानहानि, न्यायालय की अवमानना आदि के हित में उचित प्रतिबंध लगाया जा सकता है।"
+  },
+  {
+    q: "Q36. 'अनुराधा भसीन बनाम भारत संघ मामला (2020)' निम्नलिखित में से किस अधिकार को अनुच्छेद 19 के तहत एक छिपे हुए अधिकार के रूप में मान्यता देने से संबंधित है?",
+    tag: "",
+    o: [
+      "A) सूचना का अधिकार",
+      "B) इंटरनेट का अधिकार (Right to Internet)",
+      "C) विदेश यात्रा का अधिकार",
+      "D) निजता का अधिकार"
+    ],
+    a: 1,
+    e: "अनुराधा भसीन बनाम भारत संघ मामला (2020) के तहत 'इंटरनेट का अधिकार' अनुच्छेद 19 के तहत छिपा हुआ अधिकार माना गया।"
+  },
+  {
+    q: "Q37. 'राज नारायण बनाम उत्तर प्रदेश राज्य (1975)' मामला निम्नलिखित में से किस अधिकार को अनुच्छेद 19 के अंतर्गत मान्यता देता है?",
+    tag: "",
+    o: [
+      "A) सूचना का अधिकार (Right to Information)",
+      "B) शांतिपूर्वक एकत्र होने का अधिकार",
+      "C) संघ बनाने का अधिकार",
+      "D) निवास करने का अधिकार"
+    ],
+    a: 0,
+    e: "पृष्ठ के अनुसार, सूचना का अधिकार राज नारायण बनाम उत्तर प्रदेश राज्य (1975) मामले से संबंधित है।"
+  },
+  {
+    q: "Q38. अनुच्छेद 20 के तहत दिए गए अपराधों के लिए दोषसिद्धि के संबंध में संरक्षण के अंतर्गत 'कोई पूर्वव्यापी कानून नहीं' (No Ex-post Facto Law) का क्या अर्थ है?",
+    tag: "",
+    o: [
+      "A) किसी व्यक्ति को एक ही अपराध के लिए दो बार दंडित किया जा सकता है।",
+      "B) किसी व्यक्ति को अपराध करते समय लागू कानून द्वारा निर्धारित दंड से अधिक दंड नहीं दिया जाएगा।",
+      "C) किसी व्यक्ति को स्वयं के विरुद्ध गवाही देने के लिए बाध्य किया जा सकता है।",
+      "D) कानून भविष्य में बनने वाले नियमों पर लागू नहीं होगा।"
+    ],
+    a: 1,
+    e: "इसका अर्थ है कि किसी व्यक्ति को अपराध करते समय लागू कानून द्वारा निर्धारित दंड से अधिक दंड नहीं दिया जाएगा।"
+  },
+  {
+    q: "Q39. अनुच्छेद 20(3) के तहत 'कोई आत्म-दोषारोपण नहीं' (No Self-Incrimination) के नियम के संदर्भ में अंगूठे के निशान या रक्त के नमूने देने के विषय में क्या प्रावधान है?",
+    tag: "",
+    o: [
+      "A) किसी व्यक्ति को अपने रक्त का नमूना या अंगूठे का निशान देने के लिए बाध्य नहीं किया जा सकता।",
+      "B) रक्त का नमूना या अंगूठे का निशान देना आत्म-दोषारोपण के दायरे में आता है।",
+      "C) अगर अंगूठे का निशान या रक्त का नमूना मांगा जाए तो उसे देना होगा, यह इसके अंतर्गत नहीं आता।",
+      "D) इसके लिए केवल संसद की विशेष अनुमति आवश्यक है।"
+    ],
+    a: 2,
+    e: "पृष्ठ के अनुसार, किसी व्यक्ति को स्वयं के विरुद्ध गवाही देने के लिए बाध्य नहीं किया जा सकता, लेकिन अगर रक्त का नमूना या अंगूठे का निशान मांगा जाए तो उसे देना होगा।"
+  },
+  {
+    q: "Q40. भारतीय संविधान के अनुच्छेद 21 में प्रयुक्त \"कानून द्वारा स्थापित प्रक्रिया\" (Procedure Established by Law) की अवधारणा किस देश के संविधान से ली गई है?",
+    tag: "",
+    o: [
+      "A) अमेरिकी संविधान से",
+      "B) जापानी संविधान से",
+      "C) ब्रिटिश संविधान से",
+      "D) ऑस्ट्रेलियाई संविधान से"
+    ],
+    a: 1,
+    e: "पृष्ठ के अनुसार, \"कानून द्वारा स्थापित प्रक्रिया\" की अवधारणा जापानी संविधान से ली गई है।"
+  },
+  {
+    q: "Q41. किस ऐतिहासिक मामले में सर्वोच्च न्यायालय ने अनुच्छेद 21 के बारे में एक संकीर्ण दृष्टिकोण अपनाया था और कहा था कि यह \"कानून की उचित प्रक्रिया\" की गारंटी नहीं देता है?",
+    tag: "",
+    o: [
+      "A) ए.के. गोपालन केस (1950)",
+      "B) मेनका गांधी मामला (1967)",
+      "C) के.एस. पुट्टास्वामी मामला",
+      "D) इंद्रा साहनी मामला"
+    ],
+    a: 0,
+    e: "ए.के. गोपालन केस (1950) में सर्वोच्च न्यायालय ने अनुच्छेद 21 के बारे में संकीर्ण दृष्टिकोण अपनाया था।"
+  },
+  {
+    q: "Q42. किस मामले में सुप्रीम कोर्ट ने अपने पुराने फैसले को पलटते हुए अनुच्छेद 21 पर व्यापक रुख अपनाया और \"कानून की उचित प्रक्रिया\" (Due Process of Law) की शुरुआत की?",
+    tag: "",
+    o: [
+      "A) ए.के. गोपालन केस (1950)",
+      "B) मेनका गांधी मामला (1967)",
+      "C) इंद्रा साहनी मामला (1992)",
+      "D) राज नारायण मामला (1975)"
+    ],
+    a: 1,
+    e: "मेनका गांधी मामला (1967) में सुप्रीम कोर्ट ने गोपालन मामले के फैसले को पलट दिया और व्यापक रुख अपनाया।"
+  },
+  {
+    q: "Q43. मेनका गांधी मामले (1967) में न्यायालय की व्याख्या के अनुसार निम्नलिखित में से किस अधिकार को व्यक्तिगत स्वतंत्रता का एक मौलिक अधिकार माना गया?",
+    tag: "",
+    o: [
+      "A) सहकारी समितियां बनाने का अधिकार",
+      "B) विदेश यात्रा का अधिकार (Right to Travel Abroad)",
+      "C) हथियार रखने का अधिकार",
+      "D) उपाधियां धारण करने का अधिकार"
+    ],
+    a: 1,
+    e: "मेनका गांधी मामले ने अनुच्छेद 21 की व्याख्या का विस्तार किया और 'विदेश यात्रा के अधिकार' को व्यक्तिगत स्वतंत्रता का एक मौलिक अधिकार बना दिया।"
+  },
+  {
+    q: "Q44. 'के.एस. पुट्टास्वामी मामले' में सर्वोच्च न्यायालय द्वारा निम्नलिखित में से किस अधिकार को जीवन और व्यक्तिगत स्वतंत्रता के अधिकार का अभिन्न अंग घोषित किया गया?",
+    tag: "",
+    o: [
+      "A) internet का अधिकार",
+      "B) निजता का अधिकार (Right to Privacy)",
+      "C) सूचना का अधिकार",
+      "D) स्वास्थ्य का अधिकार"
+    ],
+    a: 1,
+    e: "के.एस. पुट्टास्वामी मामले में यह पुष्टि की गई कि 'निजता का अधिकार' जीवन और व्यक्तिगत स्वतंत्रता के अधिकार का अभिन्न अंग है।"
+  },
+  {
+    q: "Q45. भारतीय संविधान में \"कानून की उचित प्रक्रिया\" (Due Process of Law) के संबंध में कौन सा कथन सत्य है?",
+    tag: "",
+    o: [
+      "A) इसका उल्लेख संविधान में स्पष्ट रूप से किया गया है।",
+      "B) यह एक जापानी अवधारणा है।",
+      "C) यह निष्पक्ष और न्यायपूर्ण कानूनी कार्रवाई सुनिश्चित करती है और यह एक अमेरिकी अवधारणा है।",
+      "D) यह केवल नागरिकों के राजनीतिक अधिकारों को नियंत्रित करती है।"
+    ],
+    a: 2,
+    e: "पृष्ठ के अंतिम बॉक्स के अनुसार, 'कानून की उचित प्रक्रिया' निष्पक्ष और न्यायपूर्ण कानूनी कार्रवाई सुनिश्चित करती है। इसका उल्लेख संविधान में नहीं है और यह एक अमेरिकी अवधारणा है।"
+  },
+  {
+    q: "Q46. भारतीय संविधान का निम्नलिखित में से कौन सा अनुच्छेद राष्ट्रीय आपातकाल (National Emergency) के दौरान भी कभी निलंबित नहीं किया जा सकता है?",
+    tag: "",
+    o: [
+      "A) अनुच्छेद 19 और 20",
+      "B) अनुच्छेद 20 और 21",
+      "C) अनुच्छेद 21 और 22",
+      "D) अनुच्छेद 14 और 19"
+    ],
+    a: 1,
+    e: "पृष्ठ पर दिए गए विशेष नोट के अनुसार, अनुच्छेद 20 और 21 को आपातकाल के दौरान भी कभी निलंबित नहीं किया जा सकता।"
+  }
+];
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
