@@ -22,22 +22,31 @@ h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px;
 
 
 #streakPopup{
-position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
-background:transparent;opacity:0;pointer-events:none;transition:.25s;
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
 }
-#streakPopup.show{opacity:1;}
+#streakPopup.show{
+display:flex;
+}
 #streakCard{
 background:linear-gradient(135deg,#ffd54f,#fff8e1);
 padding:16px 22px;
 border-radius:18px;
 text-align:center;
 box-shadow:0 0 24px rgba(255,193,7,.55);
-transform:scale(.5);
-transition:.3s;
 font-weight:bold;
 max-width:320px;
 width:72%;
 margin-top:40px;
+transform:none;
+transition:none;
 }
 #streakPopup.show #streakCard{
 background:linear-gradient(135deg,#ffd54f,#fff8e1);
@@ -53,20 +62,20 @@ width:72%;
 margin-top:40px;
 }
 .burst{
-position:absolute;width:10px;height:10px;border-radius:50%;
-background:#ffd54f;animation:burst .8s ease-out forwards;
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
 }
 @keyframes burst{
 to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
-}
 }
 
 </style>
 </head>
 <body>
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
-<div class="container">
+<div class="container" style="position:relative;">
 <h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
 <div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
 <input id="jumpNo" type="number" placeholder="Question No"
 style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
@@ -102,7 +111,16 @@ style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 <div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
 </div>
 
-<div style="margin:16px 0;font-size:20px;">⏱️ <b id="timeTaken"></b></div>
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
 <button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
 </div>
 </div>
@@ -875,6 +893,12 @@ const data = [
 
 
 
+
+
+
+
+
+
 function formatContent(txt){
  if(txt==null) return "";
  txt=String(txt);
@@ -1082,6 +1106,25 @@ function goToQuestion(qNo){
   showQ();
   var j=document.getElementById('jumpNo'); if(j) j.value='';
 }
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
 </script>
 </body>
 </html>
