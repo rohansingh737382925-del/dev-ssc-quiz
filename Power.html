@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "249. कार्य करने की दर कहलाती है।", tag: "RRB Group-D 17-09-2018 (Shift-III)", o: ["ऊर्जा", "वेग", "शक्ति", "बल"], a: 2, e: "किसी निकाय द्वारा एकांक समय में किये गये कार्य को उसकी शक्ति या सामर्थ्य कहते है। अर्थात् कार्य करने या ऊर्जा स्थानांतरण की दर को शक्ति (power) कहते है। इसका मात्रक जूल/सेकेण्ड या वाट होता है। यह एक अदिश राशि है। यदि कोई कारक (T) समय में (W) कार्य करता है तो कारक की शक्ति (P) = कार्य (W)/ समय (T)"},
+  {q: "250. 'शक्ति' को किस रूप में व्याख्यायित किया जाता है?", tag: "RRB Group-D 19-09-2018 (Shift-I)", o: ["ऊर्जा स्थानांतरण में किया गया कार्य", "भार बढ़ाने के लिए आरोपित बल", "कार्य करने की दर अथवा ऊर्जा स्थानांतरण की दर", "एक मिनट में किया गया कार्य"], a: 2, e: "उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "251. कार्य करने की दर या ऊर्जा स्थानांतरण की दर को कहते हैं।", tag: "RRB Group-D 15-10-2018 (Shift-II)", o: ["शक्ति", "कृत कार्य", "आवेग", "बल"], a: 0, e: "उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "252. यदि कोई कारक T समय में W कार्य करता है, तो उसकी पॉवर (p) होगी-", tag: "RRB Group-D 01-10-2018 (Shift-II)", o: ["W/t", "समय × कार्य (t×W)", "कार्य/समय", "समय/कार्य (t/W)"], a: 2, e: "उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "253. P = W/T जहाँ W का अर्थ है।", tag: "RRB Group-D 12-10-2018 (Shift-I)", o: ["ऊर्जा", "भार", "वाट", "कार्य"], a: 3, e: "उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "254. कार्य करने की गति कहलाती है-", tag: "RRB Group-D 05-10-2018 (Shift-I)", o: ["ऊर्जा", "शक्ति", "दाब", "बल"], a: 1, e: "उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "255. निम्न में से कौन सी भौतिक मात्रा किये गए कार्य की गति को मापती है?", tag: "RRB Group-D 01-10-2018 (Shift-I)", o: ["बल", "वेग", "ऊर्जा", "शक्ति"], a: 3, e: "कार्य करने की दर को शक्ति कहते है अर्थात् भौतिक मात्रा शक्ति किए गए कार्य की गति को मापती है। यदि किसी कर्ता द्वारा W कार्य समय में किया जाता है, तो शक्ति (W/t) होती है एवं इसका मात्रक वाट (W) है। शक्ति का एक और मात्रक अश्व शक्ति है। यह मात्रक जेम्स वाट के नाम पर दिया गया था। अश्व शक्ति (H.P.) = 746 W"},
+  {q: "256. शक्ति का सूत्र हैः", tag: "RRB ALP & Tec. (29-08-18 Shift-I)", o: ["संवेग/समय", "कार्य/समय", "गति/समय", "विस्थापन/समय"], a: 1, e: "किसी कर्ता या मशीन या निकाय द्वारा एकांक समय में किये गये कार्य को उसकी शक्ति या सामर्थ्य कहते कहते हैं। सामर्थ्य अथवा शक्ति एक अदिश राशि है। इसका मात्रक जूल/सेकेण्ड या वॉट (w) है। शक्ति (P) = कार्य (w) / समय (t)"},
+  {q: "257. निम्नलिखित में से कौन सी भौतिक राशि किए गए कार्य की दर कहलाती है?", tag: "RRB ALP & Tec. (14-08-18 Shift-II)", o: ["शक्ति", "संवेग", "बल", "ऊर्जा"], a: 0, e: "कार्य करने की दर को शक्ति कहते हैं। यदि किसी भी कर्ता के द्वारा 'W' कार्य को समय 't' में किया जाता है तो कर्ता की शक्ति (power) का मान होगा। शक्ति का S.I. मात्रक वाट होता है। कार्य / समय = शक्ति का मात्रक = जूल/सेकेण्ड अथवा 'वॉट' होता है। शक्ति का एक अन्य मात्रक 'अश्व शक्ति' है। 1 अश्व शक्ति= 746 जूल/सेकेण्ड या 'वॉट' होता है।"},
+  {q: "258. मोहन का वजन 40 किलोग्राम है तथा वह 10 सेकण्ड में 50 सीढ़ियाँ चढ़ जाता है। यदि प्रत्येक सीढ़ी की ऊँचाई 15 सेंटीमीटर हो तो मोहन की शक्ति क्या है? (g=10m/s²)", tag: "RRB ALP & Tec. (14-08-18 Shift-III)", o: ["200 वाट", "400 वाट", "300 वाट", "100 वाट"], a: 2, e: "मोहन द्वारा तय की गयी दूरी = 15/100 × 50 = 7.5 मीटर. 7.5 मीटर की ऊँचाई पर मोहन की स्थितिज ऊर्जा = मोहन द्वारा किया गया कार्य = mgh = 40×10×7.5 = 3000 जूल. अतः शक्ति = कार्य / समय = 3000/10 = 300 वाट"},
+  {q: "259. यदि कोई लड़का 4 मिनट में 600 न्यूटन बल के साथ 20 मीटर की दूरी तय करता है, तो लड़के द्वारा खपत की गई शक्ति की मात्रा कितनी है?", tag: "RRB ALP & Tec. (29-08-18 Shift-III)", o: ["50 वॉट", "100 वॉट", "80 वॉट", "25 वॉट"], a: 0, e: "लड़के द्वारा लिया गया समय 4 मिनट = 4 × 60 = 240 सेकण्ड. लड़के द्वारा लगाया गया बल = 600 न्यूटन. लड़के द्वारा तय की गई दूरी = 20 मी. अतः लड़के द्वारा किया गया कुल कार्य = लगाया गया बल × तय की गई दूरी = 600 × 20 = 12000 न्यूटन मीटर या 12000 जूल. लड़के द्वारा खपत की गई शक्ति की मात्रा = किया गया कुल कार्य / लिया गया समय = 12000/240 = 50 वॉट"},
+  {q: "260. 50 kg द्रव्यमान का एक लड़का 40 सीढ़ियां 9 सेकण्ड में चढ़ता है। यदि प्रत्येक सीढ़ी की ऊंचाई 15 cm है, तो उसकी शक्ति ज्ञात कीजिए। (मान लीजिए g=10ms⁻²)", tag: "RRB Group-D 23-10-2018 (Shift-III)", o: ["333.33 W", "333.34 J", "333.34 ms", "387.5 W"], a: 0, e: "40 सीढ़ियों की कुल ऊँचाई 40×15=600 सेमी = 6 मी. किया गया कार्य = mgh = 50×10×6 = 3000 J. तो शक्ति = कार्य / समय = 3000 / 9 = 333.33W"},
+  {q: "261. उस भौतिक मात्रा का नाम बताएँ, जो बल और वेग के गुणनफल के बराबर है।", tag: "RRB Group-D 10-12-2018 (Shift-I)", o: ["कार्य", "ऊर्जा", "शक्ति", "त्वरण"], a: 2, e: "कार्य करने की क्षमता शक्ति कहलाती है। यदि किसी गतिशील वस्तु पर कोई बल (F) लगता है, तो इस बल पर आरोपित शक्ति (P), वस्तु के वेग और बल के गुणनफल के बराबर होती है- P=F.V"},
+  {q: "262. एक 40kg भार वाली लड़की 4 s में 5m तक ऊँची होने वाली सीढ़ियों पर तेजी से चढ़ जाती है। उसके द्वारा विकसित शक्ति होगी।", tag: "RRB Group-D 18-09-2018 (Shift-I)", o: ["500 W", "200 W", "2000 W", "100 W"], a: 0, e: "कार्य (W) = द्रव्यमान (m) × ऊँचाई (h) × गुरुत्वीय त्वरण (g) = 40×10×5 = 2000 जूल. शक्ति (P) = कार्य (W) / समय (t) = 2000 / 4 = 500 वाट"},
+  {q: "263. 50 kg द्रव्यमान का एक लड़का 45 सीढियां 10 सेकंड में चढ़ता है। यदि प्रत्येक सीढी की ऊँचाई 16 cm है, तो उसकी शक्ति ज्ञात कीजिए। (मान लीजिए g=10 ms⁻²)", tag: "RRB Group-D 23-10-2018 (Shift-II)", o: ["337.5 ms", "387.5 W", "360 W", "360 J"], a: 2, e: "45 सीढ़ियों की कुल ऊँचाई = 45×16 = 720 cm = 7.2 m. W = mgh = 50×10×7.2 = 3600 J. शक्ति = कार्य / समय = 3600 / 10 = 360W"},
+  {q: "264. औसत शक्ति निम्न में से किसके बराबर होती है?", tag: "RRB Group-D 25-10-2018 (Shift-II)", o: ["कुल प्रयुक्त ऊर्जा / कुल समय", "कुल प्रयुक्त ऊर्जा / तय दूरी", "कुल प्रमुक्त ऊर्जा / कुल समय", "कुल प्रयुक्त ऊर्जा / लिया गया समय"], a: 0, e: "औसत शक्ति (Pa) = कुल प्रयुक्त ऊर्जा / कुल समय"},
+  {q: "265. 50 kg के भार का एक लड़का 40 सीढियां 10s में चढ़ता है। यदि प्रत्येक सीढ़ी की ऊँचाई 15 cm है, तो उसकी शक्ति ज्ञात कीजिए। (मानें g=10 ms⁻²)", tag: "RRB Group-D 23-10-2018 (Shift-I)", o: ["337.5W", "387.5 W", "300W", "300ms"], a: 2, e: "शक्ति = स्थितिज ऊर्जा / समय = mgh / t = (50×10×40×0.15) / 10 = 300W"},
+  {q: "266. 50 kg भार का एक लड़का, 45 चरणों की सीढ़ियां 9 s में चढ़ जाता है। यदि प्रत्येक चरण की ऊँचाई 15 cm हैं, तो उसकी शक्ति का पता लगाएं। (g = 10ms² लें।)", tag: "RRB Group-D 22-09-2018 (Shift-I)", o: ["325 W", "275 W", "475 W", "375 W"], a: 3, e: "लड़के का भार = 50 किग्रा. चढ़ी गयी कुल ऊँचाई (h) = 45×15 = 675 सेमी. = 6.75 मी. समय (t) = 9 सेकण्ड. स्थितिज ऊर्जा = mgh = 50×10×6.75 = 3375 जूल. शक्ति = स्थितिज ऊर्जा / समय = 3375 / 9 = 375 वाट"},
+  {q: "267. यदि 40 N भार वाली कोई लड़की 160 W की शक्ति से 20 सेकेंड तक रस्सी पर चढ़ती है तो वह कितनी ऊँचाई तक पहुँच सकेगी?", tag: "RRB Group-D 18-09-2018 (Shift-III)", o: ["80 मीटर", "4 मीटर", "8 मीटर", "0.8 मीटर"], a: 2, e: "शक्ति = स्थितिज ऊर्जा (कार्य) / समय = mgh / t. 160 = (40×10×h) / 20. ऊँचाई h = 8 मीटर"},
+  {q: "268. 50 Kg द्रव्यमान का एक लड़का 44 सीढ़ियाँ 10 सेकेण्ड में चढ़ता है। यदि प्रत्येक सीढ़ी की ऊँचाई 15 सेमी. है तो उसकी शक्ति ज्ञात कीजिए। (g = 10 ms⁻²)", tag: "RRB Group-D 24-10-2018 (Shift-II)", o: ["337.5 ms", "300J", "330 J", "330 W"], a: 3, e: "m = 50 Kg, g = 10 m/sec², t = 10 sec, h = (44×15)/100 meter. P = (50×10×44×15) / (100×10) = 330 W"},
+  {q: "269. यदि कोई एजेंट समय 't' में 'W' काम करता है, तो उसकी पॉवर होगी-", tag: "RRB Group-D 24-09-2018 (Shift-I)", o: ["W×t", "W+t", "t/W", "W/t"], a: 3, e: "दिया है- समय = t, कार्य = W. शक्ति = कार्य / समय = W/t"},
+  {q: "270. 50 kg द्रव्यमान का एक लड़का 10 s में 43 सीढ़ियां चढ़ता है। यदि प्रत्येक सीढ़ी की ऊँचाई 15 cm है, तो उसकी शक्ति ज्ञात कीजिए। g=10ms⁻² दिया गया है।", tag: "RRB Group-D 24-10-2018 (Shift-III)", o: ["337.5 W", "322.5 J", "322.5 W", "322.5 ms"], a: 2, e: "माना लड़के की भार, mg = 50×10 = 500N. 43 सीढ़ियों की कुल ऊँचाई h = (43×15)/100 = 6.45 m. तथा उसे चढ़ने में लगा कुल समय, t = 10 s. शक्ति P = (mgh) / समय = (500×6.45) / 10 = 322.5W"},
+  {q: "271. एक अधिक शक्तिशाली इंजन कम समय में अधिक कार्य कर सकता है। जैसे एक हवाई जहाज कार की तुलना में कम समय में अधिक दूरी तय करता है अतः हवाई जहाज कार से अधिक शक्तिशाली है। यह निम्न में से किसका उदाहरण है?", tag: "RRB Group-D 29-10-2018 (Shift-III)", o: ["निष्पादित कार्य", "शक्ति", "ऊर्जा", "तरंग"], a: 1, e: "किसी इंजन की सामर्थ्य अथवा शक्ति (P) = W/t. अतः स्पष्ट है कि निश्चित समय में जो इंजन अधिक कार्य करेगा उसका सामर्थ्य अधिक तथा जो इंजन कम कार्य करेगा उसका सामर्थ्य कम होगा। यहाँ हवाई जहाज कार की तुलना में निश्चित समय में अधिक दूरी तय करता है अर्थात कार्य करता है इसलिए हवाई जहाज की शक्ति कार्य की तुलना में अधिक है।"},
+  {q: "272. 80 kg की वस्तु को 40 m की ऊँचाई तक लगभग 50 s में ऊपर उठाने हेतु आवश्यक औसत शक्ति होगी। (g = 10m/s²)", tag: "RRB Group-D 18-09-2018 (Shift-III)", o: ["3,200 J/s", "640 J/s", "800 J/s", "600 J/s"], a: 1, e: "80 किग्रा. वस्तु को 40 मी. की ऊँचाई तक उठाने में स्थितिज ऊर्जा = mgh = 80×40×10 = 32000 J. शक्ति = स्थितिज ऊर्जा (कार्य) / समय = 32000 / 50 = 640 जूल/सेकेण्ड"},
+  {q: "273. निम्नलिखित में से कौन-सा शक्ति का सूत्र है?", tag: "RRB JE 27.06.2019 (Shift-I)", o: ["P=V²/R", "P=V×I", "इनमें से सभी", "P=I²×R"], a: 2, e: "शक्ति (P) = V²/R = V×I = I²×R"}
+];
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

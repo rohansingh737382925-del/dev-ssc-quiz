@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "324. किसी वस्तु की गतिज ऊर्जा 120 J है और इसका द्रव्यमान 15 kg है। वस्तु का वेग ज्ञात करें।", tag: "RRB Group-D 09-10-2018 (Shift-II)", o: ["4 ms^1", "4 ms^-1", "4 ms^-2", "4 ms^2"], a: 1, e: "Ans. (b): गतिज ऊर्जा = 120 J, द्रव्यमान (m) = 15 kg, V = ?. गतिज ऊर्जा = 1/2mV^2 => 120 = 1/2 * 15 * V^2 => V^2 = 16 => V = 4 ms^-1"},
+  {q: "325. 15 किग्रा. द्रव्यमान की एक वस्तु 8 ms^-1 के एकसमान वेग से गति कर रही है। उस वस्तु की गतिज ऊर्जा क्या है?", tag: "RRB Group-D 09-10-2018 (Shift-II)", o: ["480 J", "180.5 J", "480 ms", "187.5 J"], a: 0, e: "Ans. (a) : गतिज ऊर्जा (K.E) = 1/2m.v^2. m = 15 kg, V = 8 m/s. गतिज ऊर्जा = 1/2 * 15 * 8 * 8 = 480 J"},
+  {q: "326. 11kg की एक वस्तु जब भूमि से 6 m की ऊंचाई पर हो, तब उसमें निहित ऊर्जा कितनी होती है? g=9.8 ms^-2 दिया गया है।", tag: "RRB Group-D 15-10-2018 (Shift-III)", o: ["539 J", "646.8 J", "528 J", "520 J"], a: 1, e: "Ans. (b) : दिया है- द्रव्यमान (m)=11kg, ऊँचाई (h)=6m, g=9.8 m/s^2. स्थितिज ऊर्जा (U)=mgh = 11 * 9.8 * 6 = 646.8 J"},
+  {q: "327. बंदूक से चली गोली लक्ष्य के भीतर गहराई से चली जाती है, क्योंकि इसमें ..... होती है-", tag: "RRB Group-D 10-10-2018 (Shift-III)", o: ["ऊष्मीय ऊर्जा", "स्थितिज ऊर्जा", "रासायनिक ऊर्जा", "गतिज ऊर्जा"], a: 3, e: "Ans. (d) बन्दूक से चली गोली लक्ष्य के भीतर गहराई से चली जाती है क्योंकि इसमें गतिज ऊर्जा होती है। बंदूक से निकली गोली का वेग बहुत अधिक होता है तथा लक्ष्य से टकराने पर यह बहुत कम समय में शून्य हो जाता है। अतः गोली में वेग परिवर्तन की दर एवं बल बहुत अधिक होता है इसलिए गोली लक्ष्य के भीतर गहराई में चली जाती है।"},
+  {q: "328. टरबाइन द्वारा बहते पानी और हवा का प्रयोग परिवर्तन के लिए किया जाता है।", tag: "RRB Group-D 16-11-2018 (Shift-III)", o: ["स्थितिज ऊर्जा को विद्युत ऊर्जा में", "नाभिकीय ऊर्जा को विद्युत ऊर्जा में", "गतिज ऊर्जा को विद्युत ऊर्जा में", "रासायनिक ऊर्जा को विद्युत ऊर्जा में"], a: 2, e: "Ans. (c) : टरबाइन द्वारा बहते पानी और हवा का प्रयोग गतिज ऊर्जा को विद्युत ऊर्जा में परिवर्तन के लिए किया जाता है। 'टरबाइन' न्यूटन के तीसरे नियम (क्रिया-प्रतिक्रिया का नियम) के आधार पर कार्य करता है।"},
+  {q: "329. 0.5 किलोग्राम द्रव्यमान का एक घन, चिकनी सतह पर 2.0 मीटर/सेकण्ड की गति से चल रहा है। वह 1.0 किलोग्राम की एक अन्य वस्तु से टकराता है और वे दोनों एकल वस्तु के रूप में साथ में आगे बढ़ते हैं। टकराव के दौरान हुई ऊर्जा की क्षति क्या होगी?", tag: "RRB Group-D 10-12-2018 (Shift-III)", o: ["0.16 J", "1 J", "0.67 J", "0.32 J"], a: 2, e: "Ans. (c) माना टकराने के बाद दोनों का संयुक्त वेग v मी./से. है। संवेग संरक्षण सिद्धान्त से, टकराने से पहले का संवेग = टकराने के बाद का संवेग => 0.5*2.0+0=(0.5+1.0)*v => v=2/3 m/s. ऊर्जा की क्षति गतिज ऊर्जा में कमी = 1/2*0.5*(2)^2 - 1/2*(0.5+1.0)*(2/3)^2 = 1 - 1/3 = 2/3 = 0.67 J"},
+  {q: "330. किसी बंदूक से बुलेट दागे जाने पर बुलेट की गतिज ऊर्जा ______ होती है।", tag: "RRB Group-D 22-09-2018 (Shift-I)", o: ["बंदूक की तुलना में कम", "अगणनीय", "बंदूक की तुलना में अधिक", "बंदूक के बराबर"], a: 2, e: "Ans : (c) बंदूक का द्रव्यमान = m1, वेग = v1, बुलेट का द्रव्यमान = m2, वेग = v2. m1 > m2. संवेग संरक्षण के नियम से- m1 v1 = m2 v2. दोनों तरफ वर्ग करके 1/2 से गुणा करने पर- 1/2(m1v1)^2 = 1/2(m2v2)^2 => E1*m1 = E2*m2 => E2/E1 = m1/m2 > 1 => E2 > E1. किसी बंदूक से बुलेट दागे जाने पर बुलेट की गतिज ऊर्जा बंदूक की तुलना में अधिक होती है।"},
+  {q: "331. यांत्रिक ऊर्जा - गतिज ऊर्जा = ?", tag: "RRB Group-D 19-09-2018 (Shift-III)", o: ["रासायनिक ऊर्जा", "स्थितिज ऊर्जा", "विद्युत ऊर्जा", "नाभिकीय ऊर्जा"], a: 1, e: "Ans : (b) भौतिकी में किसी यांत्रिक प्रणाली के किसी अवयव में निहित स्थितिज ऊर्जा तथा गतिज ऊर्जा के योग को यांत्रिक ऊर्जा कहते है अर्थात् यांत्रिक ऊर्जा किसी वस्तु की गति या उसकी स्थिति से सम्बन्धित होती है। यांत्रिक ऊर्जा = गतिज ऊर्जा + स्थितिज ऊर्जा => यांत्रिक ऊर्जा - गतिज ऊर्जा = स्थितिज ऊर्जा"},
+  {q: "332. एक वस्तु की गतिज ऊर्जा और स्थितिज ऊर्जा के योग को क्या कहा जाता है?", tag: "RRB Group-D 16-11-2018 (Shift-I)", o: ["गुरुत्वाकर्षण ऊर्जा", "यांत्रिक ऊर्जा", "विद्युत ऊर्जा", "गतिज ऊर्जा"], a: 1, e: "Ans : (b) एक वस्तु की गतिज ऊर्जा और स्थितिज ऊर्जा के योग को यांत्रिक ऊर्जा कहा जाता है।"},
+  {q: "333. किसी वस्तु की गतिज ऊर्जा और स्थितिज ऊर्जा का योग ______ कहलाता है।", tag: "RRB Group-D 15-10-2018 (Shift-I)", o: ["यांत्रिक ऊर्जा", "गुप्त ऊर्जा", "रासायनिक ऊर्जा", "पेशीय ऊर्जा"], a: 0, e: "Ans : (a) उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "334. यांत्रिक ऊर्जा होती है:", tag: "RRB Group-D 19-09-2018 (Shift-I)", o: ["किसी गतिमान वस्तु द्वारा अवशोषित ऊर्जा", "यांत्रिक कार्यों के दौरान उत्सर्जित ऊर्जा", "किसी वस्तु की गतिज ऊर्जा और स्थितिज ऊर्जा का योग", "कार्य करने की दर के बराबर"], a: 2, e: "Ans : (c) उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "335. स्थितिज ऊर्जा और गतिज ऊर्जा किसके प्रकार हैं?", tag: "RRB Group-D 12-11-2018 (Shift-II)", o: ["यांत्रिक ऊर्जा", "परमाणु ऊर्जा", "विद्युत ऊर्जा", "रासायनिक ऊर्जा"], a: 0, e: "Ans: (a) उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "336. .............ऊर्जा में दो प्रकार की ऊर्जा होती है।", tag: "RRB Group-D 01-10-2018 (Shift-I)", o: ["यांत्रिक", "विद्युत", "रसायनिक", "ध्वनि"], a: 0, e: "Ans. (a): यांत्रिक ऊर्जा में दो प्रकार की ऊर्जा होती है।"},
+  {q: "337. 15 kg द्रव्यमान की एक वस्तु 7 ms^-1 के एकसमान वेग से गति कर रही है। उस वस्तु की गतिज ऊर्जा कितनी है?", tag: "RRB Group-D 08-10-2018 (Shift-III)", o: ["367.5 ms", "17.5 J", "367.5 J", "180.5 J"], a: 2, e: "Ans : (c) प्रश्नानुसार, द्रव्यमान (m) = 15 kg, वेग (v) = 7 ms^-1. अतः वस्तु की गतिज ऊर्जा (K.E) = 1/2mv^2 = 1/2*15*7*7 = 1/2*735 = 367.5 J"},
+  {q: "338. 12 kg की एक वस्तु को भूमि से एक निश्चित ऊँचाई पर रखा गया है। यदि वस्तु की स्थितिज ऊर्जा 600 J है तो भूमि के संदर्भ में वस्तु की ऊँचाई ज्ञात कीजिए। दिया गया है, g=10 ms^-2", tag: "RRB Group-D 04-10-2018 (Shift-I)", o: ["5 ms^2", "-5 m", "5 ms^-2", "5 m"], a: 3, e: "Ans. (d) स्थितिज ऊर्जा (P.E) = mgh => 600 = 12 * 10 * h => h = 600/120 = 5 m"},
+  {q: "339. निम्नलिखित में से कौन सी ऊर्जा गतिज ऊर्जा है? A. बंदूक से निकली गोली। B. तीव्र गति से कार्यरत एक रेलवे इंजन । C. एक साधारण पेंडुलम की गति।", tag: "RRB Group-D 25-10-2018 (Shift-II)", o: ["a और c", "b और c", "a और b", "a, b, c"], a: 3, e: "Ans : (d) किसी बॉडी में गति के दौरान उत्पन्न होने वाली ऊर्जा को गतिज ऊर्जा कहते हैं। गतिज ऊर्जा का मान वस्तु को उसके विराम अवस्था से वेग तक त्वरित करने में किये गए कार्य के बराबर होता है। यह एक अदिश राशि (Scalar Quantity) है। बंदूक से निकली गोली, तीव्र गति से कार्यरत् एक रेल इंजन, एक साधारण पेंडुलम की गति आदि गतिज ऊर्जा के उदाहरण हैं।"},
+  {q: "340. 6 ms^-1 के वेग से गतिमान 10 kg द्रव्यमान की वस्तु की गतिज ऊर्जा है:", tag: "RRB Group-D 28-09-2018 (Shift-III)", o: ["18J", "180J", "1.80J", "360J"], a: 1, e: "Ans : (b) वस्तु का द्रव्यमान (m) = 10 kg तथा वस्तु का वेग (v) = 6 ms^-1. वस्तु की गतिज ऊर्जा (KE) = 1/2mv^2 = 1/2*10*(6)^2 = 5*36 = 180 J"},
+  {q: "341. ऊर्जा के संबंध में निम्न में से कौन सा कथन सत्य नहीं है?", tag: "RRB Group-D 23-10-2018 (Shift-II)", o: ["ऊर्जा भौतिक पदार्थ नहीं है।", "ऊर्जा किसी कार्य को करने की क्षमता की माप है।", "ऊर्जा को कई रूपों में संग्रहित किया और मापा जा सकता है।", "रूपांतरण के दौरान निर्गत ऊर्जा निर्वात में जाती है।"], a: 3, e: "Ans. (d) ऊर्जा किसी वस्तु का वह गुण होता है। जिसे किसी एक वस्तु से दूसरी वस्तु में स्थानांतरित करके किसी कार्य को किया जाता है। ऊर्जा को न तो उत्पन्न किया जा सकता है और न ही नष्ट किया जा सकता है।"},
+  {q: "342. निम्नलिखित में से किसे न तो उत्पन्न किया जा सकता है और न ही नष्ट किया जा सकता है?", tag: "RRB Group-D 16-10-2018 (Shift-III)", o: ["शक्ति", "संवेग", "ऊर्जा", "बल"], a: 2, e: "Ans: (c) ऊर्जा (Energy) न तो उत्पन्न की जा सकती है और न ही नष्ट की जा सकती है, बल्कि ऊर्जा को एक रूप से दूसरे रूप में परिवर्तित किया जा सकता है। इसे 'ऊर्जा संरक्षण का नियम' भी कहते हैं।"},
+  {q: "343. 20 किग्रा द्रव्यमान का एक वस्तु 10 मी० से० की समान वेग के साथ आगे बढ़ रहा है। वस्तु द्वारा प्राप्त गतिशील ऊर्जा क्या है?", tag: "RRB Group-D 05-10-2018 (Shift-III)", o: ["1000 Pa", "1000 J", "1000 Nm^-2", "1000 N"], a: 1, e: "Ans. (b) वस्तु का द्रव्यमान (m) = 20 kg तथा वेग (v) = 10 m/s. वस्तु की गतिज ऊर्जा = 1/2mv^2 = 1/2 * 20 * 10 * 10 = 1000 J"},
+  {q: "344. 20kg के हथौड़े द्वारा प्राप्त विभव ऊर्जा की गणना करें जब इसे 10 मीटर की ऊँचाई तक बढ़ाया जाता है। (g = 10 ms^-2)", tag: "RRB Group-D 05-10-2018 (Shift-III)", o: ["3000 Pa", "2000 J", "3000 W", "3000 N"], a: 1, e: "Ans. (b) हथौड़े का द्रव्यमान (m) = 20 kg, ऊँचाई (h) = 10 m, गुरुत्वीय त्वरण (g) = 10 m/s^2. हथौड़े की विभव ऊर्जा (Potential energy) = mgh = 20 * 10 * 10 = 2000 J"},
+  {q: "345. 13 kg द्रव्यमान की एक वस्तु 5 ms^-1 के समान वेग से आगे बढ़ रही है। वस्तु में निहित गतिज ऊर्जा कितनी होगी?", tag: "RRB Group-D 11-10-2018 (Shift-I)", o: ["187.5 J", "17.5 J", "162.5 J", "162.5 ms"], a: 2, e: "Ans: (c) K.E = 1/2mv^2 = 1/2 * 13 * 5^2 = 1/2 * 13 * 25 = 325/2 = 162.5 J"},
+  {q: "346. 20 किलोग्राम द्रव्यमान की वस्तु 5 ms^-1 की गति के साथ चलती है, उसकी गतिज ऊर्जा ______ होगा।", tag: "RRB Group-D 11-12-2018 (Shift-II)", o: ["250 kg", "250 J", "250 N", "250 Pa"], a: 1, e: "Ans : (b) दिया है- द्रव्यमान (m) = 20 kg, वेग (v) = 5 ms^-1. गतिज ऊर्जा = 1/2mv^2 = 1/2 * 20 * 5 * 5 = 10 * 25 = 250 J"},
+  {q: "347. गुरुत्वाकर्षी स्थितिज ऊर्जा का सूत्र है :", tag: "RRB Group-D 23-10-2018 (Shift-III)", o: ["U=mgh1h2", "U=mgh", "U=mhG", "U=1/2mv^2"], a: 1, e: "Ans : (b) जब किसी वस्तु में विशेष अवस्था या स्थिति के कारण कार्य करने की क्षमता आ जाती है, तो उसे स्थितिज ऊर्जा कहते हैं। माना किसी वस्तु का द्रव्यमान (m) गुरुत्वीय त्वरण (g) तथा ऊँचाई (h) हो तो गुरुत्वीय स्थितिज ऊर्जा (U) = mgh"},
+  {q: "348. गतिज ऊर्जा के बारे में कौन सा गलत है?", tag: "RRB Group-D 12-11-2018 (Shift-II)", o: ["स्थिर अवस्था के दौरान वस्तु में निहित ऊर्जा को गतिज ऊर्जा कहा जाता है", "एक वस्तु गति के आधार पर इसके द्वारा प्राप्त ऊर्जा को गतिज ऊर्जा के रूप में जाना जाता है", "इसकी गणना KE = 1/2(mv^2) द्वारा की जाती है।", "गतिमान वस्तुओं में गतिज ऊर्जा होती है।"], a: 0, e: "Ans : (a) स्थिर अवस्था में निहित ऊर्जा स्थितिज ऊर्जा होती है अतः विकल्प (a) गलत है।"},
+  {q: "349. 4 m/s की एक समान वेग के साथ चलने वाली एक वस्तु में 120 J की गतिशील ऊर्जा होती है। वस्तु का द्रव्यमान ज्ञात करें।", tag: "RRB Group-D 01-10-2018 (Shift-I)", o: ["15N", "15kg", "19Pa", "15W"], a: 1, e: "Ans. (b) दिया है, वस्तु की चाल (V) = 4 m/s, गतिज ऊर्जा (K.E.) = 120 J. गतिज ऊर्जा = 1/2MV^2 => 120 = 1/2 * M * 4^2 => M = 240/16 = 15 kg"},
+  {q: "350. 5 ms^-1 की गति से आगे बढ़ रही द्रव्यमान m की एक वस्तु की गतिज ऊर्जा 25 J है। इसकी गति दोगुनी हो जाने पर इसकी गतिज ऊर्जा कितनी होगी?", tag: "RRB Group-D 01-10-2018 (Shift-II)", o: ["100 J", "50 J", "100 N", "50 N"], a: 0, e: "Ans. (a): वस्तु का द्रव्यमान = m kg, वस्तु का वेग = 5 m/s, गतिज ऊर्जा = 25 J. गतिज ऊर्जा = 1/2 * m * v^2 => 25 = 1/2 * m * 25 => m = 2 kg. नई गतिज ऊर्जा = 1/2 * 2 * 10 * 10 = 100 J"},
+  {q: "351. पृथ्वी की ओर मुक्त रूप से गिरने वाले पिंड की कुल ऊर्जा में क्या परिवर्तन होगा?", tag: "RRB Group-D 13-12-2018 (Shift-II)", o: ["इसमें कोई परिवर्तन नहीं होगा।", "प्रारम्भ में कमी होगी और बाद में वृद्धि होगी।", "इसमें वृद्धि होगी।", "इसमें कमी होगी।"], a: 0, e: "Ans. (a) : पृथ्वी की ओर मुक्त रूप से गिरने वाले पिण्ड की कुल ऊर्जा में कोई परिवर्तन नहीं होता है।"},
+  {q: "352. एक 10 kg की वस्तु 5 m/s की गति से गतिमान है। वस्तु की गतिज ऊर्जा होगी।", tag: "RRB Group-D 19-09-2018 (Shift-I)", o: ["125 J", "2 J", "25 J", "50 J"], a: 0, e: "Ans. (d): यदि m द्रव्यमान का कोई वस्तु v वेग के साथ गति करती है तो इसकी गतिज ऊर्जा Ek = 1/2mv^2 (यहाँ m=10kg, v=5m/s) = 1/2 * 10 * (5)^2 = 5 * 25 = 125 J"},
+  {q: "353. किसी बंदूक से बुलेट दागे जाने पर बुलेट की गतिज ऊर्जा", tag: "RRB Group-D 01-10-2018 (Shift-III)", o: ["बंदूक की तुलना में कम", "बंदूक की तुलना में अधिक", "बंदूक के बराबर", "अगणनीय"], a: 1, e: "Ans: (b) वस्तु का द्रव्यमान (m) = 10 kg, वस्तु का वेग (v) = 5 m/s, गतिज ऊर्जा = 1/2 * 10 * (5)^2 = 5 * 25 = 125 J. पुनः वस्तु का वेग = 2 * प्रारंभिक वेग = 2 * 5 = 10 m/s. नई गतिज ऊर्जा = 1/2 * 2 * 10 * 10 = 100 J"},
+  {q: "354. धरती से टकराने से तुरंत पहले यदि 2 kg द्रव्यमान की वस्तु की गतिज ऊर्जा 400 J है। इसे किस ऊँचाई से गिराया गया था? (g = 10 m/s^2, घर्षण नगण्य हैं)", tag: "RRB Group-D 04-12-2018 (Shift-II)", o: ["10m", "25 m", "20 m", "15 m"], a: 2, e: "Ans: (c) माना पिण्ड को h मीटर की ऊँचाई से गिराया गया था। h मीटर ऊँचाई पर पिण्ड में निहित स्थितिज ऊर्जा, पृथ्वी पर उसकी गतिज ऊर्जा के बराबर होगी। पृथ्वी पर गतिज ऊर्जा = h ऊँचाई पर स्थितिज ऊर्जा => 400 = mgh => 400 = 2 * 10 * h => h = 20 m"},
+  {q: "355. निम्नलिखित में से किसमें स्थितिज ऊर्जा होती है?", tag: "RRB Group-D 30-10-2018 (Shift-II)", o: ["बांध का पानी", "उड़ता हुआ वायुयान", "गिरता हुआ वायुयान", "दौड़ता हुआ धावक"], a: 0, e: "Ans : (a) जब किसी वस्तु में किसी विशेष दशा या स्थिति के कारण कार्य करने की क्षमता होती है, तो उसे स्थितिज ऊर्जा कहते है। जैसे- बांध में एकत्र पानी में संचित ऊर्जा, घड़ी की चाभी में संचित ऊर्जा, इत्यादि।"},
+  {q: "356. निम्नलिखित में से कौन सी वस्तुओं में स्थितिज ऊर्जा होगी?", tag: "RRB Group-D 03-10-2018 (Shift-II)", o: ["चलती गोली", "बहने वाली हवा", "एक लुढ़कता हुआ पत्थर", "उठाया हुआ हथौड़ा"], a: 3, e: "Ans : (d) उठाये हुए हथौड़े में स्थितिज ऊर्जा होगी। जबकि सभी गतिज ऊर्जा के उदाहरण है।"},
+  {q: "357. यदि 10 kg भार की बाइसाइकिल 20 m/s की गति से चलती है, तो बाइसाइकिल की गतिज ऊर्जा है:", tag: "RRB Group-D 28-09-2018 (Shift-II)", o: ["4000 J", "400 J", "200 J", "2000 J"], a: 3, e: "Ans. (d): यदि m द्रव्यमान का कोई वस्तु v वेग के साथ गति करती है तो इसकी गतिज ऊर्जा Ek = 1/2mv^2 (यहाँ m=10kg, v=20m/s) = 1/2 * 10 * (20)^2 = 1/2 * 10 * 400 = 4000/2 = 2000 J"},
+  {q: "358. 14 kg द्रव्यमान की एक वस्तु 5 ms^-1 के समान वेग से आगे बढ़ रही है। वस्तु में निहित गतिज ऊर्जा ज्ञात कीजिए ?", tag: "RRB Group-D 11-10-2018 (Shift-II)", o: ["180.5 J", "17.5 J", "175 ms", "175 J"], a: 3, e: "Ans : (d) 14 kg द्रव्यमान की एक वस्तु 5 ms^-1 के समान वेग से आगे बढ़ रही है। वस्तु में निहित गतिज ऊर्जा = 1/2mv^2 = 1/2 * 14 * 5 * 5 = 7 * 25 = 175 J"}
+];
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

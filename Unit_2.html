@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q51. विभवांतर की एसआई (SI) इकाई क्या है?",
+    tag: "RRB Group-D 26-10-2018 (Shift-III)<br>RRB Group-D 11-12-2018 (Shift-II)",
+    o: ["(a) कूलॉम", "(b) जूल", "(c) वोल्ट", "(d) वाट"],
+    a: 2,
+    e: "विभवान्तर का SI मात्रक 'वोल्ट' होता है। आवेश का मात्रक 'कूलॉम', शक्ति का मात्रक 'वाट' तथा ऊर्जा का मात्रक 'जूल' होता है।"
+  },
+  {
+    q: "Q52. 'चुंबकीय फ्लक्स' की एसआई (SI) इकाई क्या है?",
+    tag: "RRB NTPC 07.04.2021 (Shift-II) Stage Ist<br>RRB NTPC 03.03.2021 (Shift-II) Stage Ist",
+    o: ["(a) फैरड", "(b) हेनरी", "(c) पास्कल", "(d) वेबर"],
+    a: 3,
+    e: "<table border='1' style='border-collapse: collapse; text-align: left; width: 100%;'><thead><tr><th>राशि</th><th>मात्रक</th></tr></thead><tbody><tr><td>धारिता</td><td>फैरड</td></tr><tr><td>प्रेरकत्व</td><td>हेनरी</td></tr><tr><td>दाब</td><td>पास्कल</td></tr><tr><td>चुंबकीय फ्लक्स</td><td>वेबर</td></tr></tbody></table>"
+  },
+  {
+    q: "Q53. शक्ति की अंतर्राष्ट्रीय इकाई (SI)......है।",
+    tag: "RRB JE 24.05.2019 (Shift-I)<br>RRB Group-D 22-10-2018 (Shift-1)<br>RRB Group-D 01-10-2018 (Shift-III)",
+    o: ["(a) वाट", "(b) अर्ग", "(c) किलोवाट", "(d) जूल"],
+    a: 0,
+    e: "कार्य करने की दर को शक्ति कहते हैं। शक्ति की अंतर्राष्ट्रीय इकाई वाट है जो 1 जूल प्रति सेकेण्ड के बराबर होती है जबकि कार्य का मात्रक जूल है। 1 जूल = 10⁷ अर्ग।"
+  },
+  {
+    q: "Q54. 'g' के मान की एस आई इकाई वही है जो ...... की एस आई इकाई है।",
+    tag: "RRB Group-D 13-12-2018 (Shift-II)",
+    o: ["(a) दाब", "(b) संवेग", "(c) वेग nighttime", "(d) त्वरण"],
+    a: 3,
+    e: "गुरुत्वीय त्वरण (g) और त्वरण का S.I. यूनिट एक ही मीटर प्रति सेकेण्ड होती है। गुरुत्वीय त्वरण (g) का संख्यात्मक मान 9.8 m/sec² होता है।"
+  },
+  {
+    q: "Q55. Nm^{2}Kg^{-2} की SI इकाई..............है।",
+    tag: "RRB Group-D 01-10-2018 (Shift-1)",
+    o: ["(a) दबाव", "(b) संवेग", "(c) गुरुत्वाकर्षण के कारण हुआ त्वरण", "(d) गुरुत्वाकर्षण के सार्वभौमिक नियतांक"],
+    a: 3,
+    e: "Nm^{2}Kg^{-2}, सार्वभौमिक गुरुत्वाकर्षण नियतांक (G) की एक SI इकाई है। जिसका मान 6.67\\times10^{-11} होता है, जो हेनरी कैवेंडिश द्वारा दिया गया है। इसका विमीय सूत्र [M^{-1}L^{3}T^{-2}] है।"
+  },
+  {
+    q: "Q56. प्रतिरोधकता की SI इकाई है।",
+    tag: "RRB Group-D 23-10-2018 (Shift-1)",
+    o: ["(a) Ohm-m", "(b) Joule", "(c) Ampere", "(d) Ohm"],
+    a: 0,
+    e: "प्रतिरोधकता का मान पदार्थ की प्रकृति तथा ताप पर निर्भर करता है।\\n R=\\rho\\frac{L}{A} जहाँ R = प्रतिरोध, L लम्बाई, A क्षेत्रफल\\n जहाँ \\rho एक नियतांक है, इसे चालक की प्रतिरोधकता (विशिष्ट प्रतिरोध) कहते है। इसका मात्रक ओम मीटर (Ωm) होता है।"
+  },
+  {
+    q: "Q57. भार की SI इकाई की SI इकाई के बराबर होती है।",
+    tag: "RRB Group-D 12-11-2018",
+    o: ["(a) आवेग", "(b) त्वरण", "(c) बल", "(d) द्रव्यमान"],
+    a: 2,
+    e: "किसी वस्तु पर पृथ्वी के गुरुत्वाकर्षण की माप को भार या वजन कहते है। पृथ्वी की सतह पर गुरुत्वाकर्षण के कारण त्वरण लगभग समान होता है। भार की SI इकाई बल की SI इकाई के बराबर होती है। भार तथा बल की SI इकाई न्यूटन है।"
+  },
+  {
+    q: "Q58. चाल की अंतर्राष्ट्रीय (SI) इकाई है।",
+    tag: "RRB Group-D 01-10-2018 (Shift-III)",
+    o: ["(a) मी./से.", "(b) किमी./घं.", "(c) मी./मिनट", "(d) किमी./से."],
+    a: 0,
+    e: "किसी कण या वस्तु द्वारा एकांक समय में तय की गयी दूरी को चाल कहा जाता है। चाल एक अदिश राशि है।\\n चाल = दूरी / समय\\n चाल की SI इकाई मी./से. है।"
+  },
+  {
+    q: "Q59. निम्न में से किन दो भौतिक राशियों की इकाई एक ही है?",
+    tag: "RRB Group-D 09-10-2018 (Shift-II)",
+    o: ["(a) दाब और बल", "(b) बल और उत्क्षेप बल", "(c) बल और गति", "(d) बल और भार"],
+    a: 1,
+    e: "<table border='1' style='border-collapse: collapse; text-align: left; width: 100%;'><thead><tr><th>भौतिक राशि</th><th>ईकाई</th></tr></thead><tbody><tr><td>दाब</td><td>पास्कल</td></tr><tr><td>भार/बल/उत्क्षेप</td><td>न्यूटन या किग्रा-मी./से.²</td></tr><tr><td>गति</td><td>मी./से.</td></tr></tbody></table>\\n स्पष्ट है कि बल, भार और उत्क्षेप का मात्रक समान है। अतः विकल्प (b) और (d) दोनों सत्य होगा।"
+  },
+  {
+    q: "Q60. ms^{-2} निम्नलिखित में से किसकी SI इकाई है?",
+    tag: "RRB Group-D 15-10-2018 (Shift-III)",
+    o: ["(a) वेग", "(b) गति", "(c) बल", "(d) त्वरण"],
+    a: 3,
+    e: "किसी वस्तु के वेग परिवर्तन की दर को त्वरण (Acceleration) कहते हैं। इसका SI इकाई मीटर/सेकेण्ड² होता है। यह एक सदिश राशि है।"
+  },
+  {
+    q: "Q61. की SI इकाई जूल/सेकंड है?",
+    tag: "RRB Group-D 02-11-2018 (Shift-II)",
+    o: ["(a) कार्य", "(b) बल", "(c) प्रणोद", "(d) शक्ति"],
+    a: 3,
+    e: "कार्य करने की दर को शक्ति कहते हैं। इसकी इकाई जूल/सेकंड के बराबर होती है।\\n जहाँ, P=\\frac{W}{t}\\n P-शक्ति, W-कार्य और t-समय है।"
+  },
+  {
+    q: "Q62. न्यूटन, के मापन की इकाई है।",
+    tag: "RRB NTPC 08.02.2021 (Shift-II) Stage Ist",
+    o: ["(a) शक्ति", "(b) बल", "(c) दाब", "(d) प्रतिरोध"],
+    a: 1,
+    e: "बल का SI मात्रक न्यूटन है। बल एक धक्का या खिंचाव है, जो वस्तु की स्थिति में परिवर्तन लाता है बल, F=mxa किसी वस्तु पर लगाया गया बल वस्तु के द्रव्यमान तथा त्वरण के गुणनफल के बराबर होता है।\\n जहाँ, F = बल, m = द्रव्यमान, a = त्वरण\\n शक्ति का मात्रक वाट, दाब का मात्रक पास्कल तथा विद्युत प्रतिरोध का मात्रक ओम होता है।"
+  },
+  {
+    q: "Q63. ......की SI इकाई न्यूटन है।",
+    tag: "RRB NTPC 30.12.2020 (Shift-II) Stage Ist<br>RRB Group-D 01-10-2018 (Shift-1)",
+    o: ["(a) वजन और त्वरण", "(b) वजन और बल", "(c) वजन और द्रव्यमान", "(d) वजन और संवेग"],
+    a: 1,
+    e: "बल वह बाह्य कारक है, जो किसी वस्तु की प्रारम्भिक अवस्था में परिवर्तन करता है या परिवर्तन करने का प्रयास करता है। यह एक सदिश राशि है। इसका SI मात्रक न्यूटन है।\\n भार या वजन (Mg) उस वस्तु पर लगने वाले गुरुत्वीय त्वरण 'g' जिसका पृथ्वी पर मान 9.8 (लगभग 10) मी./से.² वाले गुरुत्वाकर्षण बल का परिणाम है। इसका मान जगह के साथ बदलता रहता है। इसकी SI इकाई न्यूटन है। यह एक सदिश राशि है।"
+  },
+  {
+    q: "Q64. विद्युत धारा की SI इकाई क्या है?",
+    tag: "RRB ALP & Tec. (30-08-18 Shift-II)<br>RRB Group-D 04-12-2018 (Shift-II)<br>RRB Group-D 24-10-2018 (Shift-II)",
+    o: ["(a) वोल्ट", "(b) कूलॉम", "(c) एम्पियर", "(d) ओम"],
+    a: 2,
+    e: "विद्युत धारा : किसी अनुप्रस्थ काट से प्रति एकांक समय में प्रवाहित होने वाले आवेश को विद्युत धारा कहते हैं। इसका S.I. मात्रक ऐम्पियर होता है।\\n विद्युत धारा (i) = आवेश (q) / समय (t)"
+  },
+  {
+    q: "Q65. की SI इकाई एम्पीयर है?",
+    tag: "RRB Group-D 03-10-2018 (Shift-III)",
+    o: ["(a) विभवान्तर", "(b) विद्युत आवेश", "(c) विद्युत धारा", "(d) प्रतिरोध"],
+    a: 2,
+    e: "उपर्युक्त प्रश्न की व्याख्या देखें।"
+  },
+  {
+    q: "Q66. की एस.आई.इकाई वोल्ट है?",
+    tag: "RRB Group-D 05-10-2018 (Shift-1)",
+    o: ["(a) प्रतिरोध", "(b) विद्युत आवेश", "(c) विद्युत धारा", "(d) विभवान्तर"],
+    a: 3,
+    e: "किन्ही दो बिन्दुओं के बीच विद्युत विभव के अंतर को 'विभवान्तर' कहते है। अर्थात् एकांक आवेश को एक स्थान से दूसरे स्थान तक ले जाने में किया गया कार्य विभवान्तर कहलाता है। इसे वोल्टमीटर या विभवमापी से मापा जाता है।\\n विभवान्तर का SI मात्रक 'वोल्ट' है। इसका मापन ओम (Ohm) के नियम से भी किया जाता है अर्थात् 'विभवांतर = प्रतिरोध × विद्युतधारा। इसे 'V' से व्यक्त करते है।"
+  },
+  {
+    q: "Q67. कूलॉम किसकी SI इकाई है-",
+    tag: "RRB Group-D 04-10-2018 (Shift-II)",
+    o: ["(a) प्रतिरोध", "(b) विद्युत प्रवाह", "(c) विभवांतर", "(d) विद्युत आवेश"],
+    a: 3,
+    e: "विद्युत आवेश किसी पदार्थ का वह गुण है जिसकी उपस्थिति में किसी अन्य आवेश द्वारा वह पदार्थ एक बल अनुभव करता है।\\n विद्युत आवेश की S.I. इकाई कूलॉम है।"
+  },
+  {
+    q: "Q68. त्वरण की SI इकाई क्या है?",
+    tag: "RRB Group-D 11-10-2018 (Shift-II)<br>RRB Group-D 19-09-2018 (Shift-III)<br>RRB Group-D 24-09-2018 (Shift-1)",
+    o: ["(a) ms", "(b) ms^{-1}", "(c) ms^{-2}", "(d) Kg~ms^{-1}"],
+    a: 2,
+    e: "\"किसी कण या वस्तु के वेग परिवर्तन की दर को त्वरण कहते है।\" त्वरण एक सदिश राशि है इसका S.I. मात्रक m/s² (ms^{-2}) होता है।"
+  },
+  {
+    q: "Q69. | निम्न में से कौन सी तापमान की SI इकाई है?",
+    tag: "RRB Group-D 15-11-2018 (Shift-II)",
+    o: ["(a) डिग्री", "(b) सेल्सियस", "(c) फ़ारेनहाइट", "(d) केल्विन"],
+    a: 3,
+    e: "अन्तर्राष्ट्रीय पद्धति (SI) में तापमान की इकाई केल्विन (K) है। tap का यह पैमाना लार्ड केल्विन द्वारा सन् 1852 में प्रस्तुत किया गया था। इसमें जल के हिमांक को 273 केल्विन (K) या डिग्री ऐब्सल्यूट (A) तथा क्वथनांक को 373 केल्विन (K) माना गया है। इन दोनों के बीच की दूरी को 100 बराबर भागों में बांटा गया है।"
+  },
+  {
+    q: "Q70. Nm^{-2} की अंतरराष्ट्रीय (SI) इकाई है।",
+    tag: "RRB Group-D 04-10-2018 (Shift-1)<br>RRB Group-D 05-11-2018 (Shift-I)",
+    o: ["(a) बल", "(b) प्रणोद", "(c) संवेग", "(d) दाब"],
+    a: 3,
+    e: "एकांक क्षेत्रफल पर कार्यरत लम्बवत् बल दाब कहलाता है। यह एक अदिश राशि है।\\n अतः दाब (P) = पृष्ठ के लम्बवत् बल (F) / पृष्ठ का क्षेत्रफल (A)\\n दाब का अन्तर्राष्ट्रीय पद्धति (SI) मात्रक न्यूटन मीटर⁻² (Nm^{-2}) या पास्कल होता है।"
+  },
+  {
+    q: "Q71. भार की एसआई इकाई वही है जो की एसआई इकाई है।",
+    tag: "RRB Group-D 07-12-2018 (Shift-III)",
+    o: ["(a) दाब", "(b) प्रणोद", "(c) बल", "(d) द्रव्यमान"],
+    a: 2,
+    e: "भार तथा बल दोनों सदिश राशियाँ हैं। सदिश राशियों में परिमाण और दिशा दोनों होते है। भार और बल दोनों का एस. आई. मात्रक किग्रा. मी/से.² अथवा न्यूटन होता है।"
+  },
+  {
+    q: "Q72. दी गई भौतिक राशियों में से क्या सापेक्ष राशि नहीं है?",
+    tag: "RRB Group-D 03-12-2018 (Shift-III)",
+    o: ["(a) समय", "(b) त्वरण", "(c) वेग", "(d) दूरी"],
+    a: 0,
+    e: "समय भौतिक राशियों में सापेक्ष राशि नहीं है क्योंकि 'समय' किसी अन्य भौतिक राशि पर निर्भर नहीं होता है।"
+  },
+  {
+    q: "Q73. निम्न में से किस राशि के लिए मात्रक नहीं है?",
+    tag: "RRB Group-D 03-12-2018 (Shift-III)",
+    o: ["(a) घनत्व", "(b) बल", "(c) आपेक्षिक घनत्व", "(d) संवेग"],
+    a: 2,
+    e: "<table border='1' style='border-collapse: collapse; text-align: left; width: 100%;'><thead><tr><th>राशि</th><th>मात्रक</th></tr></thead><tbody><tr><td>आपेक्षिक घनत्व</td><td>कोई मात्रक नहीं</td></tr><tr><td>घनत्व</td><td>किग्रा/मी³ या ग्रा./सेमी.³</td></tr><tr><td>बल</td><td>न्यूटन या किग्रा-मी/से.²</td></tr><tr><td>संवेग</td><td>किग्रा. मी/से.</td></tr></tbody></table>"
+  },
+  {
+    q: "Q74. निम्न में से किस युग्म की इकाइयाँ समान नहीं होती हैं?",
+    tag: "RRB Group-D 05-10-2018 (Shift-II)<br>RRB Group-D 01-10-2018 (Shift-III)",
+    o: ["(a) चाल और वेग", "(b) कार्य और ऊर्जा", "(c) दूरी और विस्थापन", "(d) बल और दाब"],
+    a: 3,
+    e: "बल और दाब की इकाईयाँ समान नहीं होती है। बल का SI मात्रक न्यूटन (kg.m/s^{2}) तथा दाब का SI मात्रक न्यूटन/मी.² या पास्कल (Pa) होता है।"
+  },
+  {
+    q: "Q75. Ohm-m......... की इकाई है।",
+    tag: "RRB Group-D 05-10-2018 (Shift-II)",
+    o: ["(a) प्रतिरोधकता", "(b) विद्युत् प्रवाह", "(c) आवेश", "(d) प्रतिरोधक"],
+    a: 0,
+    e: "ओम-मीटर प्रतिरोधकता की S.I इकाई है। 1 मीटर लम्बे किसी पदार्थ का टुकड़ा जिसके अनुप्रस्थ काट का क्षेत्रफल 1 वर्ग मीटर है, तब पदार्थ के उस टुकड़े का प्रतिरोध, प्रतिरोधकता कहलाती है। प्रतिरोधकता या विशिष्ट प्रतिरोध \\rho = R\\frac{A}{L} ओम-मीटर है।"
+  },
+  {
+    q: "Q76. मंदता की अंतर्राष्ट्रीय (SI) इकाई है।",
+    tag: "RRB Group-D 03-10-2018 (Shift-III)",
+    o: ["(a) ms^{2}", "(b) ms", "(c) ms^{-1}", "(d) ms^{-2}"],
+    a: 3,
+    e: "किसी गतिमान वस्तु के वेग परिवर्तन की दर को त्वरण कहते हैं। यदि वेग परिवर्तन की दर ऋणात्मक हो, तो इसे मंदता कहा जाता है। मंदता का SI मात्रक ms^{-2} होता है।"
+  },
+  {
+    q: "Q77. निम्नलिखित में से किन युग्म की SI इकाइयां समान हैं?",
+    tag: "RRB Group-D 03-10-2018 (Shift-II)<br>RRB Group-D 12-12-2018 (Shift-III)",
+    o: ["(a) बल और दूरी", "(b) संवेग और बल", "(c) बल और दाब", "(d) कार्य और ऊर्जा"],
+    a: 3,
+    e: "कार्य का मात्रक 'जूल' है। इसे संक्षेप में J से निरूपित किया जाता है। ऊर्जा का मापन जूल में किया जाता है। ऊर्जा का मात्रक भी जूल होता है। अतः कार्य और ऊर्जा की S.I. इकाइयाँ समान है। इसका विमीय सूत्र ML^{2}T^{-2} होता है।"
+  },
+  {
+    q: "Q78. एक पास्कल = ?",
+    tag: "RRB Group-D 11-12-2018 (Shift-II)",
+    o: ["(a) 1~N~m^{-2}", "(b) 1~N~m^{2}", "(c) 1 dyne cm²", "(d) 100 atmosphere"],
+    a: 0,
+    e: "1 पास्कल = 1 न्यूटन मीटर⁻²\\n 1(Pa)=1~Nm^{-2}"
+  },
+  {
+    q: "Q79. निम्नलिखित का सही मिलान करिएः\\n (1) W/वाट (A) Nm/s / नैनोमीटर/सेकंड\\n (2) kW/किलोवाट (B) 3.6\\times10^{6}J / (जूल)\\n (3) 1 kW.h (किलोवाट घण्टा) (C) 1000 W / (वाट)\\n (4) 1HP (हार्सपावर) (D) 746 W / (वाट)",
+    tag: "RRB ALP & Tec. (31-08-18 Shift-1)",
+    o: ["(a) 1-A, 2-C, 3-B, 4-D", "(b) 1-A, 2-C, 3-D, 4-B", "(c) 1-D, 2-B, 3-C, 4-A", "(d) 1-A, 2-B, 3-C, 4-D"],
+    a: 0,
+    e: "1. W/वाट - A. Nm/s\\n 80. kW/किलोवाट - C. 1000 W\\n 81. 1 kWh/किलोवाट घंटा - B. 3.6\\times10^{6}J\\n 82. 1 Hp/हार्स पावर - D. 746 W"
+  },
+  {
+    q: "Q80. विद्युत धारा की अंतर्राष्ट्रीय (SI) इकाई क्या होती है?",
+    tag: "RRB Group-D 04-12-2018 (Shift-II)",
+    o: ["(a) ओम-मीटर", "(b) एम्पियर", "(c) वोल्ट", "(d) ओम"],
+    a: 1,
+    e: "किसी चालक में विद्युत आवेश के प्रवाह की दर को विद्युत धारा कहते है। विद्युत धारा की दिशा धन आवेश की गति की दिशा की ओर मानी जाती है। इसका S.I. मात्रक एम्पियर है। यह एक अदिश राशि है।"
+  },
+  {
+    q: "Q81. तरंग दैर्ध्य का SI मात्रक क्या है?",
+    tag: "RRB JE 26.06.2019 (Shift-IV)",
+    o: ["(a) हर्ज", "(b) किलोग्राम", "(c) सेकण्ड", "(d) मीटर"],
+    a: 3,
+    e: "तरंग दैर्ध्य का SI मात्रक \"मीटर\" होता है।"
+  },
+  {
+    q: "Q82. किसी पदार्थ की मात्रा को मापने के लिए निम्नलिखित में से किस इकाई का उपयोग किया जाता है ?",
+    tag: "RRB NTPC 28.12.2020 (Shift-I) Stage Ist",
+    o: ["(a) लक्स", "(b) मोल", "(c) टेस्ला", "(d) जूल"],
+    a: 1,
+    e: "किसी निकाय के पदार्थ की मात्रा विशिष्ट मूल कणों की संख्या का आमाप होती है। ये मूल कण एक परमाणु, अणु, आयन, इलेक्ट्रॉन या कणों का विशिष्ट समूह हो सकते हैं। पदार्थ की मात्रा का SI मात्रक मोल (mol) होता है। एक मोल में 6.023 x 10^{23} मूलभूत कण होते है। टेस्ला (T) चुम्बकीय फ्लक्स घनत्व का मात्रक है। जूल (J) कार्य या ऊर्जा का SI मात्रक है तथा लक्स (lx) प्रदीप्ति का मात्रक है।"
+  },
+  {
+    q: "Q83. इनमें से कौन-सा SI इकाई में मोल का प्रतीक है?",
+    tag: "RRB JE 28.06.2019 (Shift-IV)",
+    o: ["(a) g", "(b) mol", "(c) kg", "(d) mg"],
+    a: 1,
+    e: "मोल की प्रतीक mol होता है।"
+  },
+  {
+    q: "Q84. विद्युत ऊर्जा व्यय का वाणिज्यिक मात्रक क्या है?",
+    tag: "RRB JE 02.06.2019 (Shift-1)",
+    o: ["(a) किलोवाट घंटा (kWh)", "(b) जूल (J)", "(c) वाट (W)", "(d) वोल्ट (V)"],
+    a: 0,
+    e: "विद्युत ऊर्जा व्यय का वाणिज्यिक मात्रक किलोवाट-घंटा है।"
+  },
+  {
+    q: "Q85. मात्रक कूलॉम सेकंड का दूसरा नाम क्या है?",
+    tag: "RRB JE 28.05.2019 (Shift-III)",
+    o: ["(a) जूल (J)", "(b) एम्पियर (A)", "(c) वोल्ट (V)", "(d) सेकेंड (S)"],
+    a: 1,
+    e: "मात्रक कूलॉम / सेकंड का दूसरा नाम एम्पियर है।"
+  },
+  {
+    q: "Q86. तरंग वेग का SI मात्रक क्या है?",
+    tag: "RRB JE 28.05.2019 (Shift-III)",
+    o: ["(a) मीटर", "(b) मीटर प्रति संकेत", "(c) सेकंड", "(d) हर्ज"],
+    a: 1,
+    e: "तरंग वेग का SI मात्रक मीटर प्रति सेकंड है।"
+  },
+  {
+    q: "Q87. ध्वनि प्रदूषण ...... में मापा जाता है।",
+    tag: "RRB JE 22-05-2019 (Shift-IV)",
+    o: ["(a) डेसिबल", "(b) जूल", "(c) एम्पियर", "(d) ओम"],
+    a: 0,
+    e: "ध्वनी प्रदूषण को डेसिबल में मापा जाता है।"
+  },
+  {
+    q: "Q88. ध्वनि की प्रबलता ..........में मापी जा सकती है-",
+    tag: "RRB NTPC 25.01.2021 (Shift-I) Stage Ist<br>RRB Group-D 12-11-2018 (Shift-II)",
+    o: ["(a) प्रतिध्वनि", "(b) आवृत्ति", "(c) डेसिबल", "(d) हर्ज"],
+    a: 2,
+    e: "ध्वनि की प्रबलता या तीव्रता डेसिबल में मापी जाती है। ध्वनि तरंग अनुदैर्ध्य यांत्रिक तरंगे होती है जब ध्वनि तरंगों की आवृत्ति 20 Hz से 20000 Hz के बीच होती है, तब उनकी अनुभूति अपने कानों के द्वारा होती है, और इन्हें हम श्रव्य ध्वनि तरंगें कहते है। वायु में ध्वनि की चाल 332 m/s होती है।"
+  },
+  {
+    q: "Q89. 1 एटमॉस्फियर =",
+    tag: "RRB Group-D 28-11-2018 (Shift-1)<br>RRB Group-D 24-10-2018 (Shift-III)",
+    o: ["(a) 1.01\\times10^{5}Pa", "(b) 10.1\\times10^{5}Pa", "(c) 1.01\\times10^{6}Pa", "(d) 10.1\\times10^{6}Pa"],
+    a: 0,
+    e: "पृथ्वी की एक निश्चित इकाई या क्षेत्रफल पर वायुमंडल (atmosphere) की सभी परतों द्वारा पड़ने वाला दबाव ही वायुमंडलीय दाब (atmospheric pressure) कहलाता है। वायुमंडलीय दाब को बैरोमीटर से मापा जाता है तथा इसकी इकाई बार या पास्कल होता है। एक एटमॉस्फियर 1.01\\times10^{5} पास्कल के बराबर होता है।"
+  },
+  {
+    q: "Q90. एक हॉर्स पॉवर किसके बराबर होती है?",
+    tag: "RRB ALP & Tec. (20-08-18 Shift-II)",
+    o: ["(a) 764 वॉट", "(b) 768 वॉट", "(c) 746 वॉट", "(d) 786 वॉट"],
+    a: 2,
+    e: "एक अश्व शक्ति 746 वॉट के बराबर होती है। मशीनों की शक्ति को अश्व शक्ति में व्यक्त किया जाता है।"
+  },
+  {
+    q: "Q91. 746 Watts को क्या कहा जाता है?",
+    tag: "RRB Group-D 05-11-2018 (Shift-III)",
+    o: ["(a) 1 अश्व शक्ति", "(b) 1 KW", "(c) 1 पास्कल", "(d) 1 जूल"],
+    a: 0,
+    e: "उपर्युक्त प्रश्न की व्याख्या देखें।"
+  },
+  {
+    q: "Q92. 1 डायोप्टर............ के बराबर होता है।",
+    tag: "RRB JE 02.06.2019 (Shift-III)",
+    o: ["(a) 1~mm^{-1}", "(b) 1~m^{-1}", "(c) 1~dm^{-1}", "(d) 1~cm^{-1}"],
+    a: 1,
+    e: "1 डायोप्टर 1~m^{-1} बराबर होता है।"
+  },
+  {
+    q: "Q93. एक मीटर किसके बराबर है?",
+    tag: "RRB J.E. (14.12.2014, Yellow paper)",
+    o: ["(a) 10^{-6} माइक्रॉन", "(b) 10^{6} माइक्रॉन", "(c) 10^{-3} माइक्रॉन", "(d) 10^{3} माइक्रॉन"],
+    a: 1,
+    e: "1 मीटर = 10^{6} माइक्रॉन\\n 1 मी. = 10^{3} मिमी.\\n 1 मी. = 3.28 फीट\\n 1 मीटर = 10^{-3} किलो मी.\\n 1 मी. = 10^{9} नैनो मी.\\n 1 मीटर = 10^{12} पिको मी.\\n 1 मी. = 10^{15} फेम्टो मी."
+  },
+  {
+    q: "Q94. परमाणु त्रिज्या .......... में मापी जाती है।",
+    tag: "RRB-JE 30.08.2019, Ist Shift",
+    o: ["(a) मिलीमीटर", "(b) सेंटीमीटर", "(c) किलोग्राम", "(d) नैनोमीटर"],
+    a: 3,
+    e: "परमाणु त्रिज्या नैनोमीटर में मापी जाती है।"
+  },
+  {
+    q: "Q95. प्रदीप्ति (Illumination) की माप निम्न में से किसका उपयोग करके की जाती है?",
+    tag: "RRB J.E. (14.12.2014, Green paper)",
+    o: ["(a) मिलीवोल्टमीटर", "(b) स्ट्रोबोस्कॉप", "(c) लक्स मीटर", "(d) P^{H} मीटर"],
+    a: 2,
+    e: "प्रदीप्ति की माप लक्स मीटर के द्वारा की जाती है। लक्स एक व्युत्पन्न इकाई है, जो ल्यूमेन पर आधारित है। ल्यूमेन कैंडेला से व्युत्पन्न इकाई है। एक Lux बराबर है। एक ल्यूमेन प्रति वर्ग मीटर जहाँ 4π ल्यूमेन एक कैंडेला प्रकाशीय तीव्रता के प्रकाश स्रोत का पूर्ण प्रकाशीय बहाव है।\\n 1~Lux=1~Lumen/m^{2}"
+  },
+  {
+    q: "Q96. 1~kWh=?",
+    tag: "RRB Group-D 20-09-2018 (Shift-III)<br>RRB Group-D 18-09-2018 (Shift-II)<br>RRB Group-D 27-09-2018 (Shift-I)<br>RRB Group-D 9-08-2018 (Shift-II)<br>RRB ALP & Tec. (09-08-18 Shift-I)",
+    o: ["(a) 3.6\\times10^{5}J", "(b) 3.6\\times10^{-6}J", "(c) 3.6\\times10^{6}J", "(d) 3.6\\times10^{-5}J"],
+    a: 2,
+    e: "1 किलोवॉट घंटा = 1 किलोवॉट × 1 घंटा\\n = 1000 वाट × 60 मिनट\\n = 1000 जूल/सेकंड × 60 × 60 सेकंड\\n = 1000 × 3600 जूल\\n = 3600000 जूल\\n = 3.6\\times10^{6} जूल"
+  },
+  {
+    q: "Q97. एक किलोवाट घंटा ऊर्जा .......... के बराबर होती है।",
+    tag: "RRB Group-D 03-12-2018 (Shift-II)",
+    o: ["(a) 360000 जूल", "(b) 36000 जूल", "(c) 360 जूल", "(d) 3600000 जूल"],
+    a: 3,
+    e: "उपर्युक्त प्रश्न की व्याख्या देखें।"
+  },
+  {
+    q: "Q98. 1KW=?",
+    tag: "RRB Group-D 12-11-2018 (Shift-1)",
+    o: ["(a) 1000~Js^{-1}", "(b) 100 Js⁻¹", "(c) 10~Js^{-1}", "(d) 10000~Js^{-1}"],
+    a: 0,
+    e: "कार्य करने की दर को शक्ति कहते है। इसका S.I. मात्रक वाट (W) है जिसे वैज्ञानिक जेम्स वाट के सम्मान में रखा गया है। शक्ति = कार्य/ समय है। 1 किलोवाट का मान 1000 जूल/सेकण्ड अथवा 1 किलोवाट का मान 1000 वॉट की शक्ति के बराबर होता है।"
+  },
+  {
+    q: "Q99. 1 किलोवाट .......... शक्ति के बराबर होती है।",
+    tag: "RRB JE 26.05.2019 (Shift-III)",
+    o: ["(a) 100 वाट", "(b) 10000 वाट", "(c) 10 वाट", "(d) 1000 वाट"],
+    a: 3,
+    e: "उपर्युक्त प्रश्न की व्याख्या देखें।"
+  },
+  {
+    q: "Q100. 5.5~kwh=?",
+    tag: "RRB Group-D 04-12-2018 (Shift-II)",
+    o: ["(a) 14.4\\times10^{8}J", "(b) 14.4\\times10^{5}J", "(c) 14.0\\times10^{6}J", "(d) 19.8\\times10^{6}J"],
+    a: 3,
+    e: "1~kwh=3.6\\times10^{6}J\\n \\therefore 5.5~kwh=5.5\\times3.6\\times10^{6}J\\n =19.8\\times10^{6}J"
+  }
+];
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

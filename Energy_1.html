@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "274. ऊर्जा संरक्षण के सिद्धान्त के संबंध में कौन सा कथन सही है?", tag: "RRB Group-D 27-11-2018 (Shift-I)", o: ["ऊर्जा का केवल निर्माण किया जा सकता है।", "ऊर्जा को केवल नष्ट किया जा सकता है", "ऊर्जा का निर्माण किया जाता है और इसे नष्ट भी किया जाता है।", "ऊर्जा का न तो निर्माण किया जाता है और न ही इसे नष्ट किया जाता है।"], a: 3, e: "ऊर्जा संरक्षण सिद्वान्त के अनुसार, 'ऊर्जा न तो उत्पन्न की जा सकती है और न ही नष्ट की जा सकती है। यह केवल एक रूप से दूसरे रूप में परिवर्तित की जा सकती है।'"},
+  {q: "275. ऊर्जा न तो उत्पन्न की जा सकती है और न ही नष्ट की जा सकती है, लेकिन इसे एक रूप से दूसरे रूप में परिवर्तित किया जा सकता है। इसे कहा जाता है-", tag: "RRB Group-D 11-10-2018 (Shift-II)", o: ["सतत ऊर्जा का नियम", "ऊर्जा-संरक्षण का नियम", "एन्ट्रॉपी का नियम", "द्रव्यमान संरक्षण का नियम"], a: 1, e: "ऊर्जा संरक्षण नियम के अनुसार, ऊर्जा एक संरक्षित राशि है। ऊर्जा को न तो नष्ट किया जा सकता है न ही उत्पन्न किया जा सकता है। इसे केवल एक रूप से दूसरे रूप में परिवर्तित किया जा सकता है। इसे ही ऊर्जा संरक्षण का नियम कहते है।"},
+  {q: "276. यदि वायु प्रतिरोध को नगण्य मानें, तो मुक्त रूप से गिरते हुए पिंड की स्थितिज ऊर्जा और गतिज ऊर्जा का योग क्या होगा ?", tag: "RRB Group-D 28-11-2018 (Shift-I)", o: ["अनन्त", "स्थितिज ऊर्जा के योग का दोगुना", "शून्य", "स्थिर"], a: 3, e: "स्वतंत्र रूप से गिरते हुए किसी पिण्ड की स्थितिज ऊर्जा धीरे-धीरे घटती जाती है। यह ऊर्जा संरक्षण के नियम के अनुसार ही कार्य करता है क्योंकि जब वस्तु स्वतंत्र रूप से नीचे गिरती है तो उसकी स्थितिज ऊर्जा का रूपान्तरण गतिज ऊर्जा में हो जाता है। किसी भी बिन्दु पर गतिज ऊर्जा तथा स्थितिज ऊर्जा का योग हमेशा समान (स्थिर) रहता है।"},
+  {q: "277. जब आप एक रबर बैंड खींचते है, तो हस्तांतरित ऊर्जा ......... के रूप में संग्रहित होती है-", tag: "RRB Group-D 10-10-2018 (Shift-I)", o: ["स्थितिज ऊर्जा", "मांसपेशीय ऊर्जा", "यांत्रिक ऊर्जा", "गतिज ऊर्जा"], a: 0, e: "किसी वस्तु में उसकी विशेष अवस्था या स्थिति के कारण कार्य करने की क्षमता को स्थितिज ऊर्जा कहते है। जैसे बांध में इकट्ठे पानी की ऊर्जा, तनी हुयी स्प्रिंग में ऊर्जा। स्थितिज ऊर्जा का S.I. मात्रक जूल होता है। अतः जब हम एक रबर बैंड खींचते हैं तो, रबर बैंड की खिंची हुई स्थिति के कारण उसमें हस्तांतरित ऊर्जा स्थितिज ऊर्जा के रूप में संग्रहित होती है।"},
+  {q: "278. ...... के कणों की गतिज ऊर्जा अधिकतम होती है-", tag: "RRB Group-D 26-10-2018 (Shift-III)", o: ["द्रव", "प्लाज्मा", "ठोस", "गैस"], a: 3, e: "किसी वस्तु में गति के कारण उत्पन्न ऊर्जा को वस्तु की गतिज ऊर्जा कहा जाता है। किसी गतिशील वस्तु की गतिज ऊर्जा उस वस्तु द्वारा विरामावस्था में आने तक किए गए कार्य के रूप में व्यक्त की जा सकती है। गैस के कणों की गतिज ऊर्जा अधिकतम होती है क्योंकि गैस के कण ठोस व द्रव के कणों की अपेक्षा अधिक गतिशील होते है। और ठोस के कणों की गतिज ऊर्जा न्यूनतम होती है।"},
+  {q: "279. ...... में कणों की गतिज ऊर्जा अधिकतम होती है।", tag: "RRB Group-D 12-11-2018 (Shift-III)", o: ["द्रवों और ठोसों", "ठोसों", "द्रवों", "गैसों"], a: 3, e: "उपर्युक्त प्रश्न की व्याख्या देखें।"},
+  {q: "280. एक घर में एक माह में 900 × 10 J ऊर्जा की खपत हुई। इकाई में यह ऊर्जा कितनी है?", tag: "RRB Group-D 26-11-2018 (Shift-III)", o: ["25", "2.5", "2500", "250"], a: 3, e: "ऊर्जा एक ऐसा कारक है जो कार्य करने के लिए आवश्यक होता है। जिस कारण से किसी वस्तु में कार्य करने की क्षमता होती है, उसे ऊर्जा कहते है। S.I. पद्धति में ऊर्जा का मात्रक जूल होता है। 1 यूनिट = 1 kWh = 3.6×10^6 जूल। कुल ऊर्जा (यूनिट में) = (900×10^6) / (3.6×10^6) = 250 यूनिट"},
+  {q: "281. पवन चक्की, पवन की किस ऊर्जा का उपयोग करती है?", tag: "RRB NTPC", o: ["ऊष्मीय ऊर्जा", "गतिज ऊर्जा", "तापीय ऊर्जा", "जलीय ऊर्जा"], a: 1, e: "पवन चक्की का आशय वायु से गतिज ऊर्जा को लेकर उसे उपयोगी यांत्रिकी अथवा विद्युत ऊर्जा के रूप में परिवर्तित करना है। यह हवा के रैखिक गति को पंखों की घूर्णीय गति में बदल देती है। वर्तमान (2021) आँकड़ों के अनुसार भारत की पवन बिजली उत्पादन क्षमता 39.2 गीगावाट (GW) तक पहुँच गई है।"},
+  {q: "282. जब एक संपीडित स्प्रिंग को छोड़ा जाता है तो यह अपनी स्थितिज ऊर्जा को ...... में बदल लेता है-", tag: "RRB Group-D 31-10-2018 (Shift-I)", o: ["यांत्रिक ऊर्जा", "पवन ऊर्जा", "प्रत्यास्थ स्थितिज ऊर्जा", "गतिज ऊर्जा"], a: 3, e: "जब किसी सम्पीडित स्प्रिंग को छोड़ा जाता है, तो यह अपनी स्थितिज ऊर्जा को गतिज ऊर्जा में परिवर्तित कर देता है। सामान्यतः ऊर्जा दो प्रकार की होती है। (1) गतिज ऊर्जा (Kinetic Energy)- जब किसी वस्तु में उसकी गति के कारण कार्य करने की जो क्षमता आ जाती है उसे उस वस्तु की गतिज ऊर्जा कहते है। (2) स्थितिज ऊर्जा (Potential energy)- जब किसी वस्तु में विशेष अवस्था या स्थिति के कारण कार्य करने की क्षमता आ जाती है तो उसे स्थितिज ऊर्जा कहते है।"},
+  {q: "283. एक वस्तु की स्थितिज ऊर्जा में इसकी ...... के साथ वृद्धि होती है-", tag: "RRB Group-D 10-10-2018 (Shift-I)", o: ["वेग", "ऊँचाई", "विस्थापन", "दूरी"], a: 1, e: "एक वस्तु की स्थितिज ऊर्जा में इसकी ऊँचाई के साथ वृद्धि होती है।"},
+  {q: "284. निम्न में से कौन सी ऊर्जा किसी वस्तु की ऊंचाई के साथ बदलती है?", tag: "RRB Group-D 11-10-2018 (Shift-I)", o: ["गतिज ऊर्जा", "परमाणु ऊर्जा", "रासायनिक ऊर्जा", "स्थितिज ऊर्जा"], a: 3, e: "वस्तु की स्थितिज ऊर्जा वस्तु की ऊँचाई के साथ बदलती है।"},
+  {q: "285. किसी वस्तु द्वारा अपनी स्थिति या आकार लेने की वजह से लगने वाली ऊर्जा को ...... कहा जाता है।", tag: "RRB Group-D 23-10-2018 (Shift-I)", o: ["गुप्त ऊर्जा", "स्थितिज ऊर्जा", "गतिज ऊर्जा", "स्थैतिजी ऊर्जा"], a: 1, e: "किसी वस्तु द्वारा अपनी स्थिति या आकार लेने की वजह से लगने वाली ऊर्जा को स्थितिज ऊर्जा कहा जाता है।"},
+  {q: "286. बांध में संग्रहित पानी में कौन सी ऊर्जा होती है:", tag: "RRB Group-D 26-09-2018 (Shift-I)", o: ["स्थितिज ऊर्जा", "विद्युत ऊर्जा", "गतिज ऊर्जा", "गुरुत्वाकर्षण ऊर्जा"], a: 0, e: "बांध में संग्रहित पानी में स्थिजित ऊर्जा होती है।"},
+  {q: "287. एक गतिशील वस्तु अनिवार्य रूप से...... प्राप्त करती है।", tag: "RRB NTPC 29.03.2016 (Shift-III)", o: ["गतिज ऊर्जा", "स्थितिज ऊर्जा", "यांत्रिक ऊर्जा", "ताप ऊर्जा"], a: 0, e: "एक गतिशील वस्तु अनिवार्य रूप से गतिज ऊर्जा (Kinetic energy) प्राप्त करती है। किसी वस्तु में उसकी गति के कारण गतिज ऊर्जा होती है। गतिज ऊर्जा किसी पिण्ड की वह अतिरिक्त ऊर्जा है जो उसके रेखीय गति अथवा कोणीय गति अथवा दोनों के कारण होती है। पिण्ड की गतिज ऊर्जा = 1/2mv^2"},
+  {q: "288. एक कार उच्च गति से चल रही है। यह किस ऊर्जा से युक्त होती है?", tag: "RRB Group-D 19-09-2018 (Shift-II)", o: ["गुरुत्वाकर्षण बल", "घर्षण बल", "स्थितिज ऊर्जा", "गतिज ऊर्जा"], a: 3, e: "उच्च गति से चल रही कार गतिज ऊर्जा से युक्त होती है।"},
+  {q: "289. निम्नलिखित में से कौन सी ऊर्जा सदैव धनात्मक होती है?", tag: "RRB Group-D 26-10-2018 (Shift-III)", o: ["स्थैतिक ऊर्जा", "गतिज ऊर्जा", "स्थितिज ऊर्जा", "गुरुत्वाकर्षण ऊर्जा"], a: 1, e: "गतिज ऊर्जा सदैव धनात्मक होती है।"},
+  {q: "290. ऊर्जा की व्यावसायिक इकाई ...... है।", tag: "RRB Group-D 18-09-2018 (Shift-II)", o: ["किलोवॉट-घंटा", "किलोवाट", "जूल", "वाट-घंटा"], a: 0, e: "किसी वस्तु के कार्य करने की क्षमता को ऊर्जा कहते है। इसका S.I. मात्रक जूल एवं C.G.S. मात्रक कैलोरी होता है। यह एक अदिश राशि है जबकि ऊर्जा (ऊष्मा) की व्यावसायिक इकाई किलोवॉट-घण्टा है। वॉट (W) या किलोवॉट (KW) बिजली व्यय की दर का प्रतिनिधित्व करता है।"},
+  {q: "291. 8 kg भार वाली लोहे की गेंद और 3 kg भार वाली एल्युमीनियम की गेंद 20 m की ऊँचाई से गिराई जाती है। भूमि से 10 m की ऊँचाई पर उनमें निम्नलिखित में से कौन सी राशि समान होगी?", tag: "RRB Group-D 31-10-2018 (Shift-I)", o: ["गतिज ऊर्जा", "त्वरण", "स्थितिज ऊर्जा", "संवेग"], a: 1, e: "प्रश्न से, m1=8 kg > m2=3 kg. स्थितिज ऊर्जा -> m1gh > m2gh. 10 m की ऊँचाई पर उनका वेग v^2=u^2+2gh=0+2×10×10=200, v=10√2. गतिज ऊर्जा -> 1/2m1v^2 > 1/2m2v^2. संवेग -> m1v > m2v. अतः स्पष्ट है कि 10m की ऊँचाई पर त्वरण समान रहेगा।"},
+  {q: "292. जब एक दबी स्लिंकी (स्प्रिंग) को छोड़ा जाता है तो वह स्थितिज ऊर्जा को बदलता है?", tag: "RRB ALP & Tec. 10-08-18 (Shift-I)", o: ["यांत्रिक ऊर्जा", "गतिज ऊर्जा", "ऊष्मा ऊर्जा", "रासायनिक ऊर्जा"], a: 1, e: "किसी वस्तु में उसकी गति के कारण उत्पन्न होने वाली ऊर्जा गतिज ऊर्जा कहलाती है। अतः किसी संपीडित स्लिकी (स्प्रिंग) को छोड़ने पर उसकी स्थितिज ऊर्जा गतिज ऊर्जा में परिवर्तित हो जाती है। इसका मात्रक जूल होता है। गतिज ऊर्जा (K.E.)= 1/2mv^2"},
+  {q: "293. एक संपीडित स्प्रिंग में ...... ऊर्जा होती है।", tag: "RRB Group-D 22-09-2018 (Shift-II)", o: ["स्थितिज", "रासायनिक", "गतिज", "विद्युत"], a: 0, e: "एक संपीडित स्प्रिंग में स्थितिज ऊर्जा होती है। किसी वस्तु में उसकी स्थिति के कारण उत्पन्न होने वाली ऊर्जा को स्थितिज ऊर्जा कहते है। इसका मात्रक जूल है। जैसे बाँध से संरक्षित जल में स्थितिज ऊर्जा होती है। खींची गई कमान में भी स्थितिज ऊर्जा होती है।"},
+  {q: "294. किसके अनुरूप वस्तु की गतिज ऊर्जा की वृद्धि होती है ?", tag: "RRB ALP & Tec. (13-08-18 Shift-I)", o: ["घर्षण", "समय", "द्रव्यमान", "गति"], a: 3, e: "यदि किसी वस्तु का द्रव्यमान 'm' एवं वह वस्तु 'v' वेग से गति कर रही है तो वस्तु की गतिज ऊर्जा K=1/2mv^2 जूल, चूंकि वस्तु का द्रव्यमान m सदैव स्थिर रहता है अतः वस्तु की गति बढ़ने पर वस्तु की गतिज ऊर्जा बढेगी एवं गति घटने पर वस्तु की गतिज ऊर्जा घटेगी।"},
+  {q: "295. गतिशील वस्तु की गतिज ऊर्जा (KE) किस पर निर्भर करती है?", tag: "RRB ALP & Tec. (14-08-18 Shift-III)", o: ["वजन और इसके स्थान", "द्रव्यमान और इसके स्थान", "द्रव्यमान और त्वरण", "द्रव्यमान और वेग"], a: 3, e: "किसी वस्तु में उसकी गतिमान स्थिति के कारण वस्तु में संचित ऊर्जा वस्तु की गतिज ऊर्जा कहलाती है। गतिशील वस्तु की गतिज ऊर्जा (Kinetic Energy) = 1/2mv^2. अतः गतिशील वस्तु की गतिज ऊर्जा वस्तु के द्रव्यमान तथा उसके वेग पर निर्भर करती है।"},
+  {q: "296. किसी जलविद्युत गृह में, विद्युत ऊर्जा में परिवर्तित होने वाली ऊर्जा कौन-सी है?", tag: "RRB ALP & Tec. (29-08-18 Shift-I)", o: ["यांत्रिक ऊर्जा", "स्थितिज ऊर्जा", "ऊष्मीय ऊर्जा", "गतिज ऊर्जा"], a: 3, e: "यदि किसी वस्तु में कार्य करने की क्षमता उसकी गति के कारण होती है तो उसे हम उस वस्तु की गतिज ऊर्जा कहते हैं। ध्यातव्य है कि जल विद्युत गृह में गिरते हुए या बहते हुए जल से विद्युत ऊर्जा उत्पन्न होती है, अर्थात इसमें गतिज ऊर्जा विद्युत ऊर्जा में परिवर्तित होती है।"},
+  {q: "297. निम्नलिखित उल्लेखनीय गतिविधियों में से किस स्थितिज ऊर्जा (P.E.) को गतिज ऊर्जा (K.E.) में परिवर्तित किया गया है?", tag: "RRB ALP & Tec. (31-08-18 Shift-III)", o: ["एक पटाखे का विस्फोट", "एक टॉर्च को ऑन करना", "एक टॉर्च को ऑफ करना", "एक पेंडुलम का झूलना"], a: 3, e: "एक पेंडुलम का झूलना' स्थितिज ऊर्जा (PE) का गतिज ऊर्जा (KE) में परिवर्तन का उदाहरण है। 'पटाखे का विस्फोट' रासायनिक ऊर्जा का ध्वनि ऊर्जा में, 'टार्च को ऑन करना' रासायनिक ऊर्जा का प्रकाश ऊर्जा में रूपान्तरण का उदाहरण है।"},
+  {q: "298. यदि एक वस्तु का संवेग तीन गुना कर दिया जाये, तो इसकी गतिज ऊर्जा :", tag: "RRB ALP & Tec. (31-08-18 Shift-II)", o: ["मूल मान का तीन गुना हो जायेगी", "अपरिवर्तित रहेगी", "मूल मान का नौ गुना हो जायेगी", "मूल मान का छह गुना हो जायेगी"], a: 2, e: "यदि किसी वस्तु का द्रव्यमान 'm' गतिज ऊर्जा 'K' तथा वस्तु का संवेग 'P' है तो- गतिज ऊर्जा एवं संवेग में संबंध, K=P^2/2m. पहली स्थिति: k1=P^2/2m. दूसरी स्थिति: k2=(3P)^2/2m = 9P^2/2m. समीकरण (ii) से- k2=9k1. अतः वस्तु की गतिज ऊर्जा मूल मान की 9 गुनी हो जाएगी।"}
+];
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

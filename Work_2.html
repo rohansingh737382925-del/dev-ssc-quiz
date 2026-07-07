@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q217. किसी वस्तु द्वारा कार्य करने की क्षमता, या किसी वस्तु में निहित ऊर्जा पर निर्भर करती है।",
+    tag: "RRB Group-D 16-10-2018 (Shift-I)",
+    o: ["(a) वस्तु के द्रव्यमान और आयतन", "(b) किसी निश्चित दिशा में वस्तु की गति", "(c) कार्य करने वाली वस्तु की स्थिति और अवस्था", "(d) वस्तु के परिमाण और दिशा"],
+    a: 2,
+    e: "Ans. (c) किसी वस्तु द्वारा कार्य करने की क्षमता, या किसी वस्तु में निहित ऊर्जा कार्य करने वाली वस्तु की स्थिति और अवस्था पर निर्भर करती है।"
+  },
+  {
+    q: "Q218. एक मजदूर भूमि से 10 किग्रा का सामान लेता है और भूमि से 1.1 मी. ऊपर, अपने सिर पर रखता है। उसके द्वारा सामान पर किए गए काम की गणना करें। (g=10ms⁻²)",
+    tag: "",
+    o: ["(a) 140 J", "(b) 155 J", "(c) 165 J", "(d) 110 J"],
+    a: 3,
+    e: "W=mgh\nW=10×10×1.1\nW=10×10×11/10\nW=110 J"
+  },
+  {
+    q: "Q219. गति करती हुई एक कार विपरीत दिशा में आती हवा का सामना करती है। कार पर हवा द्वारा किया गया कार्य ..... होगा।",
+    tag: "RRB Group-D 01-10-2018 (Shift-III)",
+    o: ["(a) ऋणात्मक", "(b) शून्य", "(c) अपरिमित", "(d) धनात्मक"],
+    a: 0,
+    e: "Ans: (a) जब गति करती हुई एक कार विपरीत दिशा से आती हवा का सामना करती है, तब हवा द्वारा कार पर लगाया गया बल, कार के विस्थापन के विपरीत कार्य करता है और लगाये गये बल की दिशा तथा वस्तु के विस्थापन के बीच का कोण 180° होता है। अर्थात् W=f×d×cos 180°\nW=-f×d (ऋणात्मक) इसलिए कार पर हवा द्वारा किया गया कार्य ऋणात्मक होगा।"
+  },
+  {
+    q: "Q220. एक लड़की जिसका वजन 200 N है, एक 2 मीटर ऊँचे वृक्ष पर चढ़ती है। यदि g=10m/sec², तो वृक्ष पर चढ़ने के बाद लड़की द्वारा किया गया कार्य कितना था?",
+    tag: "RRB Group-D 12-12-2018 (Shift-III)",
+    o: ["(a) 800 J", "(b) 400 J", "(c) 200 J", "(d) 2000 J"],
+    a: 1,
+    e: "Ans. (b) दिया है- भार (w)=200 N\nh=2 m\nलड़की द्वारा किया गया कार्य = भार × ऊँचाई\n=200×2=400 J"
+  },
+  {
+    q: "Q221. यदि कोई कार 500 N की नियत बल के साथ 15 km की दूरी की यात्रा करती है, तो किए गए कार्य की गणना होगी:",
+    tag: "RRB Group-D 13-12-2018 (Shift-II)",
+    o: ["(a) 750000 J", "(b) 75000 J", "(c) 7500000 J", "(d) 7500 J"],
+    a: 2,
+    e: "Ans. (c) प्रश्नानुसार,\nबल = 500 N\nविस्थापन = 15 km = 15000 m\nकार्य (w) = बल × विस्थापन\nकार्य = 500×15000\n=7500000 J"
+  },
+  {
+    q: "Q222. 10 N का एक क्षैतिज बल 5 kg की एक वस्तु को बल की दिशा में 2 मीटर की दूरी तक विस्थापित कर देता है। बल द्वारा किया गया कार्य होगा-",
+    tag: "RRB Group-D 20-09-2018 (Shift-III)",
+    o: ["(a) 20 J", "(b) 5 J", "(c) 50 J", "(d) 10 J"],
+    a: 0,
+    e: "Ans: (a) बल लगाकर किसी वस्तु को बल की दिशा में विस्थापित करने की क्रिया को कार्य कहते हैं-\nकार्य = बल × बल की दिशा में विस्थापन\nW=F.d\nअतः F=10 N, d = 2 मी0\nW=10×2=20 J"
+  },
+  {
+    q: "Q223. जब बल की दिशा में 10 m की दूरी पर 10 N के बल के तहत एक वस्तु स्थानांतरित होती है, तो कार्य की मात्रा क्या होती है?",
+    tag: "RRB Group-D 31-10-2018 (Shift-II)",
+    o: ["(a) 1 J", "(b) 10 J", "(c) 100 J", "(d) 0.01 J"],
+    a: 2,
+    e: "Ans: (c) विस्थापन या दूरी (S)=10m\nवस्तु पर लगाये गये बल (F)=10N\nतथा कार्य (W)=?\nW=F×S\n=10×10\n=100 J"
+  },
+  {
+    q: "Q224. 50 N का एक बल एक वस्तु को 10m तक विस्थापित कर देता है। बल द्वारा किया गया कार्य होगा।",
+    tag: "RRB Group-D 03-12-2018 (Shift-III)",
+    o: ["(a) 500 J", "(b) 5 J", "(c) 10 J", "(d) 50 J"],
+    a: 0,
+    e: "Ans. (a) : दिया है-\nबल=50 N, विस्थापन = 10 m\nकार्य = बल × विस्थापन\n=50×10=500 जूल"
+  },
+  {
+    q: "Q225. किसी वस्तु पर बल लगाने पर यदि वह गतिशील नहीं होती है, तो इसे कहा जा सकता है:",
+    tag: "RRB Group-D 16-11-2018 (Shift-I)",
+    o: ["(a) अधिक शक्ति का प्रयोग हुआ है।", "(b) कार्य हुआ है।", "(c) कम शक्ति का प्रयोग हुआ है।", "(d) कोई कार्य नहीं हुआ है।"],
+    a: 3,
+    e: "Ans. (d) किसी वस्तु पर बल लगाने से अगर वह गतिशील नहीं हुई तो किया गया कार्य शून्य होगा। यदि विस्थापन शून्य है तो किसी वस्तु पर किया गया कार्य भी शून्य होगा। जैसे- यदि कोई व्यक्ति किसी दीवार को धक्का देता है और वह दीवार स्थिर रहती है, तो उस पर किया गया कार्य शून्य होगा।"
+  },
+  {
+    q: "Q226. यदि वस्तु का विस्थापन शून्य हो तो बल द्वारा वस्तु पर किया गया कार्य ........ होगा।",
+    tag: "RRB Group-D 15-11-2018 (Shift-II)",
+    o: ["(a) निष्क्रिय", "(b) ऋणात्मक", "(c) धनात्मक", "(d) शून्य"],
+    a: 3,
+    e: "Ans. (d) उपर्युक्त प्रश्न की व्याख्या देखें"
+  },
+  {
+    q: "Q227. निम्न में से क्या कार्य का एक गुण नहीं है?",
+    tag: "RRB Group-D 16-11-2018 (Shift-III)",
+    o: ["(a) कार्य की दिशा होती हैं।", "(b) कार्य किये जाने के लिए एक वस्तु पर बल लगाया जाना आवश्यक है", "(c) कार्य का केवल परिमाण होता है", "(d) कार्य के होने के लिए वस्तु का विस्थापन होना आवश्यक है।"],
+    a: 0,
+    e: "Ans. (a) कार्य एक अदिश राशि हैं। अर्थात् अदिश राशि में (कार्य में) परिमाण होता है किन्तु दिशा नहीं होती है।"
+  },
+  {
+    q: "Q228. एक बस 4000 N के स्थिर बल से चलती है। बस द्वारा किया गया कार्य 2000 J है। बस द्वारा तय की गई दूरी क्या है?",
+    tag: "RRB Group-D 06-12-2018 (Shift-III)",
+    o: ["(a) 1 मीटर", "(b) 2 मीटर", "(c) 1.5 मीटर", "(d) 0.5 मीटर"],
+    a: 3,
+    e: "Ans. (d) : कार्य = बल × विस्थापन\nकार्य = 2000 J, बल = 4000 N\nतथा विस्थापन / दूरी = कार्य / बल\n= 2000/4000\n= 0.5 मीटर"
+  },
+  {
+    q: "Q229. यदि एक मॉल में कोई व्यक्ति 50 N के बल से ट्रॉली को खींचता है जिससे ट्रॉली 30m विस्थापित होती है, तो किए गए कार्य की गणना करें।",
+    tag: "RRB Group-D 15-11-2018 (Shift-II)",
+    o: ["(a) 1500 J", "(b) 80 J", "(c) 1500 W", "(d) 20 J"],
+    a: 0,
+    e: "Ans: (a) प्रश्नानुसार,\nबल (F)=50N\nविस्थापन (d)=30m\nअतः कार्य (W) = बल (F) × विस्थापन (d) से\nW=50×30\nW=1500 J"
+  },
+  {
+    q: "Q230. एक कुली भूमि से 20 kg का सामान उठाता है और उसे भूमि से 2 m ऊपर अपने सिर पर रखता है। उसके द्वारा सामान पर किए गए कार्य की गणना करें (g=10ms⁻² दिया गया है)",
+    tag: "RRB Group-D 30-10-2018 (Shift-II)",
+    o: ["(a) 400 W", "(b) 400 J", "(c) 200 W", "(d) 200 J"],
+    a: 1,
+    e: "Ans. (b) किया गया कार्य (W)=mgh=20×10×2=400 J"
+  },
+  {
+    q: "Q231. एक कुली 13 kg के सामान को जमीन से 1.5m ऊपर उठाकर अपने सर पर रखता है। उसके द्वारा किया गया कार्य ज्ञात कीजिए ? (g=10 ms⁻²)",
+    tag: "RRB Group-D 05-10-2018 (Shift-I)",
+    o: ["(a) 195 J", "(b) 100 N", "(c) 150 J", "(d) 140 J"],
+    a: 0,
+    e: "Ans. (a) व्यक्ति द्वारा किया गया कार्य\nW=mgh\nजहाँ m=13kg, g=10 m/s²,\nh=1.5m\nW=13×10×1.5\n=195 J"
+  },
+  {
+    q: "Q232. एक लड़का 4 kg के स्कूल बैग को 30 s तक पकड़ता है, उसके द्वारा किए गए कार्य की मात्रा जूल में होगी-",
+    tag: "RRB Group-D 24-09-2018 (Shift-III)",
+    o: ["(a) 40", "(b) 4", "(c) शून्य", "(d) 39.2"],
+    a: 2,
+    e: "Ans: (c) लड़का 4kg का स्कूल बैग 30 sec तक पकड़ता है तो भार द्वारा नीचे की ओर लगने वाला बल =mg=4×10=40 N\nइसी बल को लड़का 30 sec तक पड़ता है।\nपरन्तु W = बल × विस्थापन से\nचूँकि नीचे की ओर लगने वाले बल के कारण विस्थापन शून्य है।\nअतः कार्य W=40×0\n=0"
+  },
+  {
+    q: "Q233. कार्य तभी हो सकता है जब ...... हो।",
+    tag: "RRB Group-D 05-11-2018 (Shift-III)",
+    o: ["(a) ऊर्जा", "(b) बल", "(c) संवेग", "(d) शक्ति"],
+    a: 0,
+    e: "Ans. (a) कार्य तभी हो सकता है जब ऊर्जा हो, भौतिकी में कार्य होना तब माना जाता है जब किसी वस्तु पर कोई बल लगाने से वह वस्तु बल की दिशा में विस्थापित हो, कार्य भौतिक की सबसे महत्वपूर्ण राशियों में से एक है। कार्य करने की दर को शक्ति कहते है। कार्य करने या कराने से वस्तुओं की ऊर्जा में परिवर्तन होता है।"
+  },
+  {
+    q: "Q234. निम्नलिखित में से कौन-सा किए गए कार्य का उदाहरण नहीं है?",
+    tag: "RRB Group-D 26-10-2018 (Shift-III)",
+    o: ["(a) लड़के का कमरे में दीवार को धक्का देना", "(b) लड़की द्वारा एक ट्रॉली को धक्का देने पर ट्रॉली का आगे बढ़ जाना", "(c) सतह पर पड़े कंकड़ पर दवाब डालना", "(d) किताब को किसी ऊँचाई तक उठाना"],
+    a: 0,
+    e: "Ans : (a) किसी वस्तु पर बल लगाकर वस्तु को बल की दिशा में विस्थापित करने को 'कार्य' कहते है। लड़के का कमरे में दीवार को धक्का देना कार्य नहीं माना जाएगा, क्योंकि यहाँ दीवार में कोई विस्थापन नहीं हुआ है अर्थात किया गया कार्य शून्य है।"
+  },
+  {
+    q: "Q235. जब प्रयुक्त बल की दिशा और वस्तु के गतिशील होने की दिशा एक दूसरे के लंबवत हों तो ........",
+    tag: "RRB Group-D 24-10-2018 (Shift-I)",
+    o: ["(a) शक्ति का प्रयोग किया गया", "(b) कोई कार्य नहीं हुआ", "(c) शक्ति का प्रयोग नहीं किया गया", "(d) कार्य हुआ"],
+    a: 1,
+    e: "Ans. (b) जब की दिशा और वस्तु के गतिशील होने की दिशा एक-दूसरे के लम्बवत् हों तो इस स्थिति में कोई कार्य नहीं होगा।\nकिया गया कार्य, W=F S cosθ\nजहाँ S = विस्थापन या वस्तु की गति की दिशा में विस्थापन\nF = बल\nद्वारा किये गये कार्य को धनात्मक माना जाता है।\nयदि बल की दिशा, वस्तु की गति की दिशा में विस्थापन के लम्बवत् है तो, θ=90°\n[∵ cos 90°=0]\nतब, W=F.S Cos 90° या W=0"
+  },
+  {
+    q: "Q236. यदि बल और विस्थापन के बीच कोण ...... है, तो किया गया कार्य (w)=F.d cosθ = 0 जूल होगा",
+    tag: "RRB Group-D 09-10-2018 (Shift-I)",
+    o: ["(a) 45°", "(b) 0°", "(c) 90°", "(d) 180°"],
+    a: 2,
+    e: "Ans. (c): यदि बल (F) और विस्थापन (d) के बीच कोण 90° पर है तो किया गया कार्य (w)=F.d cosθ\n= F.d cos 90° = 0 जूल होगा\nयदि बल (F) और विस्थापन (d) के बीच कोण 180° है तो किया गया कार्य ऋणात्मक होगा। क्योंकि cos180°=-1\nW=F.d cos 180° = -F"
+  },
+  {
+    q: "Q237. एक वस्तु पर 125 N का बल कार्य कर रहा है। उस वस्तु को बल की दिशा में 5m तक हटाया जाता है। बल द्वारा किया गया कार्य ...... होगा।",
+    tag: "RRB Group-D 09-10-2018 (Shift-I)",
+    o: ["(a) 625 W", "(b) 625 Pa", "(c) 625 N", "(d) 625 J"],
+    a: 3,
+    e: "Ans. (d) : बल द्वारा किया गया कार्य (W) = F.d सूत्र से\nबल (F)=125 N, विस्थापन (d)=5m\nW=125×5\n= 625 जूल"
+  },
+  {
+    q: "Q238. यदि कोई व्यक्ति 50 N के बल सहित 10 m की दूरी तक ट्रॉली को खींचता है, तो उसके द्वारा किया गया कार्य ...... होगा-",
+    tag: "RRB Group-D 27-09-2018 (Shift-I)",
+    o: ["(a) 5 J", "(b) 500 J", "(c) 20 J", "(d) 0.2 J"],
+    a: 1,
+    e: "Ans. (b) कार्य बल × विस्थापन\nW=50×10\n=500 न्यूटन मीटर या 500 जूल"
+  },
+  {
+    q: "Q239. यदि कोई वस्तु वृत्ताकार पथ में घुमाई जाती है, तो उस पर किया गया कार्य",
+    tag: "RRB ALP & Tec. (17-08-18 Shift-III)",
+    o: ["(a) शून्य है", "(b) निर्धारित नहीं किया जा सकता है", "(c) सकारात्मक है", "(d) ऋणात्मक है"],
+    a: 0,
+    e: "Ans: (a) यदि कोई वस्तु वृत्ताकार पथ में घुमाई जाती है, तो उस पर किया गया कार्य शून्य है। क्योंकि वृत्ताकार पथ में एक चक्कर में विस्थापन शून्य होता है।"
+  },
+  {
+    q: "Q240. जब बल ...... विस्थापन होता है, तो बल द्वारा किए गए कार्य को ऋणात्मक माना जाता है।",
+    tag: "RRB Group-D 03-12-2018 (Shift-II)",
+    o: ["(a) बल की दिशा के लंबवत् होता है।", "(b) संवेग की दिशा में होता है।", "(c) बल की दिशा में होता है।", "(d) बल की विपरीत दिशा में होता है।"],
+    a: 3,
+    e: "Ans : (d) जब बल लगने पर किसी पिण्ड या वस्तु के विस्थापन, बल की विपरीत दिशा में होता है, तो बल द्वारा किए गए कार्य को ऋणात्मक माना जाता है। बल एक सदिश राशि है। न्यूटन के गति के द्वितीय नियम के अनुसार बल संवेग परिवर्तन की दर के अनुपाती है। जब वस्तु का विस्थापन बल की ही दिशा में होता है, तो बल द्वारा किये गये कार्य को धनात्मक माना जाता है।\nयदि बल की दिशा, वस्तु की गति की दिशा में विस्थापन के लम्बवत् है तो, θ=90°\nतो किया गया कार्य ऋणात्मक होता है।"
+  },
+  {
+    q: "Q241. 2 m लंबाई की एक समान चेन, टेबल पर ऐसी रखी गई है कि उसकी लंबाई का 60 cm, टेबल के कोने से मुक्त रूप से लटकता है। चेन का कुल द्रव्यमान 4 kg है। टेबल पर पूरी चेन को खींचने हेतु किया गया कार्य क्या है?",
+    tag: "RRB Group-D 07-12-2018 (Shift-I)",
+    o: ["(a) 12 J", "(b) 7.2 J", "(c) 3.6 J", "(d) 18 J"],
+    a: 2,
+    e: "Ans: (c)\nलटके हुए चेन का द्रव्यमान\n=4/200×60\n=6/5 kg\nचेन को खीचनें में किया गया कार्य\n(W) = परिवर्तित स्थितिज ऊर्जा\nअन्तिम स्थितिज ऊर्जा - प्रारम्भिक ऊर्जा\n=0-(-mgl)\n=+mgl\n=6/5×10×30/100\nW = 3.6 जूल\n[∵ l=60/2 cm=30/100 m\nलटके चेन का द्रव्यमान बीच में काम करेगा।]"
+  },
+  {
+    q: "Q242. एक व्यक्ति भूमि से 25 किलोग्राम का सामान उठाता है और इसे भूमि से 2.5 मीटर ऊपर सिर पर रख लेता है। यदि g=10ms⁻² है, तो सामान पर उसके द्वारा किये गये कार्य का मान क्या होगा?",
+    tag: "RRB ALP & Tec. (20-08-18 Shift-III)",
+    o: ["(a) 22.5 जूल", "(b) 225 जूल", "(c) 625 जूल", "(d) 220 जूल"],
+    a: 2,
+    e: "Ans : (c) एक व्यक्ति भूमि से 25kg. का सामान उठाता है और इसे भूमि से 2.5 मी. ऊपर सिर पर रख लेता है। यदि g=10ms⁻² हो तो सामान पर उसके द्वारा किया गया कार्य W है।\nW=mgh=25×2.5×10=625 J"
+  },
+  {
+    q: "Q243. 5 किलोग्राम भार की एक वस्तु को 4m की ऊंचाई तक उठाया जाता है। उस वस्तु पर लगने वाले गुरुत्व बल के कारण किया गया कार्य का मान कितना होगा? (मान लें g = 10m/s²)",
+    tag: "RRB ALP & Tec. (21-08-18 Shift-III)",
+    o: ["(a) 200 जूल", "(b) 50 जूल", "(c) -20 जूल", "(d) -200 जूल"],
+    a: 3,
+    e: "Ans : (d) वस्तु पर किया गया कार्य\nW=-mgh\n=-5×10×4\n= -200 जूल"
+  },
+  {
+    q: "Q244. 5.0 किलोग्राम की एक वस्तु को 2.0 मीटर की ऊँचाई तक उठाया जाता है। इस प्रक्रिया में कितना कार्य किया गया- (g=9.8 m/s² मीटर प्रति वर्ग सेकण्ड)",
+    tag: "RRB ALP & Tec. (20-08-18 Shift-II)",
+    o: ["(a) 49 जूल", "(b) 10 जूल", "(c) 19.6 जूल", "(d) 98 जूल"],
+    a: 3,
+    e: "Ans: (d) W=mgh\n=5×2×9.8\n=98 जूल"
+  },
+  {
+    q: "Q245. एक व्यक्ति 20 kg के सामान को जमीन से 2 m ऊपर उठाकर अपने सिर पर रखता है। उसके द्वारा किया गया कार्य होगाः (g=10ms⁻²)",
+    tag: "RRB Group-D 17-09-2018 (Shift-II)",
+    o: ["(a) 200 J", "(b) 400 J", "(c) 40 J", "(d) 20 J"],
+    a: 1,
+    e: "Ans : (b) दिया है, m=20 kg\nऊँचाई (h)=2m\n(g)=10 m/s²\nकिया गया कार्य (W)=mgh=20×10×2=400 J"
+  },
+  {
+    q: "Q246. एक 1 kg की वस्तु 30 m की ऊँचाई से भूमि पर गिराई जाती है। गुरुत्व बल द्वारा किया गया कार्य होगा। (मान लीजिए g=10 m/s)",
+    tag: "RRB Group-D 19-09-2018 (Shift-I)",
+    o: ["(a) 10 J", "(b) 300 J", "(c) 0.33 J", "(d) 30 J"],
+    a: 1,
+    e: "Ans : (b) द्रव्यमान (m)=1 kg\nगुरुत्वीय त्वरण (g)=10 m/s²\nऊचाई (h)=30m\nP.E.=mgh\n=1×10×30=300 J"
+  },
+  {
+    q: "Q247. 800 किग्रा. की एक कार द्वारा 5 m/s से 10 m/s वेग बढ़ाने में किया गया कार्य है-",
+    tag: "RRB Group-D 22-09-2018 (Shift-II)",
+    o: ["(a) 30 kJ", "(b) 40 kJ", "(c) 20 kJ", "(d) 10 kJ"],
+    a: 0,
+    e: "Ans. (a): किया गया कार्य गतिज ऊर्जा में परिवर्तन\n=1/2 m(v₂²-v₁²)\n=1/2×800(10²-5²)\n=1/2×800×75=30000\n= 30 KJ"
+  },
+  {
+    q: "Q248. 20 kg भार की एक वस्तु को 2m की ऊँचाई तक उठाया जाता है। उस वस्तु पर गुरुत्वाकर्षण बल द्वारा किया गया कार्य कितना होगा? (g=10m./s²)",
+    tag: "RRB ALP & Tec. (14-08-18 Shift-II)",
+    o: ["(a) 400 जूल", "(b) 50 जूल", "(c) 40 जूल", "(d) 100 जूल"],
+    a: 0,
+    e: "Ans : (a) वस्तु का द्रव्यमान m=20kg\nऊँचाई h=2m\nगुरुत्वीय त्वरण g=10m/sec²\nवस्तु पर गुरुत्त्वाकर्षण बल द्वारा किया गया कार्य=mgh\nऊँचाई पर वस्तु की स्थितिज ऊर्जा\nW=20×10×2\nW=400 J"
+  },
+  
+];
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
