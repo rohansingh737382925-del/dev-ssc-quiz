@@ -22,22 +22,31 @@ h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px;
 
 
 #streakPopup{
-position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;
-background:transparent;opacity:0;pointer-events:none;transition:.25s;
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
 }
-#streakPopup.show{opacity:1;}
+#streakPopup.show{
+display:flex;
+}
 #streakCard{
 background:linear-gradient(135deg,#ffd54f,#fff8e1);
 padding:16px 22px;
 border-radius:18px;
 text-align:center;
 box-shadow:0 0 24px rgba(255,193,7,.55);
-transform:scale(.5);
-transition:.3s;
 font-weight:bold;
 max-width:320px;
 width:72%;
 margin-top:40px;
+transform:none;
+transition:none;
 }
 #streakPopup.show #streakCard{
 background:linear-gradient(135deg,#ffd54f,#fff8e1);
@@ -53,20 +62,25 @@ width:72%;
 margin-top:40px;
 }
 .burst{
-position:absolute;width:10px;height:10px;border-radius:50%;
-background:#ffd54f;animation:burst .8s ease-out forwards;
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
 }
 @keyframes burst{
 to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
-}
 }
 
 </style>
 </head>
 <body>
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
-<div class="container">
+<div class="container" style="position:relative;">
 <h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
 <div id="quiz-box">
 <div id="q-text" class="question"></div>
 <div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
@@ -97,7 +111,16 @@ to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
 <div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
 </div>
 
-<div style="margin:16px 0;font-size:20px;">⏱️ <b id="timeTaken"></b></div>
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
 <button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
 </div>
 </div>
@@ -140,20 +163,83 @@ const data = [
   {q: "Q33. भारतीय संविधान का प्रतीक चिह्न (Symbol) क्या है?", tag: "", o: ["कमल", "अशोक चक्र", "हाथी", "शेर"], a: 2, e: "भारत का संविधान सबसे बड़ा लिखित संविधान है और इसका प्रतीक चिह्न 'हाथी' है।"},
   {q: "Q34. निम्नलिखित में से कौन सा युग्म सही सुमेलित है?", tag: "", o: ["राजकुमारी अमृत कौर - उत्तर प्रदेश की प्रथम महिला मुख्यमंत्री", "सुचेता कृपलानी - उत्तर प्रदेश की प्रथम राज्यपाल", "सरोजिनी नायडू - उत्तर प्रदेश की प्रथम राज्यपाल", "सरोजिनी नायडू - प्रथम स्वास्थ्य मंत्री"], a: 2, e: "सरोजिनी नायडू उत्तर प्रदेश की प्रथम राज्यपाल थीं, जबकि राजकुमारी अमृत कौर प्रथम स्वास्थ्य मंत्री और सुचेता कृपलानी उत्तर प्रदेश की प्रथम महिला मुख्यमंत्री थीं।"}
 ];
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
 const startTime = Date.now();
 let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
 let currentStreak=0,maxStreak=0;
 let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
 function showQ() {
-document.getElementById('q-text').innerText = data[currentQ].q;
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
 const tagBox=document.getElementById('exam-tag');
-if(data[currentQ].tag){tagBox.innerText=data[currentQ].tag;tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
 let oBox = document.getElementById('options');
 oBox.innerHTML = "";
 document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
 data[currentQ].o.forEach((opt, idx) => {
 let btn = document.createElement("button");
-btn.innerText = opt;
+btn.innerHTML = formatContent(opt);
 btn.onclick = () => {
 let btns = oBox.getElementsByTagName("button");
 for(let b of btns) b.disabled = true;
@@ -174,28 +260,48 @@ if(currentStreak>maxStreak) maxStreak=currentStreak;
 let msg="";
 if(currentStreak===3) msg="🔥 3 Correct Streak!";
 else if(currentStreak===5) msg="🚀 5 Correct Streak!";
-else if(currentStreak===10) msg="👑 10 Correct Streak!";
-else if(currentStreak===15) msg="💯 15 Correct Streak!";
-else if(currentStreak===20) msg="⚡ 20 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
 if(msg){
 celebrate(
 msg,
 currentStreak===3?'Keep Going!':
 currentStreak===5?'Awesome!':
-currentStreak===10?'Legend!':
-currentStreak===15?'Unstoppable!':
-'Ultimate Master!'
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
 );
 }
 }else{
 currentStreak=0;
 }
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
 answered[currentQ] = true;
-document.getElementById('feedback').innerHTML = "<b>व्याख्या:</b> " + data[currentQ].e;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
 document.getElementById('feedback').style.display = "block";
 };
 oBox.appendChild(btn);
 });
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
 }
 
 
@@ -220,6 +326,7 @@ function celebrate(msg,sub){
 function showScore(){
 document.getElementById('quiz-box').style.display='none';
 document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
 let attempted=answered.filter(v=>v).length;
 let correct=0;
 for(let i=0;i<data.length;i++){
@@ -260,6 +367,37 @@ function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
 function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
 function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
 showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
 </script>
 </body>
 </html>
