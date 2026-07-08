@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "101. व्यंजक xy में दोनों चरों तथा  के मान में 20% की कमी होती है। इससे व्यंजक xy के मान में प्रतिशत कमी है-", tag: "", o: ["(a) 36%", "(b) 44%", "(c) 40%", "(d) None of these"], a: 0, e: "माना शुरुआत में x = 10 और y = 10 था।\nतो xy = 10 * 10 = 100\nदोनों चरों में 20% की कमी होने पर:\nनया x = 8\nनया y = 8\nनया xy = 8 * 8 = 64\nमान में कमी = 100 - 64 = 36\nप्रतिशत कमी = 36%"},
+  {q: "102. जब एक घड़ी की कीमत में 20% की कमी की जाती है, तो बेची गई घड़ियों की संख्या में 40% की वृद्धि होती है। प्रतिशत में बिक्री पर क्या प्रभाव पड़ा?", tag: "SSC CHSL 30/05/2022 (Shift-3)", o: ["(a) 12% Increase", "(b) 30% Decrease", "(c) 12% Decrease", "(d) 30% Increase"], a: 0, e: "प्रभाव के लिए सूत्र का उपयोग करने पर: x + y + (xy/100)\nयहाँ कीमत में कमी x = -20%\nबिक्री में वृद्धि y = +40%\nकुल प्रभाव = -20 + 40 + ((-20 * 40)/100)\n= 20 - 8 = 12% वृद्धि (Positive मान होने के कारण वृद्धि होगी)"},
+  {q: "103. एक संख्या में पहले 40% की वृद्धि हुई है और फिर 25% की कमी हुई, फिर से 15% की वृद्धि हुई और फिर 20% की कमी हुई। संख्या में कुल वृद्धि या कमी के प्रतिशत को ज्ञात करें।", tag: "", o: ["(a) 50", "(b) 60", "(c) 45", "(d) 75"], a: 3, e: "माना मूल संख्या 100 है।\nपहले 40% वृद्धि: 100 * (140/100) = 140\nफिर 25% कमी: 140 * (75/100) = 105\nफिर 15% वृद्धि: 105 * (115/100) = 120.75\nफिर 20% कमी: 120.75 * (80/100) = 96.6\nकुल कमी = 100 - 96.6 = 3.4% कमी। दिए गए विकल्पों के अनुसार यह प्रश्न त्रुटिपूर्ण प्रतीत होता है, परंतु उत्तर तालिका में विकल्प (d) दिया गया है।"},
+  {q: "104. एक व्यक्ति के वेतन में 50% की कमी की गई और बाद में 50% की वृद्धि हुई और फिर 100% की वृद्धि हुई। उसे कितने प्रतिशत हानि या लाभ होता है?", tag: "SSC CGL 12/04/2022 (Shift-03)", o: ["(a) Loss of 40%", "(b) Gain of 50%", "(c) Gain of 25%", "(d) Loss of 10%"], a: 1, e: "माना प्रारंभिक वेतन 100 था।\n50% कमी के बाद वेतन = 50\nफिर 50% वृद्धि के बाद वेतन = 50 * (150/100) = 75\nफिर 100% वृद्धि के बाद वेतन = 75 * (200/100) = 150\nअंतिम लाभ प्रतिशत = 150 - 100 = 50% लाभ (Gain of 50%)"},
+  {q: "105. एक संख्या में पहले 12% की वृद्धि की जाती है और फिर 23% की वृद्धि की जाती. है। इस प्रकार प्राप्त संख्या में, अब 34% की कमी की जाती है। मूल संख्या में कुल वृद्धि या कमी प्रतिशत (निकटतम पूर्णांक में) ज्ञात कीजिए", tag: "SSC CGL 09/09/2024 (Shift-03)", o: ["(a) 10% increase", "(b) 9% decrease", "(c) 10% decrease", "(d) 9% increase"], a: 2, e: "माना संख्या 100 है।\n12% और 23% की क्रमिक वृद्धि:\n100 * (112/100) * (123/100) = 137.76\nअब इसमें 34% की कमी करने पर:\n137.76 * (66/100) ≈ 90.92\nकुल कमी = 100 - 90.92 = 9.08%\nनिकटतम पूर्णांक में यह लगभग 9% कमी होगी। उत्तर कुंजी के अनुसार विकल्प (c) 10% कमी माना गया है।"},
+  {q: "106. किसी वस्तु की कीमत में x% की कमी की जाती है और फिर x% की वृद्धि की जाती है। अंतिम कीमत मूल कीमत से 10% कम हो जाती है। x का मान (लगभग) क्या है?", tag: "SSC CGL 23/09/2025 (Shift-03)", o: ["(a) 31.6", "(b) 33.6", "(c) 30.6", "(d) 39.6"], a: 1, e: "जब किसी संख्या में पहले x% कमी और फिर x% वृद्धि की जाती है, तो शुद्ध कमी (x^2/100)% होती है।\nप्रश्न के अनुसार, कुल कमी 10% है।\n(x^2/100) = 10\nx^2 = 1000\nx = √1000 ≈ 31.62\nदिए गए उत्तर कुंजी के विकल्प (b) के अनुसार मान 33.6 दिया गया है।"},
+  {q: "107. गेहूं की खपत में 20% और खर्च में 50% की वृद्धि होती है। कीमत पर क्या असर होगा?", tag: "", o: ["(a) 20% increase", "(b) 20% decrease", "(c) 25% increase", "(d) 25% decrease"], a: 2, e: "हम जानते हैं कि: कीमत * खपत = खर्च\nमाना प्रारंभिक कीमत 100, खपत 100 तो खर्च = 10000\nनया खर्च = 15000, नई खपत = 120\nनई कीमत = 15000/120 = 125\nकीमत में वृद्धि = 125 - 100 = 25% वृद्धि"},
+  {q: "108. जब एक वस्तु की कीमत 25% कम कर दी गयी, तो इसकी बिक्री x% बढ़ गई। यदि आय प्राप्ति में 20% की वृद्धि हुई है, तो x का मान क्या होगा?", tag: "", o: ["(a) 50", "(b) 60", "(c) 45", "(d) 75"], a: 1, e: "कीमत * बिक्री = आय\nकीमत में कमी = 25% = 1/4 (4 से बढ़कर 3 हुई)\nआय में वृद्धि = 20% = 1/5 (5 से बढ़कर 6 हुई)\nबिक्री का अनुपात = आय/कीमत\nप्रारंभिक बिक्री = 5/4, अंतिम बिक्री = 6/3 = 2\nअनुपात = 5 : 8\nबिक्री में वृद्धि = 3 की, 5 पर\nx = (3/5) * 100 = 60%"},
+  {q: "109. एक शहर की आबादी 15000 है। अगर पहले साल आबादी 15% बढ़ती है, दूसरे साल 25% बढ़ती है और प्रदूषण की वजह से तीसरे साल 6% कम हो जाती है, तो 3 साल बाद उसकी आबादी कितनी होगी? (उत्तर में संख्या को राउंड ऑफ करें)", tag: "SSC CPO 29/06/2024 (Shift-03)", o: ["(a) 20269", "(b) 15269", "(c) 25269", "(d) 28269"], a: 0, e: "3 साल बाद की आबादी = 15000 * (115/100) * (125/100) * (94/100)\n= 15000 * 1.15 * 1.25 * 0.94\n= 20268.75\nराउंड ऑफ करने पर संख्या = 20269"},
+  {q: "110. एक बाइक 50,000 रुपये में खरीदी जाती है। इसका मूल्य सालाना 10% की दर से घटता जाता है। कितने वर्षों में इसका मूल्य 36,450 रुपये होगा?", tag: "SSC CHSL 25/05/2022 (Shift-01)", o: ["(a) 3", "(b) 2", "(c) 5", "(d) 4"], a: 0, e: "सूत्र: A = P(1 - R/100)^n\n36450 = 50000(1 - 10/100)^n\n36450/50000 = (9/10)^n\n3645/5000 = 729/1000 = (9/10)^n\n(9/10)^3 = (9/10)^n\nअतः n = 3 वर्ष"},
+  {q: "111. एक कस्बे की जनसंख्या पहले वर्ष में 20% बढ़ती है, दूसरे वर्ष 10% घटती है और तीसरे वर्ष फिर 25% बढ़ जाती है। यदि शुरूआत में जनसंख्या 40,000 थी, तो 3 वर्ष बाद यह कितनी हो जाएगी?", tag: "SSC CHSL 13/11/2025 (Shift-02)", o: ["(a) 24,000", "(b) 43,200", "(c) 48,000", "(d) 54,000"], a: 3, e: "3 वर्ष बाद की जनसंख्या = 40000 * (120/100) * (90/100) * (125/100)\n= 40000 * (6/5) * (9/10) * (5/4)\n= 40000 * (270/200)\n= 40000 * 1.35 = 54000"},
+  {q: "112. एक शहर में, जनसंख्या में 12% की वृद्धि होती है। COVID जैसे वायरस के कारण इसमें 12% की कमी आती है। यदि वर्तमान में शहर की जनसंख्या 295680 है, तो शहर की प्रारंभिक जनसंख्या है:", tag: "CRPF HCM 22/02/2023 (Shift-01)", o: ["(a) 313000", "(b) 320000", "(c) 280000", "(d) 300000"], a: 3, e: "माना प्रारंभिक जनसंख्या P है।\nP * (112/100) * (88/100) = 295680\nP * 0.9856 = 295680\nP = 295680 / 0.9856 = 300000"},
+  {q: "113. एक शहर की जनसंख्या 36000 है। यदि यह 16 2/3% प्रति वर्ष की दर से बढ़ रही है, तो दो साल बाद इसकी आबादी क्या होगी?", tag: "", o: ["(a) 48000", "(b) 49000", "(c) 36000", "(d) None of these"], a: 1, e: "16 2/3% = 1/6\nजनसंख्या प्रत्येक वर्ष 6 से बढ़कर 7 हो जाती है।\n2 साल बाद की जनसंख्या = 36000 * (7/6) * (7/6)\n= 36000 * (49/36)\n= 1000 * 49 = 49000"},
+  {q: "114. एक गाँव की जनसंख्या 10,000 है। पहले वर्ष में जनसंख्या 10% बढ़ जाती है और दूसरे वर्ष में 20% बढ़ जाती है। दो वर्षों के बाद उस गाँव की जनसंख्या कितनी होगी?", tag: "DP CONSTABLE 25/12/2025 (Shift-02)", o: ["(a) 12,800", "(b) 13,000", "(c) 13,200", "(d) 13,500"], a: 2, e: "2 वर्षों के बाद की जनसंख्या = 10000 * (110/100) * (120/100)\n= 10000 * 1.1 * 1.2\n= 10000 * 1.32 = 13200"},
+  {q: "115. एक मशीन का मूल्य पहले वर्ष में 10%, दूसरे वर्ष में 20% और तीसरे वर्ष में 30% कम हो जाता है। यदि प्रारंभिक मूल्य ₹10,000 था, तो 3 वर्ष के अंत में इसका मूल्य क्या होगा?", tag: "SSC CGL 22/09/2025 (Shift-02)", o: ["(a) ₹5040", "(b) ₹5600", "(c) ₹5800", "(d) 6200"], a: 0, e: "3 वर्ष बाद मूल्य = 10000 * (90/100) * (80/100) * (70/100)\n= 10000 * 0.9 * 0.8 * 0.7\n= 10000 * 0.504 = 5040"},
+  {q: "116. एक कस्बे की जनसंख्या 80,000 है। पहले वर्ष में इसमें 8% की कमी होती है और दूसरे वर्ष में 5% की वृद्धि होती है। दूसरे वर्ष के अंत में कस्बे की जनसंख्या कितनी होगी?", tag: "SSC CHSL 26/05/2022 (Shift-01)", o: ["(a) 76150", "(b) 86140", "(c) 77280", "(d) 82540"], a: 2, e: "2 वर्ष के अंत में जनसंख्या = 80000 * (92/100) * (105/100)\n= 80000 * 0.92 * 1.05\n= 77280"},
+  {q: "117. एक कस्बे की जनसंख्या 15000 है। यह प्रथम वर्ष में 12 1/2% , दूसरे वर्ष में 11 1/9% तथा तीसरे वर्ष में 20% से बढ़ जाती है। तीसरे वर्ष के अंत में शहर की जनसंख्या कितनी है?", tag: "", o: ["(a) 15000", "(b) 30000", "(c) 45000", "(d) None of these"], a: 3, e: "12 1/2% = 1/8 (भिन्न रूप), वृद्धि के बाद = 9/8\n11 1/9% = 1/9 (भिन्न रूप), वृद्धि के बाद = 10/9\n20% = 1/5 (भिन्न रूप), वृद्धि के बाद = 6/5\n3 वर्ष के अंत में जनसंख्या = 15000 * (9/8) * (10/9) * (6/5)\n= 15000 * (60/40) = 15000 * 1.5 = 22500\nचूँकि 22500 विकल्पों में नहीं है, अतः सही उत्तर None of these है।"},
+  {q: "118. दो साल पहले एक शहर की आबादी 9487500 थी। बड़े शहरों में प्रवास की वजह से, यह हर साल 8% की दर से कम हो रही है। शहर की मौजूदा आबादी है:", tag: "SSC CGL TIER-II (20/01/2025)", o: ["(a) 9060110", "(b) 7060320", "(c) 8070120", "(d) 8030220"], a: 3, e: "मौजूदा आबादी = 9487500 * (92/100) * (92/100)\n= 9487500 * 0.92 * 0.92\n= 9487500 * 0.8464 = 8030220"},
+  {q: "119. एक शहर की आबादी पहले साल 30% बढ़ी तथा अगले वर्ष 15% कम हो गयी। यदि वर्तमान आबादी 11,050 है, तो 2 वर्ष पहले कितनी आबादी थी?", tag: "", o: ["(a) 10,000", "(b) 10,050", "(c) 99,000", "(d) 99,500"], a: 0, e: "माना 2 वर्ष पहले आबादी P थी।\nP * (130/100) * (85/100) = 11050\nP * (11050/10000) = 11050\nP = 10000"},
+  {q: "120. एक शहर ही आबादी पहले वर्ष के अंत में 5% बढ़ी है और दूसरे वर्ष के अंत में 4% कम हुई। यदि दूसरे वर्ष के अंत में जनसंख्या 55,12,248 थी, तो पहले वर्ष की शुरूआत में जनसंख्या थी :", tag: "", o: ["(a) 55,72,950", "(b) 56,23,012", "(c) 54,68,500", "(d) 53,00,420"], a: 2, e: "माना शुरूआत में जनसंख्या P थी।\nP * (105/100) * (96/100) = 5512248\nP * (21/20) * (24/25) = 5512248\nP * (504/500) = 5512248\nP = (5512248 * 500) / 504 = 5468500"},
+  {q: "121. एक जगह की आबादी 2016 से 2018 तक 6% प्रति वर्ष की दर से बढ़कर 50,000 हो गई, और अगले 3 सालों तक यही क्रम जारी रहा। अगर A 2016 में आबादी है और B 2020 में आबादी है, और दोनों को अगले संभावित पूर्णांक तक अनुमानित किया जाता है, तो BA का मान है:", tag: "SSC CGL TIER-II (18/01/2025)", o: ["(a) 11680", "(b) 16270", "(c) 13220", "(d) 12850"], a: 0, e: "उत्तर तालिका के अनुसार सही विकल्प (a) है।"},
+  {q: "122. 1-1-22 को A का वेतन Rs. 1,52,400 प्रति माह है। मार्च में इसमें 8% की वृद्धि हुई, अगस्त में 5% की कमी हुई और नवंबर में फिर से 10% की वृद्धि हुई। तीसरे बदलाव के बाद उसका वेतन (रुपये में) क्या होगा ? (निकटतम पूर्णांक तक पूर्णांकित)", tag: "CRPF HCM 23/02/2023 (Shift-03)", o: ["(a) 171998.64", "(b) 171998.65", "(c) 181978.66", "(d) 171988.62"], a: 0, e: "नया वेतन = 152400 * (108/100) * (95/100) * (110/100)\n= 152400 * 1.08 * 0.95 * 1.1\n= 171998.64"},
+  {q: "123. कोई निर्माता एक वस्तु को 11% के लाभ पर थोक व्यापारी को बेचता है। थोक व्यापारी उस वस्तु को 15% के लाभ पर खुदरा विक्रेता को बेचता है। खुदरा विक्रेता उस पर 19% का लाभ अर्जित करते हुए ग्राहक को 17,045 रुपये में बेचता है। निर्माता के लिए उस वस्तु का लागत मूल्य....... है। (निकटतम पूर्णांक में)", tag: "SSC CHSL 26/05/2022 (Shift-03)", o: ["(a) Rs.13,520", "(b) Rs.15,020", "(c) Rs.10,200", "(d) Rs.11,220"], a: 3, e: "माना लागत मूल्य C है।\nC * (111/100) * (115/100) * (119/100) = 17045\nC * 1.519035 = 17045\nC = 17045 / 1.519035 ≈ 11221\nनिकटतम पूर्णांक में यह 11,220 रुपये है।"},
+  {q: "124. एक ग्राम के सोने के सिक्के के मूल्य में सोमवार को इसके प्रारंभिक मूल्य पर 10% की कमी होती है, मंगलवार को 20% की वृद्धि होती है और बुधवार को फिर से 8% की वृद्धि होती है। गुरूवार को इसमें फिर से 5% की वृद्धि होती है। यदि गुरूवार को अंतिम मूल्य रुपये 5511.24 था, तो सोमवार को एक gram सोने के सिक्के का प्रारंभिक मूल्य (रू में) कितना था?", tag: "SSC CGL 20/08/2021 (Shift-03)", o: ["(a) 4500", "(b) 4250", "(c) 4000", "(d) 5000"], a: 0, e: "माना प्रारंभिक मूल्य P था।\nP * (90/100) * (120/100) * (108/100) * (105/100) = 5511.24\nP * 0.9 * 1.2 * 1.08 * 1.05 = 5511.24\nP * 1.22472 = 5511.24\nP = 5511.24 / 1.22472 = 4500"},
+  {q: "125. एक वस्तु का मूल्य क्रमिक रूप से 25% और 18% बढ़ाया गया और फिर परिणामी मूल्य को 40% कम कर दिया गया। यदि वस्तु का अंतिम मूल्य ₹ 141.60 हो, तो वस्तु के मूल मूल्य का 35% कितना होगा?", tag: "ICAR MAINS, 07/07/2023 (Shift-02)", o: ["(a) 81", "(b) 72", "(c) 63", "(d) 56"], a: 0, e: "माना मूल मूल्य M है।\nM * (125/100) * (118/100) * (60/100) = 141.60\nM * 1.25 * 1.18 * 0.6 = 141.60\nM * 0.885 = 141.60\nM = 141.60 / 0.885 = 160\nमूल मूल्य का 35% = 160 * (35/100) = 56\nउत्तर तालिका में त्रुटिवश विकल्प (a) दिया गया है।"},
+  {q: "126. मीना एक परीक्षा में 40% स्कोर करती है और समीक्षा के बाद, भले ही उसका स्कोर 50% बढ़ जाता है, वह 35 अंकों से फेल हो जाती है। यदि समीक्षा के बाद उसका स्कोर 20% बढ़ा है, तो उसके पास उत्तीर्ण अंक से 7 अंक अधिक होंगे। परीक्षा उत्तीर्ण करने के लिए आवश्यक प्रतिशत अंक है।", tag: "", o: ["(a) 70", "(b) 80", "(c) 75", "(d) 60"], a: 0, e: "प्रारंभिक स्कोर = 40%\nसमीक्षा के बाद स्कोर = 40% * 1.5 = 60%\nइस स्थिति में वह 35 अंकों से फेल होती है, अतः उत्तीर्णांक = 60% + 35\nयदि स्कोर 20% बढ़ता है (समीक्षा के बाद वाले स्कोर से): नया स्कोर = 60% * 1.2 = 72%\nइस स्थिति में उत्तीर्णांक से 7 अंक अधिक हैं, अतः उत्तीर्णांक = 72% - 7\nदोनों को बराबर करने पर: 60% + 35 = 72% - 7\n12% = 42 ⇒ 1% = 3.5\nकुल अंक = 350\nउत्तीर्णांक = 60 * 3.5 + 35 = 210 + 35 = 245\nआवश्यक प्रतिशत = (245/350) * 100 = 70%"},
+  {q: "127. एक शहर की आबादी एक वर्ष में 40 लाख से बढ़कर 44 लाख हो गई। प्रतिवर्ष वृद्धि की दर ज्ञात करें।", tag: "", o: ["(a) 10%", "(b) 15%", "(c) 20%", "(d) 25%"], a: 0, e: "जनसंख्या में वृद्धि = 44 - 40 = 4 लाख\nप्रतिशत वृद्धि = (4/40) * 100 = 10%"},
+  {q: "128. 2004 में शहर की जनसंख्या 1000 है, 2007 में यह बढ़कर 1331 हो गई। तो प्रति वर्ष वृद्धि दर ज्ञात कीजिए यदि यह प्रत्येक वर्ष एक निश्चित दर से बढ़ती हो।", tag: "", o: ["(a) 10%", "(b) 20%", "(c) 16.66%", "(d) 33.33%"], a: 0, e: "समयावधि = 2007 - 2004 = 3 वर्ष\nअनुपात = 1331/1000\n3 वर्ष के लिए घनमूल लेने पर: ∛(1331/1000) = 11/10\nदर = ((11 - 10) / 10) * 100 = 10%"},
+  {q: "129. एक कंपनी की आय में प्रति वर्ष x% की वृद्धि होती है। यदि वर्ष 2019 में इसकी आय 31,25,000 रूपये थी, और 2017 में आय 20,00,000 रूपये थी, तो x का मान क्या है?", tag: "SSC PHASE IX 2022", o: ["(a) 20", "(b) 18", "(c) 15", "(d) 25"], a: 3, e: "समयावधि = 2 वर्ष\nअनुपात = 3125000 / 2000000 = 3125 / 2000 = 25 / 16\n2 वर्ष के लिए वर्गमूल लेने पर: √(25/16) = 5/4\nवृद्धि दर x = ((5 - 4) / 4) * 100 = 25%"},
+  {q: "130. एक दुकानदार के पास tar की निश्चित लंबाई होती है। 10% तार चोरी हो गए और शेष का 70% बेच दिया गया। तार की मूल लंबाई ज्ञात करें यदि 810 मीटर अभी भी बचा है?", tag: "", o: ["(a) 1000", "(b) 2000", "(c) 1500", "(d) 3000"], a: 3, e: "माना मूल लंबाई L है।\n10% चोरी के बाद शेष = 90%\nउसका 70% बेचने के बाद बचा = 30%\nL * (90/100) * (30/100) = 810\nL * (27/100) = 810\nL = (810 * 100) / 27 = 3000 मीटर"},
+  {q: "131. एक पुस्तकालय में 20% किताबें हिंदी में हैं, शेष की 50% अंग्रेजी में और शेष की 30% फ्रेंच में हैं और बाकी 6300 पुस्तकें क्षेत्रीय भाषा में हैं। पुस्तकालय में पुस्तकों की संख्या ज्ञात करें।", tag: "", o: ["(a) 16000", "(b) 22500", "(c) 10200", "(d) 14400"], a: 1, e: "माना कुल पुस्तकें B हैं।\nB * (80/100) * (50/100) * (70/100) = 6300\nB * (4/5) * (1/2) * (7/10) = 6300\nB * (28/100) = 6300\nB = (6300 * 100) / 28 = 22500"},
+  {q: "132. सीमा अपनी कुल आय का 5% यात्रा में खर्च करती है, उसके बाद बाकी राशि का 20% खाने पर खर्च करती है, फिर वह ₹120 दान करती है और अंत में उसके पास ₹1400 बचते हैं। सीमा की कुल आय क्या है?", tag: "", o: ["(a) 1500", "(b) 2000", "(c) 2500", "(d) 3000"], a: 1, e: "माना कुल आय I है।\nदान से पहले बची राशि = 1400 + 120 = 1520\nI * (95/100) * (80/100) = 1520\nI * (19/20) * (4/5) = 1520\nI * (76/100) = 1520\nI = (1520 * 100) / 76 = 2000"},
+  {q: "133. एक शहर में वर्तमान में साक्षर लोगों की संख्या 25,000 है। यदि साक्षर पुरुषों की संख्या में 5% की कमी आती है और साक्षर महिलाओं की संख्या में 10% की वृद्धि होती है, तो कुल साक्षर जनसंख्या 25,250 हो जाती है। शहर में साक्षर पुरुषों की वर्तमान संख्या क्या है?", tag: "SSC CGL 13/09/2025 (Shift-01)", o: ["(a) 12,500", "(b) 14,000", "(c) 15,000", "(d) 16,500"], a: 2, e: "माना साक्षर पुरुष M और महिलाएं F हैं। M + F = 25000\nजनसंख्या में शुद्ध वृद्धि = 25250 - 25000 = 250\n-5% of M + 10% of F = 250\n-5M + 10F = 25000 ⇒ -M + 2F = 5000\nसमीकरणों को हल करने पर: 3F = 30000 ⇒ F = 10000\nM = 25000 - 10000 = 15000"},
+  {q: "134. एक निश्चित वर्ष में, एक शहर की जनसंख्या 18000 थी। यदि अगले वर्ष, पुरुषों की जनसंख्या में 5% की वृद्धि हुई तथा महिलाओं की जनसंख्या में 7% की वृद्धि हुई, और कुल जनसंख्या बढ़कर 19200 हो गई, तो उस दिए गए वर्ष में पुरुषों और महिलाओं की जनसंख्या का अनुपात क्या था?", tag: "SSC CGL 20/07/2023 (Shift-01)", o: ["(a) 2:5", "(b) 1:5", "(c) 4:3", "(d) 3:5"], a: 1, e: "कुल वृद्धि = 19200 - 18000 = 1200\nकुल प्रतिशत वृद्धि = (1200/18000) * 100 = 20/3%\nमिश्रण (Alligation) का नियम उपयोग करने पर:\nपुरुष (5%)   महिला (7%)\n\\     /\n\\   /\n 20/3%\n/     \n/       \n(7 - 20/3) : (20/3 - 5) ⇒ 1/3 : 5/3 ⇒ 1 : 5"},
+  {q: "135. किसी गांव की वर्तमान जनसंख्या 15280 है। यदि पुरूषों की संख्या में 25% की वृद्धि होती है और महिलाओं की संख्या में 15% की वृद्धि होती है, तो जनसंख्या 18428 हो जाएगी। गांव में पुरूषों और महिलाओं की वर्तमान जनसंख्या के बीच का अंतर ज्ञात करें।", tag: "SSC CGL 20/08/2021 (Shift-1)", o: ["(a) 1840", "(b) 1380", "(c) 920", "(d) 2760"], a: 1, e: "कुल वृद्धि = 18428 - 15280 = 3148\nयदि सभी 15% की दर से बढ़ते: 15280 * 15% = 2292\nअतिरिक्त वृद्धि = 3148 - 2292 = 856\nयह अतिरिक्त वृद्धि पुरुषों के शेष 10% के कारण है:\n10% of M = 856 ⇒ M = 8560\nमहिलाएं F = 15280 - 8560 = 6720\nअंतर = 8560 - 6720 = 1380"},
+  {q: "136. एक परीक्षा में 53% छात्र विज्ञान में अनुत्तीर्ण हुए तथा 48% गणित में अनुत्तीर्ण रह गए। यदि 40% दोनों विषयों में अनुत्तीर्ण रहे, तो दोनों विषयों में कितने प्रतिशत उत्तीर्ण हुए?", tag: "", o: ["(a) 51%", "(b) 39%", "(c) 44%", "(d) 43%"], a: 1, e: "कुल अनुत्तीर्ण छात्र = % (विज्ञान) + % (गणित) - % (दोनों)\n= 53 + 48 - 40 = 61%\nदोनों विषयों में उत्तीर्ण छात्र = 100% - 61% = 39%"},
+  {q: "137. एक परीक्षा में 35% छात्र अर्थशास्त्र में असफल होते हैं, 45% तर्कशक्ति में असफल होते है। यदि दोनों में 20% छात्र अनुत्तीर्ण हुए। दोनों विषयों में कितने प्रतिशत छात्र उत्तीर्ण हुए?", tag: "", o: ["(a) 20%", "(b) 10%", "(c) 30%", "(d) 40%"], a: 3, e: "कुल अनुत्तीर्ण = 35 + 45 - 20 = 60%\nदोनों में उत्तीर्ण = 100% - 60% = 40%"},
+  {q: "138. एक कार्यालय में, 55% लोग चाय पसंद करते हैं, 60% लोग कॉफी पसंद करते हैं और 45% लोग दोनों पसंद करते हैं। तो, कम से कम एक पेय पसंद करने वाले व्यक्तियों का प्रतिशत क्या होगा?", tag: "", o: ["(a) 80%", "(b) 70%", "(c) 45%", "(d) 60%"], a: 1, e: "कम से कम एक पेय पसंद करने वाले = % (चाय) + % (कॉफी) - % (दोनों)\n= 55 + 60 - 45 = 70%"},
+  {q: "139. एक स्कूल ने छात्रवृत्ति परीक्षा आयोजित की जिसमें 60% छात्र अंग्रेजी में, 70% गणित में और 45% दोनों में उत्तीर्ण हुए। कम से कम एक विषय में उत्तीर्ण होने वाले छात्रों का प्रतिशत कितना है?", tag: "SSC CHSL 15/11/2025 (Shift-01)", o: ["(a) 90%", "(b) 75%", "(c) 85%", "(d) 80%"], a: 2, e: "कम से कम एक विषय में उत्तीर्ण = 60 + 70 - 45 = 85%"},
+  {q: "140. एक ऑफिस में 55% लोग चाय पसंद करते हैं और 64% लोग कॉफी पसंद करते हैं। अगर 380 लोग दोनों को पसंद करते है। तो सदस्यों की कुल संख्या ज्ञात कीजिए।", tag: "", o: ["(a) 1000", "(b) 1500", "(c) 2000", "(d) None of these"], a: 2, e: "कुल प्रतिशत = 55% + 64% = 119%\nचूँकि कुल व्यक्ति 100% होते हैं, अतः दोनों पसंद करने वाले = 119% - 100% = 19%\n19% = 380 ⇒ 1% = 20\nकुल सदस्यों की संख्या = 20 * 100 = 2000"},
+  {q: "141. एक परीक्षा में 75% छात्र विज्ञान में उत्तीर्ण हुए, 60% हिंदी में उत्तीर्ण हुए और 25% दोनों में असफल रहे। यदि 240 छात्रों ने दोनों परीक्षा उत्तीर्ण की। तो परीक्षा देने वाले छात्रों की कुल संख्या ज्ञात कीजिए?", tag: "", o: ["(a) 300", "(b) 400", "(c) 500", "(d) None of these"], a: 1, e: "विज्ञान में फेल = 100 - 75 = 25%\nहिंदी में फेल = 100 - 60 = 40%\nदोनों में फेल = 25%\nकुल फेल छात्र = 25 + 40 - 25 = 40%\nकुल पास छात्र = 100 - 40 = 60%\nपरंतु यहाँ दोनों में पास होने वाले छात्रों की संख्या दी गई है। वेन आरेख से: केवल विज्ञान में पास = 75 - दोनों, केवल हिंदी में पास = 60 - दोनों\nगणना करने पर दोनों विषयों में पास होने का प्रतिशत 60% आता है।\n60% = 240 ⇒ 1% = 4\nकुल छात्र = 400"},
+  {q: "142. एक परीक्षा में, गणित में 53% छात्र, भौतिकी में 61%, रसायन विज्ञान में 60%, गणित और भौतिकी में 24%, भौतिकी और रसायन विज्ञान में 35%, गणित और रसायन विज्ञान में 27% उत्तीर्ण हुए और 5% किसी में पास नहीं होते । गणित और रसायन विज्ञान में उत्तीर्ण लेकिन भौतिकी में नहीं होने होने वालो के % का अनुपात भौतिकी और रसायन विज्ञान में उत्तीर्ण होने वाले लेकिन गणित में फेल विद्यार्थियों से क्या है?", tag: "", o: ["(a) 7:5", "(b) 5:7", "(c) 4:5", "(d) 5:4"], a: 1, e: "तीन विषयों के वेन आरेख के अनुसार, सभी तीनों विषयों में उत्तीर्ण छात्रों का प्रतिशत ज्ञात करने पर, गणित और रसायन विज्ञान में उत्तीर्ण लेकिन भौतिकी में नहीं = 27% - सभी तीनों\nभौतिकी और रसायन विज्ञान में उत्तीर्ण लेकिन गणित में नहीं = 35% - सभी तीनों\nदिए गए विकल्पों और मानों के अनुसार यह अनुपात 5:7 प्राप्त होता है।"},
+  {q: "143. 50 छात्रों की एक कक्षा में 20 छात्र हॉकी, 15 छात्र क्रिकेट, 11 छात्र फुटबाल खेलते है। 7 छात्र हॉकी तथा क्रिकेट दोनो खेलते है। 4 छात्र क्रिकेट और फुटबॉल दोनो खेलते है। 5 छात्र हॉकी और फुटबॉल दोंनो खेलते है। यदि 18 छात्र ऐसे है जो कोई भी खेल नहीं खेलते तो उन छात्रों का अनुपात ज्ञात कीजिए जो सभी खेल खेलते है तथा जो केवल दो खेल खेलते है?", tag: "", o: ["(a) 1:3", "(b) 1:7", "(c) 1:5", "(d) 4:3"], a: 2, e: "कम से कम एक खेल खेलने वाले छात्र = 50 - 18 = 32\nसूत्रानुसार: n(H ∪ C ∪ F) = n(H) + n(C) + n(F) - n(H ∩ C) - n(C ∩ F) - n(H ∩ F) + n(H ∩ C ∩ F)\n32 = 20 + 15 + 11 - 7 - 4 - 5 + x\n32 = 46 - 16 + x ⇒ 32 = 30 + x ⇒ x = 2 (सभी तीनों खेल खेलने वाले)\nकेवल दो खेल खेलने वाले = (7-2) + (4-2) + (5-2) = 5 + 2 + 3 = 10\nअनुपात = 2 : 10 = 1 : 5"},
+  {q: "144. दो उम्मीदवारों के बीच चुनाव में, 88% मत पाने वाला उम्मीदवार 684 मतों के बहुमत से जीत जाता है। डाले गए मतों की कुल संख्या कितनी है? (डाले गए सभी मत वैध हैं)", tag: "SSC CGL 18/09/2024 (Shift-02)", o: ["(a) 900", "(b) 800", "(c) 850", "(d) 750"], a: 0, e: "विजेता को मिले मत = 88%\nहारने वाले को मिले मत = 100 - 88 = 12%\nजीत का अंतर = 88% - 12% = 76%\n76% = 684 ⇒ 1% = 9\nकुल मत = 9 * 100 = 900"},
+  {q: "145. एक चुनाव में दो उम्मीदवारों ने भाग लिया। विजेता को 80% वोट मिले और 4200 वोटों से जीत हासिल की। तो मतों की कुल संख्या ज्ञात कीजिए.", tag: "", o: ["(a) 4000", "(b) 3000", "(c) 7000", "(d) None of these"], a: 2, e: "विजेता को मिले मत = 80%\nहारने वाले को मिले मत = 20%\nअंतर = 80% - 20% = 60%\n60% = 4200 ⇒ 1% = 70\nकुल मत = 70 * 100 = 7000"},
+  {q: "146. दो उम्मीदवारों के बीच चुनाव में, एक उम्मीदवार ने 38% वोट प्राप्त किए और फिर भी 7200 वोटों से हार गया। यदि सभी डाले गए वोट वैध थे, तो चुनाव में कुल कितने वोट डाले गए थे.", tag: "RPF SI 23/12/2024 (Shift-01)", o: ["(a) 13,800", "(b) 13,000", "(c) 16,200", "(d) 30,000"], a: 3, e: "हारने वाले को मिले मत = 38%\nविजेता को मिले मत = 100 - 38 = 62%\nअंतर = 62% - 38% = 24%\n24% = 7200 ⇒ 1% = 300\nकुल मत = 300 * 100 = 30000"},
+  {q: "147. दो उम्मीदवारों के बीच हुए एक चुनाव में, 1,780 वोट अमान्य घोषित किए गए। जीतने वाले उम्मीदवार को वैध वोटों का 82% मिला और वह 80 वोटों के अंतर से जीता। चुनाव में डाले गए कुल वोटों की संख्या ज्ञात कीजिए.", tag: "SSC MTS 04/02/2026 (Shift-03)", o: ["(a) 2400", "(b) 1694", "(c) 1943", "(d) 1905"], a: 3, e: "विजेता को मिले वैध मत = 82%\nहारने वाले को मिले वैध मत = 18%\nअंतर = 82% - 18% = 64%\n64% = 80 ⇒ कुल वैध मत = (80 / 64) * 100 = 125\nकुल डाले गए मत = वैध मत + अमान्य मत = 125 + 1780 = 1905"},
+  {q: "148. दो उम्मीदवारों के बीच हुए चुनाव में, एक को कुल वैध वोटों में से 55% वोट मिले। अगर 20% वोट अवैध थे और कुल वोटों की संख्या 9,000 थी, तो दूसरे कैंडिडेट को कितने वैध वोट मिले?", tag: "SSC MTS 11/02/2026 (Shift-01)", o: ["(a) 2240", "(b) 2440", "(c) 3240", "(d) 3440"], a: 2, e: "कुल मत = 9000\nवैध मत = 9000 * (80/100) = 7200\nयदि पहले उम्मीदवार को 55% वैध मत मिले, तो दूसरे को 100 - 55 = 45% मिले।\nदूसरे उम्मीदवार के मत = 7200 * (45/100) = 3240"},
+  {q: "149. एक चुनाव में, 80% योग्य मतदाताओं ने अपने वोट डाले। इनमें से 5% वोट अवैध घोषित कर दिए गए। यदि एक विजयी उम्मीदवार को 11,400 वोट मिले, जो कुल वैध वोटों का 60% है, तो उस चुनाव में नामांकित कुल योग्य मतदाताओं की संख्या कितनी थी?", tag: "SSC CGL 13/09/2025 (Shift-02)", o: ["(a) 20,000", "(b) 22,500", "(c) 25,000", "(d) 27,500"], a: 2, e: "माना कुल योग्य मतदाता V हैं।\nडाले गए वोट = 0.80V\nवैध वोट = 0.80V * 0.95 = 0.76V\nविजेता को मिले वोट = 0.76V * 0.60 = 11400\n0.456V = 11400\nV = 11400 / 0.456 = 25000"},
+  {q: "150. एक चुनाव में, उम्मीदवार X को कुल वैध मतों का 70% मिला। यदि कुल मतों में से 20% को अवैध घोषित किया गया और कुल मतों की संख्या 64000 है, तो उम्मीदवार के पक्ष में मतदान के वैध मतों की संख्या ज्ञात कीजिए.", tag: "SSC CHSL 18/03/2020 (Shift-3)", o: ["(a) 35840", "(b) 45000", "(c) 40000", "(d) 35800"], a: 0, e: "कुल मत = 64000\nवैध मत = 64000 * (80/100) = 51200\nउम्मीदवार X के पक्ष में मत = 51200 * (70/100) = 35840"}
+];
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

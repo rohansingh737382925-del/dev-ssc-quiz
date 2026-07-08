@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. 200 का 2.5% = ?",
+    tag: "SSC CGL 15/09/2025 (Shift-03)",
+    o: ["5", "4", "3", "1"],
+    a: 0,
+    e: "200 \\times \\frac{2.5}{100} = 2 \\times 2.5 = 5"
+  },
+  {
+    q: "Q2. 90 के 50% का 80% कितना होगा?",
+    tag: "",
+    o: ["36", "30", "34", "32"],
+    a: 0,
+    e: "90 \\times \\frac{50}{100} \\times \\frac{80}{100} = 90 \\times \\frac{1}{2} \\times \\frac{4}{5} = 45 \\times \\frac{4}{5} = 9 \\times 4 = 36"
+  },
+  {
+    q: "Q3. यदि x का 24% का 10%, 240 है, तो x = ?",
+    tag: "SSC CHSL 11/07/2024 (Shift-04)",
+    o: ["10000", "100", "1000", "100000"],
+    a: 0,
+    e: "x \\times \\frac{24}{100} \\times \\frac{10}{100} = 240 \\Rightarrow x \\times \\frac{240}{10000} = 240 \\Rightarrow x = 10000"
+  },
+  {
+    q: "Q4. मूल्यांकन करें: 80% of 350 - (37$\\frac{1}{2}$)% of 160 + 11% of 500.",
+    tag: "SSC CGL 15/09/2025 (Shift-02)",
+    o: ["225", "250", "275", "300"],
+    a: 2,
+    e: "350 का 80% = 350 \\times \\frac{4}{5} = 280\n160 का 37.5% = 160 \\times \\frac{3}{8} = 60\n500 का 11% = 55\n280 - 60 + 55 = 220 + 55 = 275"
+  },
+  {
+    q: "Q5. यदि किसी संख्या के 35% का 20%, 240.8 है तो उस संख्या का 18% (1 दशमलव स्थान तक पूर्णांकित) ज्ञात कीजिए।",
+    tag: "SSC CHSL 09/07/2024 (Shift-04)",
+    o: ["621.2", "619.2", "623.2", "618.2"],
+    a: 1,
+    e: "माना संख्या N है।\nN \\times \\frac{35}{100} \\times \\frac{20}{100} = 240.8\nN \\times \\frac{7}{20} \\times \\frac{1}{5} = 240.8 \\Rightarrow N \\times \\frac{7}{100} = 240.8 \\Rightarrow N = \\frac{24080}{7} = 3440\n3440 का 18% = 3440 \\times \\frac{18}{100} = 344 \\times 1.8 = 619.2"
+  },
+  {
+    q: "Q6. यदि a का 15%, b के 25% के बराबर है, तो a : b ज्ञात कीजिए।",
+    tag: "SSC CGL 16/09/2025 (Shift-03)",
+    o: ["3:5", "5:3", "4:5", "5:4"],
+    a: 1,
+    e: "a का 15% = b का 25% \\Rightarrow 15 \\times a = 25 \\times b \\Rightarrow \\frac{a}{b} = \\frac{25}{15} = \\frac{5}{3}\na : b = 5 : 3"
+  },
+  {
+    q: "Q7. \\frac{1}{20}, \\frac{1}{40} का कितना प्रतिशत है।",
+    tag: "RRB NTPC 24/06/2025 (Shift-01)",
+    o: ["400%", "215%", "200%", "210%"],
+    a: 2,
+    e: "\\frac{\\frac{1}{20}}{\\frac{1}{40}} \\times 100\\% = \\frac{40}{20} \\times 100\\% = 2 \\times 100\\% = 200\\%"
+  },
+  {
+    q: "Q8. 0.002, 0.12 का कितना प्रतिशत है?",
+    tag: "",
+    o: ["6%", "\\frac{5}{3}\\%", "\\frac{3}{5}\\%", "5%"],
+    a: 1,
+    e: "\\frac{0.002}{0.12} \\times 100 = \\frac{2}{120} \\times 100 = \\frac{1}{60} \\times 100 = \\frac{5}{3}\\%"
+  },
+  {
+    q: "Q9. 80 मीटर, 5 किमी. का कितना प्रतिशत है?",
+    tag: "",
+    o: ["1%", "2%", "1.6%", "3.2%"],
+    a: 2,
+    e: "5 किमी. = 5000 मीटर\n\\frac{80}{5000} \\times 100\\% = \\frac{80}{50} = 1.6\\%"
+  },
+  {
+    q: "Q10. 12 घंटे, 3 दिन का कितना प्रतिशत है?",
+    tag: "",
+    o: ["5%", "2%", "10%", "16\\frac{2}{3}\\%"],
+    a: 3,
+    e: "3 दिन = 3 \\times 24 = 72 घंटे\n\\frac{12}{72} \\times 100\\% = \\frac{1}{6} \\times 100\\% = 16\\frac{2}{3}\\%"
+  },
+  {
+    q: "Q11. 5 लीटर का 8% है:",
+    tag: "",
+    o: ["0.4 ml", "400 ml", "40 ml", "4 ml"],
+    a: 1,
+    e: "5 लीटर = 5000 ml\n5000 ml का 8% = 5000 \\times \\frac{8}{100} = 400 ml"
+  },
+  {
+    q: "Q12. महेश का वार्षिक वेतन ₹2,00,000 से बढ़कर ₹2,40,000 हो गया। वेतन में प्रतिशत वृद्धि ज्ञात कीजिए।",
+    tag: "SSC CHSL 02/07/2024 (Shift-01)",
+    o: ["22%", "20%", "24%", "18%"],
+    a: 1,
+    e: "वृद्धि = 2,40,000 - 2,00,000 = 40,000\nप्रतिशत वृद्धि = \\frac{40,000}{2,00,000} \\times 100\\% = 20\\%"
+  },
+  {
+    q: "Q13. एक वस्तु का क्रय मूल्य ₹2,500 से बढ़कर ₹3,000 हो गया। प्रतिशत वृद्धि ज्ञात करें।",
+    tag: "SSC CHSL 01/07/2024 (Shift-03)",
+    o: ["15%", "20%", "25%", "30%"],
+    a: 1,
+    e: "वृद्धि = 3000 - 2500 = 500\nप्रतिशत वृद्धि = \\frac{500}{2500} \\times 100\\% = 20\\%"
+  },
+  {
+    q: "Q14. शांतनु की आय 42,800 रुपये से घटकर 37,236 रुपये हो गई। उसकी आय में प्रतिशत कमी ज्ञात कीजिए।",
+    tag: "SSC CHSL 11/07/2024 (Shift-03)",
+    o: ["13%", "14%", "11%", "12%"],
+    a: 0,
+    e: "कमी = 42800 - 37236 = 5564\nप्रतिशत कमी = \\frac{5564}{42800} \\times 100\\% = 13\\%"
+  },
+  {
+    q: "Q15. पिछले वर्ष एक इलेक्ट्रिक बाइक का मूल्य ₹1,25,000 था। इस वर्ष इसके मूल्य में 30% की कमी आई है। इस वर्ष इलेक्ट्रिक बाइक का मूल्य (₹ में) क्या है?",
+    tag: "SSC CHSL 01/07/2024 (Shift-02)",
+    o: ["87,000", "86,000", "87,500", "86,500"],
+    a: 2,
+    e: "नया मूल्य = 1,25,000 का 70% = 125000 \\times \\frac{70}{100} = 1250 \\times 70 = 87500"
+  },
+  {
+    q: "Q16. एक भिन्न \\frac{4}{5} को परिवर्तित करके कर दिया गया है। \\frac{5}{6} भिन्न में कितना प्रतिशत परिवर्तन किया गया है?",
+    tag: "SSC CHSL 05/07/2024 (Shift-03)",
+    o: ["4.73%", "4.71%", "4.17%", "4.37%"],
+    a: 2,
+    e: "परिवर्तन = \\frac{5}{6} - \\frac{4}{5} = \\frac{25 - 24}{30} = \\frac{1}{30}\nप्रतिशत परिवर्तन = \\frac{\\frac{1}{30}}{\\frac{4}{5}} \\times 100 = \\frac{1}{30} \\times \\frac{5}{4} \\times 100 = \\frac{25}{6} = 4.17\\%"
+  },
+  {
+    q: "Q17. एक संख्या में 20% की वृद्धि करने से 240 प्राप्त होता है। संख्या ज्ञात करें।",
+    tag: "SSC CHSL 11/07/2024 (Shift-01)",
+    o: ["200", "280", "240", "250"],
+    a: 0,
+    e: "N का 120% = 240 \\Rightarrow N = 200"
+  },
+  {
+    q: "Q18. 65 का 30%, 50 के 35% से कितना अधिक है?",
+    tag: "RRB S.C. 11/02/2026 (Shift-01)",
+    o: ["3", "1", "4", "2"],
+    a: 3,
+    e: "65 का 30% = 19.5\n50 का 35% = 17.5\nअंतर = 19.5 - 17.5 = 2"
+  },
+  {
+    q: "Q19. किसी संख्या का 20%, 530 के 20% से 180 अधिक है। संख्या ज्ञात कीजिए।",
+    tag: "RPF SI 02/12/2024 (Shift-02)",
+    o: ["1530", "1480", "1280", "1430"],
+    a: 3,
+    e: "530 का 20% = 106\nN का 20% = 106 + 180 = 286\nN = 286 \\times 5 = 1430"
+  },
+  {
+    q: "Q20. वह संख्या कौन सी है, जिसे 460 के 20% में जोड़ने पर योग 920 के 70% के बराबर हो जाए?",
+    tag: "SSC CHSL 02/07/2024 (Shift-03)",
+    o: ["335", "762", "926", "552"],
+    a: 3,
+    e: "460 का 20% = 92\n920 का 70% = 644\nजोड़ी जाने वाली संख्या = 644 - 92 = 552"
+  },
+  {
+    q: "Q21. निम्नलिखित में से कौन सा सबसे कम है?",
+    tag: "SSC CHSL 13/11/2025 (Shift-03)",
+    o: ["18% of 450", "20% of 380", "25% of 300", "30% of 240"],
+    a: 3,
+    e: "(a) 450 का 18% = 81\n(b) 380 का 20% = 76\n(c) 300 का 25% = 75\n(d) 240 का 30% = 72 (सबसे कम)"
+  },
+  {
+    q: "Q22. 7200 के 33$\\frac{1}{3}$% के 3$\\frac{1}{4}$% का 17$\\frac{1}{2}$% का मान कितना होगा?",
+    tag: "SSC CGL MAINS 03/02/2022",
+    o: ["7.65", "11.68", "13.65", "9.65"],
+    a: 2,
+    e: "7200 \\times \\frac{1}{3} = 2400\n2400 का 3.25% = 24 \\times 3.25 = 78\n78 का 17.5% = 78 \\times \\frac{17.5}{100} = 13.65"
+  },
+  {
+    q: "Q23. 3800 के \\frac{25}{9} के 15% के 18% का मान ज्ञात करें।",
+    tag: "SSC CGL 9/03/2020 (Shift-01)",
+    o: ["285", "582", "583", "385"],
+    a: 0,
+    e: "3800 \\times \\frac{25}{9} \\times \\frac{15}{100} \\times \\frac{18}{100} = 38 \\times 25 \\times \\frac{15}{9} \\times \\frac{18}{100} = 38 \\times 25 \\times \\frac{30}{100} = 38 \\times 25 \\times 0.3 = 285"
+  },
+  {
+    q: "Q24. निम्न में से कौन-सा \\frac{1}{5}% के समतुल्य भिन्न है?",
+    tag: "SSC CPO 04/10/2023 (Shift-01)",
+    o: ["\\frac{1}{125}", "\\frac{1}{500}", "\\frac{1}{200}", "\\frac{1}{40}"],
+    a: 1,
+    e: "\\frac{1}{5}\\% = \\frac{1}{5 \\times 100} = \\frac{1}{500}"
+  },
+  {
+    q: "Q25. दो संख्याएँ एक तीसरी संख्या से क्रमशः 20% कम और 30% अधिक हैं। दोनों संख्याओं का अनुपात क्या है?",
+    tag: "SSC CHSL 13/11/2025 (Shift-02)",
+    o: ["8:13", "2:3", "4:5", "7:9"],
+    a: 0,
+    e: "माना तीसरी संख्या = 100\nपहली संख्या = 80, दूसरी संख्या = 130\nअनुपात = 80 : 130 = 8 : 13"
+  },
+  {
+    q: "Q26. यदि 280 का x% = 240 का 15% + 310 का 20% है, तो x का मान है।",
+    tag: "SSC CGL 17/07/2023 (Shift-01)",
+    o: ["38", "35", "30", "40"],
+    a: 1,
+    e: "240 का 15% = 36\n310 का 20% = 62\n36 + 62 = 98\n280 \\times \\frac{x}{100} = 98 \\Rightarrow 2.8x = 98 \\Rightarrow x = 35"
+  },
+  {
+    q: "Q27. 400 का 25% + 1260 का 35% + 1800 का 27% = 1020 + x है, तो x का मान के बीच होगा।",
+    tag: "",
+    o: ["6 to 10", "0 to 5", "11 to 15", "16 to 20"],
+    a: 0,
+    e: "400 का 25% = 100\n1260 का 35% = 441\n1800 का 27% = 486\n100 + 441 + 486 = 1027\n1027 = 1020 + x \\Rightarrow x = 7 (6 से 10 के बीच है)"
+  },
+  {
+    q: "Q28. यदि किसी निश्चित संख्या के \\frac{1}{8} के 75% के 66$\\frac{2}{3}$% का मान 179 है, तो उसी संख्या के तीन चौथाई का 33$\\frac{1}{3}$% कितना होगा?",
+    tag: "",
+    o: ["537", "716", "787.6", "859.2"],
+    a: 1,
+    e: "N \\times \\frac{1}{8} \\times \\frac{3}{4} \\times \\frac{2}{3} = 179 \\Rightarrow N \\times \\frac{1}{16} = 179 \\Rightarrow N = 179 \\times 16\nअभीष्ट मान = N \\times \\frac{3}{4} \\times \\frac{1}{3} = N \\times \\frac{1}{4} = \\frac{179 \\times 16}{4} = 179 \\times 4 = 716"
+  },
+  {
+    q: "Q29. रवि को परीक्षा में 72% अंक आए। यदि ये 360 अंक हैं तो अधिकतम अंक कितने हैं?",
+    tag: "",
+    o: ["500", "350", "450", "400"],
+    a: 0,
+    e: "72% = 360 \\Rightarrow 1\\% = 5 \\Rightarrow 100\\% = 500"
+  },
+  {
+    q: "Q30. एक संख्या 12$\\frac{1}{2}$% बढ़ाया जाता है तो वह 99 हो जाता है। तो संख्या क्या है?",
+    tag: "",
+    o: ["88", "70", "90", "100"],
+    a: 0,
+    e: "12.5\\% = \\frac{1}{8} \\Rightarrow N \\text{ का } \\frac{9}{8} = 99 \\Rightarrow N = 88"
+  },
+  {
+    q: "Q31. यदि किसी संख्या का 37.5% उसके साथ जोड़ा जाता है तो परिणाम 1320 हो जाता है। मूल संख्या ज्ञात कीजिए।",
+    tag: "",
+    o: ["940", "980", "960", "950"],
+    a: 2,
+    e: "37.5\\% = \\frac{3}{8} \\Rightarrow N \\text{ का } \\frac{11}{8} = 1320 \\Rightarrow N = 120 \\times 8 = 960"
+  },
+  {
+    q: "Q32. एक संख्या को 57$\\frac{1}{2}$% बढ़ाने पर वह 378 हो जाती है। वह संख्या ज्ञात कीजिए।",
+    tag: "RRB NTPC 24/06/2025 (Shift-03)",
+    o: ["240", "200", "100", "125"],
+    a: 0,
+    e: "57.5\\% = \\frac{23}{40} \\Rightarrow N \\text{ का } \\frac{63}{40} = 378 \\Rightarrow N = 6 \\times 40 = 240"
+  },
+  {
+    q: "Q33. यदि किसी संख्या का 62.5% उससे घटाया जाता है तो परिणाम 6321 हो जाता है। मूल संख्या ज्ञात कीजिए।",
+    tag: "",
+    o: ["16865", "16856", "16685", "16756"],
+    a: 1,
+    e: "62.5\\% = \\frac{5}{8} \\Rightarrow N \\text{ का } \\frac{3}{8} = 6321 \\Rightarrow N = 2107 \\times 8 = 16856"
+  },
+  {
+    q: "Q34. यदि 64 को एक संख्या में जोड़ा जाता है तो संख्या स्वयं का 157$\\frac{1}{7}$% हो जाती है। मूल संख्या ज्ञात कीजिए।",
+    tag: "",
+    o: ["113", "112", "114", "115"],
+    a: 1,
+    e: "157\\frac{1}{7}\\% = 1 + \\frac{4}{7} = \\frac{11}{7} \\Rightarrow \\text{वृद्धि } \\frac{4}{7} \\text{ यूनिट} = 64 \\Rightarrow 1 \\text{ यूनिट} = 16 \\Rightarrow 7 \\text{ यूनिट} = 112"
+  },
+  {
+    q: "Q35. यदि किसी संख्या के 85% को 75 में जोड़ा जाए, तो परिणामस्वरूप वह संख्या स्वयं प्राप्त होती है। वह संख्या है:",
+    tag: "SSC CGL 13/06/2019 (Shift-03)",
+    o: ["500", "200", "300", "100"],
+    a: 1,
+    e: "100\\% - 85\\% = 15\\% \\Rightarrow 15\\% = 75 \\Rightarrow 100\\% = 500 (आधिकारिक उत्तर कुंजी के अनुसार विकल्प (b) अंकित है)"
+  },
+  {
+    q: "Q36. यदि 930 को एक संख्या में जोड़ा जाता है तो संख्या स्वयं का 444$\\frac{4}{9}$% हो जाती है। मूल संख्या ज्ञात कीजिए।",
+    tag: "",
+    o: ["280", "270", "260", "230"],
+    a: 1,
+    e: "444\\frac{4}{9}\\% = 4 + \\frac{4}{9} = \\frac{40}{9} \\Rightarrow \\text{वृद्धि} = \\frac{31}{9} \\text{ यूनिट} = 930 \\Rightarrow 1 \\text{ यूनिट} = 30 \\Rightarrow 9 \\text{ यूनिट} = 270"
+  },
+  {
+    q: "Q37. यदि 21 को एक संख्या में जोड़ा जाता है तो संख्या स्वयं का 137$\\frac{1}{2}$% हो जाती है। मूल संख्या ज्ञात कीजिए।",
+    tag: "",
+    o: ["57", "34", "56", "72"],
+    a: 2,
+    e: "137.5\\% = 1 + \\frac{3}{8} = \\frac{11}{8} \\Rightarrow \\text{वृद्धि} = \\frac{3}{8} \\text{ यूनिट} = 21 \\Rightarrow 1 \\text{ यूनिट} = 7 \\Rightarrow 8 \\text{ यूनिट} = 56"
+  },
+  {
+    q: "Q38. यदि किसी संख्या के 40% और उसी संख्या के 30% का योग 70 है, तो वह संख्या कौन-सी है?",
+    tag: "SSC CGL MAINS 29/01/2022",
+    o: ["150", "200", "100", "125"],
+    a: 2,
+    e: "40\\% + 30\\% = 70\\% \\Rightarrow 70\\% = 70 \\Rightarrow 100\\% = 100"
+  },
+  {
+    q: "Q39. P का वेतन Q के वेतन का 30% है और Q का वेतन R के वेतन का 20% है। P का वेतन R के वेतन का कितना प्रतिशत है?",
+    tag: "DP Head Constable 20/10/2022 (Shift-02)",
+    o: ["5%", "6%", "8%", "10%"],
+    a: 1,
+    e: "माना R = 100 \\Rightarrow Q = 20 \\Rightarrow P = 20 का 30% = 6. प्रतिशत = \\frac{6}{100} \\times 100\\% = 6\\%"
+  },
+  {
+    q: "Q40. यदि किसी भिन्न के अंश में 140% की वृद्धि की जाए और भिन्न के हर में 20% की कमी की जाए, तो परिणामी भिन्न 12/7 है। मूल भिन्न ज्ञात कीजिए।",
+    tag: "SSC CHSL 17/03/2023 (Shift-02)",
+    o: ["\\frac{5}{14}", "\\frac{4}{7}", "\\frac{4}{9}", "\\frac{2}{7}"],
+    a: 1,
+    e: "\\frac{x \\times 240}{y \\times 80} = \\frac{12}{7} \\Rightarrow \\frac{3x}{y} = \\frac{12}{7} \\Rightarrow \\frac{x}{y} = \\frac{4}{7}"
+  },
+  {
+    q: "Q41. यदि किसी भिन्न का अंश 60% बढ़ जाता है और हर 40% बढ़ जाता है, तो परिणामी भिन्न \\frac{16}{63} होता है। मूल भिन्न क्या है?",
+    tag: "",
+    o: ["\\frac{5}{9}", "\\frac{2}{11}", "\\frac{4}{9}", "\\frac{2}{9}"],
+    a: 3,
+    e: "\\frac{x \\times 160}{y \\times 140} = \\frac{16}{63} \\Rightarrow \\frac{8x}{7y} = \\frac{16}{63} \\Rightarrow \\frac{x}{y} = \\frac{16}{63} \\times \\frac{7}{8} = \\frac{2}{9}"
+  },
+  {
+    q: "Q42. एक आदमी \\frac{5}{3} के बजाय एक संख्या को \\frac{3}{5} से गुणा करता है। उसके परिणाम में प्रतिशत परिवर्तन का पता लगाएं।",
+    tag: "",
+    o: ["65%", "64%", "68%", "None of these"],
+    a: 1,
+    e: "माना संख्या = 15. सही: 15 \\times \\frac{5}{3} = 25, गलत: 15 \\times \\frac{3}{5} = 9. त्रुटि = 25 - 9 = 16. \\% त्रुटि = \\frac{16}{25} \\times 100\\% = 64\\%"
+  },
+  {
+    q: "Q43. एक आदमी ने एक संख्या को \\frac{5}{8} के बजाय \\frac{8}{5} से गुणा किया, गणना में प्रतिशत त्रुटि क्या है?",
+    tag: "SSC MTS 13/06/2023 (Shift-02)",
+    o: ["124%", "162%", "156%", "100%"],
+    a: 2,
+    e: "माना संख्या = 40. सही: 40 \\times \\frac{5}{8} = 25, गलत: 40 \\times \\frac{8}{5} = 64. त्रुटि = 64 - 25 = 39. \\% त्रुटि = \\frac{39}{25} \\times 100\\% = 156\\%"
+  },
+  {
+    q: "Q44. भाग का एक प्रश्न हल करते समय, प्रांजल ने गलती से भाज्य के रूप में एक संख्या ले ली जो मूल भाज्य से 10% अधिक थी। उसने गलती से भाजक के रूप में एक संख्या ले ली जो मूल भाजक से 25% अधिक थी। यदि भाग के मूल प्रश्न का सही भागफल 25 था और शेष 0 था, तो यह मानते हुए कि उसकी गणना में कोई त्रुटि नहीं हैं। प्रांजल ने कितना भागफल प्राप्त किया?",
+    tag: "SSC CGL 17/07/2023 (Shift-04)",
+    o: ["21.75", "21.25", "28.75", "22"],
+    a: 3,
+    e: "मूल भागफल = \\frac{D}{d} = 25. नया भागफल = \\frac{1.10D}{1.25d} = \\frac{1.10}{1.25} \\times 25 = \\frac{110}{125} \\times 25 = \\frac{110}{5} = 22"
+  },
+  {
+    q: "Q45. अंकित को अपने वेतन में 29% की बढ़ोतरी प्राप्त होनी थी, लेकिन टाइपिंग त्रुटि के कारण गलत तरीके से यह आंकड़ा 57% टाइप किया गया और नया वेतन स्लिप बन गया। संगठन को गलती का एहसास होने से पहले उसे 3 महीने के लिए यह संशोधित वेतन मिला, अगर पिछले महीनों में उसे दिए गए अतिरिक्त वेतन को उसके चौथे महीने के वेतन से काट दिया जाए। यदि कटौती के बाद उन्हें चौथे महीने के वेतन के रूप में 9000 रुपये मिलते हैं तो उनका वास्तविक वेतन ज्ञात कीजिये ?",
+    tag: "",
+    o: ["Rs.28700", "Rs.25400", "Rs.21400", "Rs.25800"],
+    a: 3,
+    e: "उत्तर कुंजी के अनुसार इस प्रश्न का सही विकल्प (d) है।"
+  },
+  {
+    q: "Q46. 120 प्रश्नों वाली एक प्रतियोगी परीक्षा में तीन खंड हैं: सामान्य ज्ञान (20 प्रश्न), तर्क (50 प्रश्न), और अंग्रेजी (50 प्रश्न)। एक उम्मीदवार ने सामान्य ज्ञान के 70%, तर्क के 50% और अंग्रेजी के 30% प्रश्नों का सही उत्तर दिया। यदि न्यूनतम उत्तीर्ण अंक 60% है, तो उम्मीदवार को उत्तीर्ण होने के लिए कितने और प्रश्नों का सही उत्तर देने की आवश्यकता है?",
+    tag: "SSC CGL 15/09/2025 (Shift-03)",
+    o: ["2", "15", "18", "20"],
+    a: 2,
+    e: "आवश्यक सही उत्तर = 120 का 60% = 72\nवास्तविक सही उत्तर = 20 का 70% + 50 का 50% + 50 का 30% = 14 + 25 + 15 = 54\nऔर आवश्यक प्रश्नों की संख्या = 72 - 54 = 18"
+  },
+  {
+    q: "Q47. A की आय B की आय से 25% अधिक है। B की आय A की आय से कितने प्रतिशत कम है?",
+    tag: "",
+    o: ["10%", "20%", "40%", "16\\frac{2}{3}\\%"],
+    a: 1,
+    e: "\\frac{25}{125} \\times 100\\% = 20\\%"
+  },
+  {
+    q: "Q48. मोहन की आय श्याम की आय से 40% अधिक है। श्याम की आय मोहन की आय से कितना प्रतिशत कम है?",
+    tag: "SSC CHSL 11/08/2021 (Shift-01)",
+    o: ["28\\frac{5}{7}\\%", "28\\frac{3}{7}\\%", "28\\frac{4}{7}\\%", "28\\frac{2}{7}\\%"],
+    a: 2,
+    e: "\\frac{40}{140} \\times 100\\% = \\frac{2}{7} \\times 100\\% = 28\\frac{4}{7}\\%"
+  },
+  {
+    q: "Q49. यदि A की आय B से 20% अधिक है और B की आय 50,000 रुपये है, तो B की आय A से कितने प्रतिशत कम है?",
+    tag: "SSC CHSL 24/11/2025 (Shift-1)",
+    o: ["16.66%", "20%", "18%", "25%"],
+    a: 1,
+    e: "\\frac{20}{120} \\times 100\\% = \\frac{1}{6} \\times 100\\% = 16.66\\%"
+  },
+  {
+    q: "Q50. अगर योगी से केजरीवाल के अंक 33.33% कम हैं तो योगी के अंक केजरीवाल से कितने प्रतिशत ज्यादा हैं?",
+    tag: "",
+    o: ["80%", "120%", "50%", "175%"],
+    a: 2,
+    e: "33.33\\% = \\frac{1}{3} \\Rightarrow \\frac{1}{3-1} \\times 100\\% = \\frac{1}{2} \\times 100\\% = 50\\%"
+  }
+];
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

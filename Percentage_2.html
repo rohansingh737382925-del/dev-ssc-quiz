@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {q: "Q51. राधेमा की आयु 20 वर्ष है। अगर करीम की उम्र राधेमा से 25% अधिक है। फिर राधेमा की आयु करीम से कम कितने प्रतिशत कम है?", tag: "", o: ["20%", "40%", "10%", "5%"], a: 0, e: "राधेमा की आयु = 20 वर्ष। करीम की आयु = 20 + (20 का 25%) = 20 + 5 = 25 वर्ष। कमी का प्रतिशत = [(25-20)/25] × 100 = (5/25) × 100 = 20%。"},
+  {q: "Q52. एक निश्चत दूरी को तय करने में लगने वाले समय को 25% कम करने के लिए एक धावक को अपनी चाल में कितने प्रतिशत की वृद्धि करनी चाहिए?", tag: "SSC CHSL 11/07/2024 (Shift-01)", o: ["33\\frac{1}{3}\\%", "37\\frac{1}{3}\\%", "41%", "31%"], a: 0, e: "समय में कमी = 25% = 1/4। यदि समय 4 से 3 हो गया, तो चाल 3 से 4 होनी चाहिए। वृद्धि = (1/3) × 100 = 33\\frac{1}{3}\\%。"},
+  {q: "Q53. यदि A का वेतन B से 16% अधिक है, तो B का वेतन A से कितने प्रतिशत (दो दशमलव स्थानों तक) कम है?", tag: "", o: ["13.79%", "13.62%", "15.05%", "12.72%"], a: 0, e: "माना B का वेतन 100, तो A का 116। कमी = [(116-100)/116] × 100 = (16/116) × 100 = 13.79%。"},
+  {q: "Q54. जनशक्ति में हुई कमी के कारण, एक कंपनी में उत्पादन में 35% की कमी आती है। मूल उत्पादन को बहाल करने के लिए काम के घंटों को कितना प्रतिशत तक बढ़ाया जाना चाहिए?", tag: "SSC CPO 11/11/2022 (Shift-01)", o: ["58.35%", "55.83%", "53.85%", "55.38%"], a: 2, e: "उत्पादन = जनशक्ति × घंटे। 35% कमी का अर्थ है 100 से 65। वापस 100 पर लाने के लिए वृद्धि = (35/65) × 100 = 53.85%。"},
+  {q: "Q55. यदि वस्तु के मूल्य में पूर्व में 25% की कटौती की गई है, तो वस्तु के नए मूल्य को उसके पूर्व मूल्य में वापस लाने के लिए कितने प्रतिशत तक की वृद्धि की जानी चाहिए?", tag: "SSC CHSL 25/05/2022 (Shift-01)", o: ["34\\frac{1}{4}\\%", "33\\frac{1}{3}\\%", "33%", "34%"], a: 3, e: "25% कटौती = 1/4 (4 से 3)। वृद्धि = (1/3) × 100 = 33\\frac{1}{3}\\%। (नोट: प्रश्न के विकल्प में 33\\frac{1}{3}\\% दिया है, जो कि सही उत्तर है)。"},
+  {q: "Q56. यदि किसी उत्पाद की कीमत में 25% की वृद्धि होती है, तो व्यय को समान रखने के लिए खपत में कितने प्रतिशत की कमी की जानी चाहिए?", tag: "SSC CHSL 28/11/2025 (Shift-01)", o: ["10%", "15%", "21%", "20%"], a: 3, e: "कीमत 100 से 125। खपत में कमी = (25/125) × 100 = 20%。"},
+  {q: "Q57. चावल की कीमत में 30% की वृद्धि हो गई है। यदि कोई परिवार चाहता है कि उसका कुल खर्च पहले जैसा ही रहे, तो उसे अपने चावल के उपभोग को कितने प्रतिशत कम करना चाहिए?", tag: "RRB NTPC 23/06/2025 (Shift-02)", o: ["22.1%", "25.1%", "23.1%", "24.1%"], a: 2, e: "खपत में कमी = [r / (100+r)] × 100 = [30 / 130] × 100 = 23.07% ≈ 23.1%。"},
+  {q: "Q58. यदि किसी वर्ग की भुजा में 10% की वृद्धि की जाती है तो उसके परिमाप और विकर्ण में % वृद्धि ज्ञात कीजिए", tag: "", o: ["10%, 10%", "10%, 21%", "20%, 21%", "20%, 20%"], a: 0, e: "परिमाप और विकर्ण भुजा पर रैखिक रूप से निर्भर करते हैं, इसलिए उनमें वही प्रतिशत परिवर्तन होगा जो भुजा में होगा。"},
+  {q: "Q59. यदि किसी वृत्त की त्रिज्या में 20% की वृद्धि की जाती है, तो उसकी परिधि में % वृद्धि ज्ञात कीजिए।", tag: "", o: ["10%", "20%", "30%", "40%"], a: 1, e: "परिधि = 2\\pi r, जो त्रिज्या के समानुपाती है, अतः परिधि में भी 20% की ही वृद्धि होगी。"},
+  {q: "Q60. यदि किसी वर्ग की भुजा में 5% की वृद्धि की जाती है, तो उसके क्षेत्रफल में कितने प्रतिशत की वृद्धि होगी?", tag: "SSC CHSL 02/07/2024 (Shift-02)", o: ["10.25%", "11%", "10%", "10.5%"], a: 0, e: "क्षेत्रफल में वृद्धि = a + a + (a^2/100) = 5 + 5 + 0.25 = 10.25%。"},
+  {q: "Q61. यदि आयत की लंबाई 12% बढ़ जाती है और चौड़ाई 8% कम हो जाती है, तो क्षेत्रफल पर शुद्ध प्रभाव इस प्रकार है :", tag: "SSC CHSL 18/3/2020 (Shift-01)", o: ["Increased by 3.04%", "Increased by 2.6%", "Decreased by 3.04%", "Decreased by 2.6%"], a: 0, e: "शुद्ध प्रभाव = +12 - 8 - (12 × 8 / 100) = 4 - 0.96 = 3.04% (वृद्धि)。"},
+  {q: "Q62. एक आयत की लंबाई और चौड़ाई को क्रमशः 8% और 10% बढ़ाने और घटाने के लिए बनाया गया है। इसके क्षेत्रफल में वृद्धि या कमी की प्रतिशत क्या है?", tag: "SSC CGL 11/04/2022 (Shift-2)", o: ["Decrease by 1.8%", "Increase by 1.8%", "Increase by 2.8%", "Decrease by 2.8%"], a: 3, e: "शुद्ध प्रभाव = +8 - 10 - (8 × 10 / 100) = -2 - 0.8 = -2.8% (कमी)。"},
+  {q: "Q63. एक आयत में, यदि लंबाई में 20% की वृद्धि की जाती है और चौड़ाई में 20% की कमी की जाती है, तो क्षेत्रफल में प्रतिशत परिवर्तन कितना होगा?", tag: "SSC CPO 10/12/2025 (Shift-02)", o: ["4% decrease", "4% increase", "No change", "10% decrease"], a: 0, e: "क्षेत्रफल में प्रतिशत परिवर्तन = (x^2 / 100) = (20^2 / 100) = 4% कमी。"},
+  {q: "Q64. किसी वृत्त की त्रिज्या 300 प्रतिशत बढ़ जाती है। फिर इसका क्षेत्रफल कितने प्रतिशत बढ़ जाएगा?", tag: "", o: ["800% increase", "900% increase", "1500% increase", "1600% increase"], a: 2, e: "त्रिज्या 100 से 400 (300% वृद्धि)। क्षेत्रफल 100^2 से 400^2 (10000 से 160000)। वृद्धि = 1500%。"},
+  {q: "Q65. एक गोलर्ध की त्रिज्या 19% बढ़ जाती है तो कुल सतह क्षेत्र और पार्श्व सतह क्षेत्र पर क्या प्रभाव पड़ेगा?", tag: "", o: ["41.61% decrease", "41.61% increase", "45\\frac{5}{6}\\% decrease", "44% increase"], a: 1, e: "क्षेत्रफल में वृद्धि = 19 + 19 + (19^2 / 100) = 38 + 3.61 = 41.61%。"},
+  {q: "Q66. यदि किसी बेलन की त्रिज्या 16 प्रतिशत कम कर दी जाए, तो उसकी ऊंचाई कितने प्रतिशत बढ़ानी होगी, ताकि बेलन का आयतन समान रहे?", tag: "SSC MTS 15/06/2023 (Shift-02)", o: ["32.96 percent", "41.72 percent", "45.28 percent", "36.43 percent"], a: 1, e: "V = \\pi r^2 h। r का वर्ग 84% हो गया (0.84 × 0.84 = 0.7056)। h को 1/0.7056 करना होगा। 41.72% वृद्धि。"},
+  {q: "Q67. एक त्रिभुज के आधार में 40% की वृद्धि की गई। इसकी ऊँचाई कितने प्रतिशत (दो दशमलव स्थानों तक सही) बढ़ाई जानी चाहिए ताकि क्षेत्रफल में 60% की वृद्धि हो जाए?", tag: "SSC CGL 13/04/2022 (Shift-03)", o: ["15.54%", "20.01%", "14.29%", "18.62%"], a: 2, e: "1.60 / 1.40 = 1.1428...। अतः 14.29% की वृद्धि。"},
+  {q: "Q68. त्रिभुज का आधार 33\\frac{1}{3}\\% बढ़ जाता है और इसकी ऊंचाई 16\\frac{2}{3}\\% कम हो जाती है। तब त्रिभुज के क्षेत्रफल में प्रतिशत परिवर्तन ज्ञात कीजिए ?", tag: "", o: ["20%", "None of these", "16\\frac{2}{3}\\%", "11\\frac{1}{9}\\%"], a: 3, e: "आधार 3 से 4 (+1/3), ऊंचाई 6 से 5 (-1/6)। क्षेत्रफल 18 से 20। वृद्धि = (2/18) = 1/9 = 11\\frac{1}{9}\\%。"},
+  {q: "Q69. त्रिभुज का आधार 16\\frac{2}{3}\\% बढ़ जाता है और इसकी ऊंचाई 33\\frac{1}{3}\\% कम हो जाती है। तब त्रिभुज के क्षेत्रफल में प्रतिशत परिवर्तन ज्ञात कीजिए?", tag: "", o: ["20%", "22\\frac{2}{9}\\%", "16\\frac{2}{3}\\%", "11\\frac{1}{9}\\%"], a: 1, e: "आधार 6 से 7 (+1/6), ऊंचाई 3 से 2 (-1/3)। क्षेत्रफल 18 से 14। कमी = (4/18) = 2/9 = 22\\frac{2}{9}\\%。"},
+  {q: "Q70. आयत की लंबाई में 50% की वृद्धि हुई है। फिर इसके क्षेत्रफल में 20% की वृद्धि की जाती है। आयत की चौड़ाई पर प्रभाव का पता लगाएं।", tag: "", o: ["20% decrease", "25% increase", "20% increase", "25% decrease"], a: 0, e: "1.5 × चौड़ाई = 1.2। चौड़ाई = 1.2 / 1.5 = 0.8। यानी 20% की कमी。"},
+  {q: "Q71. किसी वृत्त का क्षेत्रफल 69% तक बढ़ जाता है फिर उसकी त्रिज्या कितने प्रतिशत तक बढ़ जाएगी?", tag: "", o: ["10% increase", "20% increase", "30% increase", "40% increase"], a: 2, e: "क्षेत्रफल A से 1.69A। त्रिज्या \\sqrt{A} से \\sqrt{1.69A} = 1.3\\sqrt{A}। 30% वृद्धि。"},
+  {q: "Q72. यदि किसी गोले का पृष्ठीय क्षेत्रफल 44% बढ़ जाता है, तो त्रिज्या में लगभग कितने प्रतिशत की वृद्धि होती है?", tag: "SSC CHSL 27/11/2025 (Shift-02)", o: ["20%", "21%", "22%", "24%"], a: 0, e: "क्षेत्रफल \\propto r^2। 1.44 = (1.2)^2। त्रिज्या में 20% वृद्धि。"},
+  {q: "Q73. वर्ग का क्षेत्रफल 32.25% बढ़ा है। वर्ग की प्रत्येक भुजा में प्रतिशत वृद्धि ज्ञात कीजिए।", tag: "", o: ["10% increase", "15% increase", "20% increase", "25% increase"], a: 1, e: "(1.15)^2 = 1.3225। 15% वृद्धि。"},
+  {q: "Q74. यदि वर्ग का क्षेत्रफल 19% कम हो जाता है तो वर्ग का विकर्ण कितना कम हो जाता है?", tag: "SSC CPO 24/11/2020 (Shift-01)", o: ["15%", "10%", "5%", "12%"], a: 1, e: "क्षेत्रफल \\propto विकर्ण^2। \\sqrt{1 - 0.19} = \\sqrt{0.81} = 0.9। 10% कमी。"},
+  {q: "Q75. घनाभ की लंबाई 20% बढ़ जाती है, चौड़ाई 30% बढ़ जाती है और ऊंचाई 50% तक कम हो जाती है। आयतन पर प्रभाव ज्ञात करें।", tag: "", o: ["22% increase", "22% decrease", "11% increase", "11% decrease"], a: 1, e: "1.2 × 1.3 × 0.5 = 0.78। आयतन में 22% की कमी。"},
+  {q: "Q76. यदि एक घनाभ की लंबाई और चौड़ाई में क्रमशः 7% और 6% की वृद्धि की जाती है, तो इसके आयतन में प्रतिशत वृद्धि हैः", tag: "SSC CHSL 04/08/2023 (Shift-01)", o: ["11.20%", "13.42%", "18.12%", "15.25%"], a: 1, e: "1.07 × 1.06 = 1.1342। 13.42% की वृद्धि。"},
+  {q: "Q77. यदि एक बेलन की ऊंचाई 10% कम कर दी जाए और त्रिज्या 10% बढ़ा दी जाए, तो आयतन में कितना परिवर्तन होगा?", tag: "SSC CPO 10/12/2025 (Shift-02)", o: ["Decrease by 1%", "Increase by 8.9%", "Decrease by 5.7%", "No change"], a: 1, e: "1.1^2 × 0.9 = 1.21 × 0.9 = 1.089। 8.9% की वृद्धि。"},
+  {q: "Q78. एक गोले की त्रिज्या 25% कम कर दी जाती है। आयतन में लगभग कितने प्रतिशत की कमी होगी?", tag: "SSC CPO 13/12/2025 (Shift-01)", o: ["58%", "68%", "52%", "50%"], a: 0, e: "आयतन \\propto r^3। (0.75)^3 = 0.421875। कमी = 1 - 0.42 = 0.58 यानी 58%。"},
+  {q: "Q79. यदि एक घनाभ की लंबाई और चौड़ाई दोनों में 12 प्रतिशत की वृद्धि की जाती है, तो इसकी ऊंचाई कितने प्रतिशत कम की जानी चाहिए ताकि घनाभ का आयतन समान रहे?", tag: "SSC MTS 16/05/2023 (Shift-02)", o: ["14.56 percent", "24.72 percent", "20.28 percent", "28.44 percent"], a: 2, e: "1.12 × 1.12 = 1.2544। ऊंचाई 1 / 1.2544 \\approx 0.7972। कमी = 20.28%。"},
+  {q: "Q80. यदि पेट्रोल की कीमत 19% बढ़ गई है और सुनीता पेट्रोल पर केवल 12% ही अतिरिक्त खर्च करना चाहती है, तो उसे पेट्रोल की खरीदी गई मात्रा को कितने प्रतिशत से कम करना चाहिए?", tag: "", o: ["7", "6", "5", "8"], a: 1, e: "1.19 × X = 1.12। X = 1.12 / 1.19 \\approx 0.941। कमी \\approx 5.9\\% \\approx 6%。"},
+  {q: "Q81. चीनी की कीमत 18% बढ़ जाती है। एक व्यक्ति अपना व्यय केवल 12% बढ़ाना चाहता है। उसे अपनी खपत में कितने प्रतिशत (एक दशमलव स्थान तक सही) की कमी करनी चाहिए?", tag: "", o: ["6%", "5.1%", "5.3%", "5.6%"], a: 1, e: "1.18 × X = 1.12। X = 1.12 / 1.18 \\approx 0.9491। कमी = 5.1%。"},
+  {q: "Q82. चीनी की कीमत 17% से बढ़ जाती है। एक व्यक्ति अपना व्यय केवल 5% से बढ़ाना चाहता है। उसे अपनी खपत में लगभग कितने प्रतिशत की कमी करनी चाहिए?", tag: "", o: ["10.3", "10.7", "10.9", "9.9"], a: 0, e: "1.17 × X = 1.05। X = 1.05 / 1.17 \\approx 0.8974। कमी = 10.26% \\approx 10.3%。"},
+  {q: "Q83. जब एक वस्तु की कीमत में 23% की वृद्धि हुई, तो एक परिवार ने इसकी खपत को इस प्रकार कम कर दिया कि उस पर होने वाला व्यय केवल 5% अधिक था। परिवार ने वस्तु की खपत में कितने प्रतिशत की कमी की है (एक दशमलव स्थान तक सही )?", tag: "SSC PHASE IX 2022", o: ["14.2%", "15.8%", "14.6%", "15.2%"], a: 2, e: "1.23 × X = 1.05। X = 1.05 / 1.23 \\approx 0.8536। कमी = 14.64% \\approx 14.6%。"},
+  {q: "Q84. जब चावल की कीमत में 25% की वृद्धि होती है, तो एक व्यक्ति चावल पर अपने व्यय में केवल 15% की वृद्धि करता है। खर्च के समान स्तर को बनाए रखने में सक्षम होने के लिए उसे चावल की खपत में कितने प्रतिशत की कमी करनी चाहिए?", tag: "SSC PHASE IX 2022", o: ["8%", "5%", "9%", "7%"], a: 0, e: "1.25 × X = 1.15। X = 1.15 / 1.25 = 0.92। कमी = 8%。"},
+  {q: "Q85. जब किसी वस्तु के मूल्य में 20% की कमी की गई, तो उसकी बिक्री में x% की वृद्धि हुई। यदि राजस्व प्राप्ति में 25% की वृद्धि होती है, तो x का मान है:", tag: "SSC CGL MAINS 29/01/2022", o: ["55.35", "57.75", "56.25", "54.35"], a: 2, e: "0.80 × (1 + x/100) = 1.25। 1 + x/100 = 1.25 / 0.80 = 1.5625। x = 56.25。"},
+  {q: "Q86. दाल की कीमत 25% बढ़ जाती है। एक व्यक्ति ने शुरूआत में 60 किलो दाल खरीदी। उसी पैसे में अब वह कितने किलो दाल खरीद सकता है?", tag: "", o: ["32 kg", "60 kg", "48 kg", "40 kg"], a: 2, e: "कीमत 4 से 5, तो खपत 5 से 4। 5 यूनिट = 60 किलो, तो 4 यूनिट = 48 किलो。"},
+  {q: "Q87. चीनी की कीमत में 20% की कमी से एक व्यक्ति ₹200 में 5 किलोग्राम अधिक चीनी खरीद सकता है। प्रति किलोग्राम मूल कीमत क्या है?", tag: "SSC CPO 10/12/2025", o: ["₹20", "₹10", "₹5", "₹15"], a: 1, e: "20% कमी = ₹40 (200 का 20%)। 5 किलो = ₹40, तो नया मूल्य = ₹8/kg। मूल मूल्य = 8 / 0.8 = 10。"},
+  {q: "Q88. आटे की कीमत में 25% की कमी होने से एक ग्रहक 360 रुपये में 3 किलो ज्यादा आटा खरीद पाता है। आटे का शुरुआती कीमत प्रति किलो क्या था?", tag: "SSC PHASE XIII 28/07/2025 (Shift-03)", o: ["30", "36", "40", "45"], a: 2, e: "25% कमी = ₹90। 3 किलो = ₹90, नया मूल्य = ₹30/kg। मूल मूल्य = 30 / 0.75 = 40。"},
+  {q: "Q89. रेडमी नोट 9 प्रो अधिकतम की कीमत में 10% की कमी हुई और फिर से 10% की कमी हुई। कुल मूल्य में संयुक्त गिरावट का पता लगाएं?", tag: "", o: ["19%", "21%", "20%", "CBD"], a: 0, e: "-10 - 10 + (100/100) = -20 + 1 = -19%。"},
+  {q: "Q90. एक शर्ट की कीमत में 20% की वृद्धि की जाती है और फिर 10% की वृद्धि की जाती है। कीमत में कुल प्रतिशत वृद्धि क्या है?", tag: "SSC CHSL 12/11/2025 (Shift-02)", o: ["30%", "32%", "31%", "33%"], a: 1, e: "20 + 10 + (20 × 10 / 100) = 32%。"},
+  {q: "Q91. बीयर शैम्पू की कीमत में 20% की वृद्धि हुई और फिर 10% की कमी हुई। कुल मूल्य में प्रतिशत वृद्धि कमी का पता लगाएं?", tag: "", o: ["8% increase", "8% decrease", "32% increase", "32% decrease"], a: 0, e: "+20 - 10 - (200/100) = 10 - 2 = 8% (वृद्धि)。"},
+  {q: "Q92. यदि किसी मूवी टिकट की कीमत में 12\\frac{1}{2}\\% वृद्धि हुई और टिकटों की बिक्री में भी 8\\frac{1}{2}\\% की वृद्धि हुई, तो आय में % परिवर्तन ज्ञात करें।", tag: "SSC CHSL 02/08/2023 Shift-02", o: ["21.875%", "22.6750%", "20.675%", "22.0625%"], a: 3, e: "(1 + 1/8) × (1 + 17/200) = (9/8) × (217/200) = 1953/1600 = 1.220625। 22.0625% वृद्धि。"},
+  {q: "Q93. सलमान खान की आय में पहले 8% की वृद्धि हुई और फिर इसमें 8% की कमी हुई। उसकी आय में क्या बदलाव है?", tag: "", o: ["0.64% Increase", "0.64% Decrease", "16% Increase", "No change"], a: 1, e: "-(8^2 / 100) = 0.64% कमी。"},
+  {q: "Q94. एक व्यक्ति के वेतन में 50% की कमी की गई और बाद में 50% की वृद्धि की गई। उसके वेतन में कितने प्रतिशत की वृद्धि या कमी हुई है?", tag: "SSC CGL 21/04/2022 (Shift-01)", o: ["Decrease 18%", "Increase 15%", "Increase 20%", "Decrease 25%"], a: 3, e: "(50^2 / 100) = 25% कमी。"},
+  {q: "Q95. एक संख्या में पहले 30% की वृद्धि की जाती है और फिर 30% की कमी की जाती है। शुद्ध प्रतिशत परिवर्तन क्या है?", tag: "SSC CHSL 24/11/2025 (Shift-2)", o: ["9% decrease", "9% increase", "0%", "6% decrease"], a: 0, e: "-(30^2 / 100) = 9% कमी。"},
+  {q: "Q96. एक कर्मचारी के वेतन में पहले 25% की वृद्धि की जाती है, फिर 12% की कमी की जाती है। उसके वेतन में प्रतिशत परिवर्तन कितना है?", tag: "SSC CGL 11/09/2024 (Shift-02)", o: ["10% increase", "13% increase", "10% decrease", "13% decrease"], a: 0, e: "+25 - 12 - (25 × 12 / 100) = 13 - 3 = 10% वृद्धि。"},
+  {q: "Q97. एक संख्या में पहले 28% की कमी की जाती है, और फिर 28% की वृद्धि की जाती है। इस प्रकार प्राप्त संख्या मूल संख्या से 784 कम है। मूल संख्या ज्ञात करें।", tag: "SSC CPO 04/10/2023 (Shift-02)", o: ["15000", "1500", "10000", "1000"], a: 2, e: "कमी = (28^2 / 100) = 7.84\\%。 7.84\\% = 784, तो 100\\% = 10000。"},
+  {q: "Q98. राफेल की कीमत में पहले 16\\frac{2}{3}\\% की वृद्धि और उसके बाद 7\\frac{1}{7}\\% की कमी हुई। कुल कीमत में क्या बदलाव था?", tag: "", o: ["8\\frac{1}{3}\\% increase", "8\\frac{1}{3}\\% decrease", "None of these", "No Change"], a: 0, e: "16\\frac{2}{3}\\% = +1/6, 7\\frac{1}{7}\\% = -1/14। (7/6) × (13/14) = 13/12। वृद्धि = 1/12 = 8\\frac{1}{3}\\%。"},
+  {q: "Q99. एक महिला श्रमिक की मजदूरी दर में प्रति घंटे 12\\frac{1}{2}\\% की वृद्धि होती है लेकिन प्रति सप्ताह काम किए गए घंटो की संख्या में 10% की गिरावट होती है। यदि 40 घंटे के एक सप्ताह के लिए उसकी मूल साप्ताहिक मजदूरी 38,400 रुपये है, तो उसके कुल साप्ताहिक वेतन में प्रतिशत वृद्धि हैः", tag: "SSC PHASE IX 2022", o: ["1.25%", "2%", "2.25%", "1.15%"], a: 0, e: "+12.5 - 10 - (12.5 × 10 / 100) = 2.5 - 1.25 = 1.25% वृद्धि。"},
+  {q: "Q100. बसीर के कार्य के दैनिक घंटे 15% बढ़ गए और उसकी मजदूरी में प्रति घंटे 20% की वृद्धि हुई। उसकी दैनिक आय में कितने प्रतिशत की वृद्धि हुई?", tag: "", o: ["40", "38", "35", "36"], a: 1, e: "15 + 20 + (15 × 20 / 100) = 35 + 3 = 38%。"}
+];
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
