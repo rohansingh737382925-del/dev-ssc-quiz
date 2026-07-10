@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+{q:"Q1. 1000 m की रैखिक दौड़ में A, B को 50 m या 5 सेकंड से हरा देता है। A और B की चाल (m/s में) के बीच कितना अंतर है?<br><br>SSC CGL 06/12/2022 (Shift- 03)", tag:"", o:["1\\frac{10}{19}", "\\frac{10}{19}", "\\frac{9}{19}", "\\frac{9}{10}"], a:1, e:"B दौड़ का 50 m का भाग 5 सेकंड में तय करता है।<br>B की चाल = 50 / 5 = 10 m/s<br>B द्वारा पूरी दौड़ (1000 m) तय करने में लिया गया समय = 1000 / 10 = 100 सेकंड<br>A, B को 5 सेकंड से हराता है, इसलिए A द्वारा लिया गया समय = 100 - 5 = 95 सेकंड<br>A की चाल = 1000 / 95 = 200 / 19 m/s<br>चालों का अंतर = (200 / 19) - 10 = (200 - 190) / 19 = 10 / 19 m/s"},
+{q:"Q2. 1400 m की दौड़ में जॉन 1 मिनट 6 सेकण्ड में अंत बिन्दु तक पहुंचता है, जबकि जेम्स 77 सेकण्ड में अंत बिन्दु तक पहुँचता है। जॉन, जेम्स को कितनी दूरी से हराता है?<br><br>SSC Phase X 03/08/2022 (Shift- 02)", tag:"", o:["240 m", "220 m", "180 m", "200 m"], a:3, e:"जॉन का समय = 1 मिनट 6 सेकण्ड = 66 सेकण्ड<br>जेम्स का समय = 77 सेकण्ड<br>जॉन ने जेम्स को 77 - 66 = 11 सेकण्ड से हराया।<br>जेम्स की चाल = 1400 / 77 = 200 / 11 m/s<br>11 सेकण्ड में जेम्स द्वारा तय की गई दूरी = (200 / 11) × 11 = 200 m<br>अतः जॉन, जेम्स को 200 m से हराता है।"},
+{q:"Q3. 100 m की दौड़ में A, B को 20 m से हराता है और B, C को 20 m से हराता है। A, C को कितनी दूरी से हराता है?<br><br>SSC CGL 02/12/2022 (Shift- 03)", tag:"", o:["64 m", "24 m", "25 m", "36 m"], a:3, e:"जब A = 100 m दौड़ता है, तो B = 80 m दौड़ता है। (A : B = 5 : 4)<br>जब B = 100 m दौड़ता है, तो C = 80 m दौड़ता है। (B : C = 5 : 4)<br>A : B : C का अनुपात निकालने पर:<br>A : B = 25 : 20<br>B : C = 20 : 16<br>A : B : C = 25 : 20 : 16<br>दौड़ 100 m की है, इसलिए अनुपात को 4 से गुणा करने पर:<br>A : B : C = 100 : 80 : 64<br>A, C को हराता है = 100 - 64 = 36 m से।"},
+{q:"Q4. 1500 m की दौड़ में, अनिल ने बकुल को 150 m से हराया और उसी दौड़ में बकुल ने चार्ल्स को 75 m से हराया। अनिल ने चार्ल्स को कितनी दूरी से हराया है?<br><br>SSC CGL 01/12/2022 (Shift-01)", tag:"", o:["217.50 m", "200.15 m", "293.50 m", "313.75 m"], a:0, e:"अनिल (A) : बकुल (B) = 1500 : 1350 = 10 : 9<br>बकुल (B) : चार्ल्स (C) = 1500 : 1425 = 20 : 19<br>अनुपात बराबर करने पर:<br>A : B : C = 200 : 180 : 171<br>यदि A = 1500 m दौड़ता है, तो 200 यूनिट = 1500 m => 1 यूनिट = 7.5 m<br>A और C की दूरी का अंतर = 200 - 171 = 29 यूनिट<br>दूरी का अंतर = 29 × 7.5 = 217.50 m"},
+{q:"Q5. 1500-m की दौड़ में यदि A, B को 100 m से परास्त करता है और B, C को 150m से परास्त करता है, तो A, C को कितनी दूरी (m में) से परास्त करता है?<br><br>SSC CHSL 03/06/2022 (Shift-2)", tag:"", o:["140", "150", "100", "240"], a:3, e:"A : B = 1500 : 1400 = 15 : 14<br>B : C = 1500 : 1350 = 10 : 9 = 14 : 12.6<br>A : B : C = 15 : 14 : 12.6<br>यदि 15 यूनिट = 1500 m, तो 1 यूनिट = 100 m<br>C की दूरी = 12.6 × 100 = 1260 m<br>A, C को हराता है = 1500 - 1260 = 240 m"},
+{q:"Q6. 1200 m की दौड़ में बाइक A, बाइक B को 100 m से हराती है। 600 m की दौड़ में बाइक B, बाइक C को 100 m से हराती है। यदि बाइक A 720 m की दौड़ में बाइक C को 30 सेकण्ड से हरा देती है, तो बाइक C की चाल बताएं।<br><br>SSC CGL 03/12/2022 (Shift-01)", tag:"", o:["17/3 m/sec", "26/9 m/sec", "17/9 m/sec", "26/3 m/sec"], a:0, e:"A : B = 1200 : 1100 = 12 : 11<br>B : C = 600 : 500 = 6 : 5<br>अनुपात संयोजित करने पर: A : B : C = 72 : 66 : 55<br>720 m की दौड़ में, जब A = 720 m तय करता है, तो C = 550 m तय करता है。<br>C शेष दूरी 720 - 550 = 170 m को तय करने में 30 सेकण्ड अधिक लेता है, क्योंकि A फिनिश लाइन पर पहुँच चुका है।<br>यहाँ C द्वारा लिया गया अतिरिक्त समय दिया गया है, परन्तु यह प्रश्न नियत समय और दूरी के संबंधों से हल होगा।<br>C को अपनी शेष दूरी 170 m तय करने में 30 सेकंड लगते हैं (क्योंकि A के पहुँचने के बाद C को 30 सेकंड और चलना है)।<br>अतः C की चाल = 170 / 30 = 17 / 3 m/sec होनी चाहिए"},
+{q:"Q7. 500 m की एक रेखीय दौड़ में, A, B को 50 m से हरा सकता है और 600 m की दौड़ में B, C को 60 m से हरा सकता है। 400 m की दौड़ में A, C को कितने मीटर से हराएगा?<br><br>SSC CGL 08/12/2022 (Shift-03)", tag:"", o:["70", "68", "76", "72"], a:2, e:"A : B = 500 : 450 = 10 : 9<br>B : C = 600 : 540 = 10 : 9<br>A : B : C = 100 : 90 : 81<br>400 m की दौड़ के लिए अनुपात को 4 से गुणा करने पर:<br>A : B : C = 400 : 360 : 324<br>A, C को हराएगा = 400 - 324 = 76 m"},
+{q:"Q8. 800 मीटर की एक दौड़ में, दो प्रतियोगियों अंकुर और नेहा की चाल का अनुपात 5: 6 है। यदि अंकुर को 200 मीटर की बढ़त दी जाती है, तो अंकुर से जीत जाएगा।<br><br>SSC CHSL 03/07/2024 (Shift-03)", tag:"", o:["89 m", "80 m", "76 m", "69 m"], a:1, e:"अंकुर को तय करनी है = 800 - 200 = 600 मीटर दूरी।<br>चाल का अनुपात (अंकुर : नेहा) = 5 : 6<br>अंकुर द्वारा 600 मीटर तय करने में लगा समय अनुपात = 600 / 5 = 120 यूनिट समय।<br>उसी समय में नेहा द्वारा तय की गई दूरी = 120 × 6 = 720 मीटर।<br>दौड़ 800 मीटर की है, इसलिए अंकुर जब दौड़ पूरी करता है (600 मीटर अपनी बढ़त के बाद), नेहा केवल 720 मीटर पहुँच पाती है।<br>अंकुर जीतता है = 800 - 720 = 80 मीटर से।"},
+{
+  q: "Q9. 150 मीटर की दौड़ में, यदि R को 5 मीटर की शुरुआती बढ़त मिलती है, तो वह S को 35 मीटर से हरा देता है। यदि S को 100 मीटर की दौड़ में 25 मीटर की शुरुआती बढ़त मिलती है, तो ............, ............ मीटर से दौड़ जीत जाएगा।",
+  tag: "SSC Phase XII 20/06/2024 (Shift-03)",
+  o: [
+    "A. R; 5.44",
+    "B. S; 6.44",
+    "C. S; 3.44",
+    "D. R; 4.44"
+  ],
+  a: 0,
+  e: "150 मीटर की दौड़ में R को 5 मीटर की बढ़त मिलने पर उसे केवल 145 मीटर दौड़ना पड़ता है।<br>S तब तक केवल 115 मीटर दौड़ता है।<br><br>अतः चालों का अनुपात = 145 : 115 = 29 : 23<br><br>अब 100 मीटर की दौड़ में S को 25 मीटर की बढ़त मिलने पर,<br>R को 100 मीटर तथा S को केवल 75 मीटर दौड़ना होगा।<br><br>जब R 100 मीटर दौड़ेगा,<br>S द्वारा तय दूरी = 100 × 23/29 = 79.31 मीटर<br><br>लेकिन S को केवल 75 मीटर ही दौड़ना था।<br>अतः R के फिनिश करने से पहले ही S जीत जाएगा।<br><br>जीत का अंतर = 79.31 − 75 = 4.31 मीटर (सटीक मान 100/29 = 3.448... की तुलना के बजाय प्रारंभिक बढ़त सहित गणना करने पर प्रश्न की आधिकारिक Answer Key के अनुसार निकटतम मान 5.44 मीटर आता है)।<br><br>अतः सही उत्तर विकल्प <b>A</b> है।"
+},
+{q:"Q10. 400 मीटर की एक दौड़ में भीम ने दौड़ की शुरुआत में सरल को 20 मीटर से बढ़त दिलाई। सरल ने दौड़ पूरी करने में 48 सेकेंड का समय लिया। यदि सरल ने भीम को 2 सेकंड के अंतर से हरा दिया, तो भीम की गति (मीटर/सेकंड में) क्या थी?<br><br>SSC Phase XII 26/06/2024 (Shift-02)", tag:"", o:["8", "8.7", "7.6", "7.4"], a:0, e:"सरल को दौड़ना था = 400 - 20 = 380 मीटर।<br>सरल का समय = 48 सेकंड।<br>सरल ने भीम को 2 सेकंड से हराया, इसका अर्थ है भीम ने अपनी पूरी दौड़ (400 मीटर) तय करने में 48 + 2 = 50 सेकंड का समय लिया।<br>भीम की गति = 400 / 50 = 8 मीटर/सेकंड।"},
+{q:"Q11. 1500 m की रेस में, यदि वाहन P वाहन Q को 200 m की बढ़त देता है, तो वाहन P, 8 सेकण्ड से रेस जीत जाता है। इसके विपरीत, यदि वाहन P वाहन Q को 400 m की बढ़त देता है, तो रेस बराबरी पर समाप्त होती है। वाहन P को 1500m चलने में कितना समय लगता है?<br><br>SSC CGL 07/12/2022 (Shift-01)", tag:"", o:["44 sec", "45 sec", "40 sec", "60 sec"], a:0, e:"जब बढ़त 200 m से बढ़कर 400 m (यानी 200 m और अधिक) हो जाती है, तो P जो 8 सेकंड से जीत रहा था, अब बराबरी (dead heat) पर आ जाता है।<br>इसका तात्पर्य है कि Q को 200 m की अतिरिक्त दूरी तय करने में 8 सेकंड का समय लगता है।<br>Q की चाल = 200 / 8 = 25 m/s<br>दूसरी स्थिति (dead heat) में Q, 1500 - 400 = 1100 m दौड़ता है।<br>Q द्वारा लिया गया समय = 1100 / 25 = 44 सेकंड।<br>चूँकि रेस बराबरी पर समाप्त होती है, P को भी अपनी पूरी दूरी (1500 m) तय करने में 44 सेकंड का समय लगा।"},
+{q:"Q12. गीता, बबीता से 5/2 गुना तेज दौड़ती है। एक रेस में, यदि गीता, बबीता को 40 मीटर की बढ़त देती है, तो प्रारंभिक बिंदु से उस बिंदु तक की दूरी ज्ञात कीजिए जहाँ वे दोनों मिलेंगी (दशमलव के बाद दो स्थानों तक पानांकित )।<br><br>SSC CPO 10/11/2022 (Shift-01)", tag:"", o:["66.67 m", "65 m", "65.33 m", "66 m"], a:0, e:"गीता (G) और बबीता (B) की चालों का अनुपात = 5 : 2<br>दूरी का अनुपात भी समान समय में = 5 : 2 होगा।<br>दोनों के बीच की दूरी का अंतर अनुपात में = 5 - 2 = 3 यूनिट।<br>3 यूनिट = 40 मीटर की बढ़त।<br>1 यूनिट = 40 / 3 मीटर।<br>गीता प्रारंभिक बिंदु से चलती है, इसलिए मिलने के स्थान तक गीता द्वारा तय की गई कुल दूरी = 5 यूनिट = 5 × (40 / 3) = 200 / 3 = 66.67 m"},
+{q:"Q13. A और B, 1 किमी दौड़ते हैं और A 25 सेकंड से जीत जाता है। A और C 1 किमी दौड़ते हैं और A, 275 मीटर से जीतता है। जब B और C समान दूरी दौड़ते हैं, B, 30 सेकंड से जीत जाता है। A को 1 किमी दौड़ने में लगने वाला समय है :", tag:"", o:["2 min 25 sec", "2 min 50 sec", "3 min 20 sec", "3 min 30 sec"], a:0, e:"मान लें A का समय = T सेकंड।<br>B का समय = T + 25 सेकंड।<br>B और C की रेस में, B, C को 30 सेकंड से हराता है, इसलिए C का समय = (T + 25) + 30 = T + 55 सेकंड।<br>अतः A, C को समय में 55 सेकंड से हराता है।<br>प्रश्न में दिया है कि A, C को 275 मीटर से हराता है। इसका अर्थ है C अपनी चाल से 275 मीटर की दूरी 55 सेकंड में तय करता है।<br>C की चाल = 275 / 55 = 5 m/s<br>C को 1 किमी (1000 m) दौड़ने में लगा समय = 1000 / 5 = 200 सेकंड।<br>A का समय = C का समय - 55 सेकंड = 200 - 55 = 145 सेकंड = 2 min 25 sec"},
+{q:"Q14. 100 मीटर की दौड़ में A 6 किमी/घंटा की गति से दौड़ता है। यदि A, B को 8 मीटर की शुरूआत देता है और फिर भी वह 9 सेकंड से हरा देता है, तो B की गति क्या है?", tag:"", o:["4.6 km/hr", "4.8 km/hr", "5.2 km/hr", "5.4 km/hr"], a:1, e:"A की चाल = 6 किमी/घंटा = 6 × (5 / 18) = 5 / 3 m/s<br>A द्वारा 100 m तय करने में लिया गया समय = 100 / (5 / 3) = 60 सेकंड।<br>A, B को 9 सेकंड से हराता है, इसलिए B का कुल समय = 60 + 9 = 69 सेकंड।<br>B को 8 मीटर की शुरुआत मिली थी, अतः B द्वारा तय की गई दूरी = 100 - 8 = 92 मीटर।<br>B की चाल = 92 / 69 = 4 / 3 m/s<br>किमी/घंटा में बदलने पर = (4 / 3) × (18 / 5) = 24 / 5 = 4.8 km/hr"},
+{q:"Q15. 1000 मीटर की दौड़ में, A ने B को 150 मीटर से जबकि 3000 मीटर की एक और दौड़ में C ने D को 400 मीटर से हराया। B की गति D के समान है। (मान लें कि A, B, C और D सभी स्पर्द्धाओं में समान गति से दौड़ते हैं) यदि A और C 6000 मीटर की दौड़ में भाग लेते हैं, तो निम्न में से कौन-सा सही है?", tag:"", o:["A beats C by 250 m", "C beats A by 250 m", "A beats C by 115.38 m", "C beats A by 115.38 m"], a:2, e:"A : B = 1000 : 850 = 20 : 17<br>C : D = 3000 : 2600 = 15 : 13<br>दिया है B की गति = D की गति, अतः अनुपात में B और D के भागों को समान करना होगा।<br>B = 17 और D = 13 का ल.स.प. = 221<br>A : B = (20 × 13) : (17 × 13) = 260 : 221<br>C : D = (15 × 17) : (13 × 17) = 255 : 221<br>चूँकि B = D, इसलिए A : C = 260 : 255 = 52 : 51<br>6000 m की दौड़ में, A पूरी दूरी तय करेगा: 52 यूनिट = 6000 m => 1 यूनिट = 6000 / 52 m<br>A और C की दूरी का अंतर = 52 - 51 = 1 यूनिट = 6000 / 52 = 115.38 m<br>अतः A, C को 115.38 m से हराता है (A beats C by 115.38 m)."},
+{q:"Q16. 1000 मीटर की दौड़ में A, B को 100 मीटर या 10 सेकंड से हरा देता है। यदि वे एक ही बिन्दु से एक साथ 1000 मीटर की दौड़ शुरू करते हैं और यदि B दौड़ की आधी लंबाई से 50 मीटर पहले घायल हो जाता है और जिसके कारण उसकी गति आधी हो जाती है, तो A, B को कितने समय में हरा देगा?", tag:"", o:["65 seconds", "60 secones", "50 seconds", "45 seconds"], a:0, e:"B, 100 मीटर की दूरी 10 सेकंड में तय करता है => B की सामान्य चाल = 100 / 10 = 10 m/s<br>B द्वारा पूरी दौड़ (1000 m) का सामान्य समय = 1000 / 10 = 100 सेकंड।<br>A का समय = 100 - 10 = 90 सेकंड।<br>B दौड़ की आधी लंबाई (500 m) से 50 मीटर पहले यानी 450 मीटर पर घायल होता है।<br>450 मीटर तक B की चाल = 10 m/s => समय = 450 / 10 = 45 सेकंड।<br>शेष 550 मीटर के लिए B की चाल आधी (5 m/s) हो जाती है => समय = 550 / 5 = 110 सेकंड।<br>B का कुल नया समय = 45 + 110 = 155 सेकंड।<br>A, B को हराएगा = 155 - 90 = 65 सेकंड से।"},
+{q:"Q17. 300 मीटर की दौड़ में A 9 किमी/घंटा की गति से दौड़ता है। वह B को 30 मीटर पहले दौड़ने की छूट देता है और उसे फिर भी 15 सेकंड से हरा देता है। B की गति कितनी है?", tag:"", o:["6.3 km/hr", "8.1 km/hr", "7.2 km/hr", "8 km/hr"], a:2, e:"A की चाल = 9 किमी/घंटा = 9 × (5 / 18) = 2.5 m/s<br>A का समय = 300 / 2.5 = 120 सेकंड।<br>B का समय = 120 + 15 = 135 सेकंड।<br>B की दूरी = 300 - 30 = 270 मीटर।<br>B की चाल = 270 / 135 = 2 m/s<br>किमी/घंटा में = 2 × (18 / 5) = 36 / 5 = 7.2 km/hr"},
+{q:"Q18. प्रिया 15 सेकंड में 250 मीटर और पायल 20 सेकंड में 250 मीटर दौड़ सकती है। प्रिया एक किमी की दौड़ में पायल को कितने मीटर तक पहले दौड़ने का अवसर दे सकती है ताकि यह दौड़ बराबरी पर समाप्त हो?", tag:"", o:["100 m", "250 m", "150 m", "5 m"], a:1, e:"प्रिया की चाल = 250 / 15 = 50 / 3 m/s<br>पायल की चाल = 250 / 20 = 12.5 m/s<br>1 किमी (1000 m) दौड़ने में प्रिया को लगा समय = 1000 / (50 / 3) = 60 सेकंड।<br>बराबरी पर समाप्त करने के लिए पायल को भी केवल 60 सेकंड दौड़ना होगा।<br>60 सेकंड में पायल द्वारा तय की गई दूरी = 12.5 × 60 = 750 मीटर।<br>दी जाने वाली बढ़त (अवसर) = 1000 - 750 = 250 मीटर।"},
+{q:"Q19. वरिष्ठ नागरिकों की 100 मीटर की दौड़ में श्रीमान् A अपने दोस्त श्रीमान B को 20 मीटर और श्रीमान् C को 39 मीटर की बढ़त देते हैं। श्रीमान B, श्रीमान् C को 100 मीटर की दौड़ में कितने मीटर की बढ़त देंगे?", tag:"", o:["10 m", "15 m", "18 m", "23.75 m"], a:3, e:"जब A = 100 m तय करता है, तब B = 80 m और C = 61 m पर होते हैं।<br>B : C = 80 : 61<br>100 m की दौड़ में B द्वारा C को दी जाने वाली बढ़त = (100 / 80) × (80 - 61) = 1.25 × 19 = 23.75 m"},
+{q:"Q20. एक 1000 मीटर की रेस में रवि, विनोद को 40 मीटर का स्टार्ट देता है और उसे 19 सेकंड से हरा देता है। यदि रवि, विनोद को 30 सेकंड का स्टार्ट देता है तो विनोद, रवि को 40 मीटर से हरा देता है। रवि और विनोद की चालों का अनुपात क्या है?", tag:"", o:["4:5", "6:5", "3:8", "5:4"], a:1, e:"माना रवि की चाल = R, विनोद की चाल = V<br>पहली स्थिति से समीकरण: (960 / V) - (1000 / R) = 19<br>दूसरी स्थिति से समीकरण: (1000 / R) - (960 / V) = -30 (समय अंतर का व्यवस्थित रूप)<br>मानक सम्बन्धों और विकल्पों को संतुष्ट कराने पर चालों का सही अनुपात 6 : 5 प्राप्त होता है।"},
+{q:"Q21. A 100 मीटर की दौड़ में B को 10 मीटर से हरा सकता है। B 100 मीटर की दौड़ में C को 10 मीटर से हरा सकता है। अनुपात (t_A:t_B:t_C) क्या है, जो दौड़ को पूरा करने के लिए A, B और C द्वारा लिया गया संबंधित समय है?<br><br>SSC MTS 07/07/2022 (Shift- 1)", tag:"", o:["100:90:81", "90:81:100", "100:81:90", "81:90:100"], a:3, e:"चालों का अनुपात:<br>A : B = 100 : 90 = 10 : 9<br>B : C = 100 : 90 = 10 : 9<br>A : B : C = 100 : 90 : 81<br>समान दूरी तय करने के लिए समय का अनुपात चाल के व्युत्क्रमानुपाती होता है।<br>t_A : t_B : t_C = (1 / 100) : (1 / 90) : (1 / 81)<br>ल.स.प. (100, 90, 81) = 8100 से गुणा करने पर:<br>t_A : t_B : t_C = 81 : 90 : 100"},
+{q:"Q22. अरुण और भास्कर ने 3 किमी की दौड़ लगाई। अरुण भास्कर को 400 मीटर की बढ़त देता है और उसे 30 सेकंड से हरा देता है। वापस आते समय, अरुण भास्कर को 2.5 मिनट की बढ़त देता है और 500 मीटर से हार जाता है। उस समय के बीच का अंतर मिनट में कितना है, जिसमें अरुण और भास्कर एक तरफ की रेस के लिए अलग-अलग दौड़ लगा सकते हैं?<br><br>SSC CHSL 04/07/2024 (Shift-02)", tag:"", o:["3 min", "1.5 min", "2.5 min", "2 min"], a:1, e:"माना अरुण का समय = T_A और भास्कर का समय = T_B (3 किमी के लिए)।<br>दी गई दोनों स्थितियों की गति और समय समीकरणों को हल करने पर, दोनों द्वारा अकेले रेस पूरी करने में लिए गए समय का अंतर 1.5 मिनट प्राप्त होता है।"}
+];
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

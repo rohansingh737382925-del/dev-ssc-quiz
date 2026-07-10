@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. यदि वे एक ही दिशा की ओर एक ही बिन्दु से एक साथ दौड़ना शुरू करते हैं।<br>(i) कितने सेकंड के बाद वे पहली बार मिलेंगे?<br>(a) 200 sec.<br>(b) 150 sec.<br>(c) 180 sec.<br>(d) 300 sec.<br>(ii) शुरुआती बिंदु पर वे कितने सेकंड के बाद मिलेंगे?<br>(a) 400<br>(b) 600<br>(c) 640<br>(d) 540<br>(iii) वे ट्रैक पर कितने बिन्दुओं पर मिलेंगे?<br>(a) 5 points<br>(b) 7 points<br>(c) 3 points<br>(d) 4 points",
+    tag: "",
+    o: [
+      "(i) (a), (ii) (b), (iii) (c)",
+      "(i) (b), (ii) (a), (iii) (d)",
+      "(i) (c), (ii) (c), (iii) (b)",
+      "(i) (d), (ii) (d), (iii) (a)"
+    ],
+    a: 0,
+    e: "(i) पहली बार मिलने का समय = Track length / Relative speed<br>चूँकि दोनों समान दिशा में दौड़ रहे हैं, सापेक्ष चाल (Relative speed) = 8 - 5 = 3 m/s होगी।<br>समय = 600 / 3 = 200 sec.<br><br>(ii) शुरुआती बिंदु पर मिलने का समय = A और B द्वारा एक चक्कर पूरा करने में लिए गए समय का LCM<br>A का समय = 600 / 8 = 75 sec.<br>B का समय = 600 / 5 = 120 sec.<br>LCM (75, 120) = 600 sec.<br><br>(iii) समान दिशा में दौड़ते समय ट्रैक पर अलग-अलग मिलन बिंदुओं की संख्या = Speeds का सरल अनुपात (Ratio of speeds) का अंतर<br>चालों का अनुपात = 8 : 5<br>मिलन बिंदुओं की संख्या = 8 - 5 = 3 points。"
+  },
+  {
+    q: "Q2. यदि वे एक ही दिशा में, एक ही बिन्दु से एक साथ दौड़ना शुरू करते हैं।<br>(i) कितने सेकंड के बाद वे पहली बार मिलेंगे?<br>(a) 936 sec.<br>(b) 900 sec.<br>(c) 836 sec.<br>(d) 940 sec.<br>(ii) शुरुआती बिंदु पर वे कितने सेकंड के बाद मिलेंगे?<br>(a) 4570<br>(b) 4680<br>(c) 4780<br>(d) 3680<br>(iii) वे ट्रैक पर कितने बिन्दुओं पर मिलेंगे?<br>(a) 5 points<br>(b) 7 points<br>(c) 3 points<br>(d) 4 points",
+    tag: "",
+    o: [
+      "(i) (a), (ii) (b), (iii) (a)",
+      "(i) (b), (ii) (a), (iii) (c)",
+      "(i) (c), (ii) (c), (iii) (b)",
+      "(i) (d), (ii) (d), (iii) (d)"
+    ],
+    a: 0,
+    e: "(i) पहली बार मिलने का समय = Track length / Relative speed<br>समान दिशा में सापेक्ष चाल = 9 - 4 = 5 m/s<br>समय = 4680 / 5 = 936 sec.<br><br>(ii) शुरुआती बिंदु पर मिलने का समय = LCM (A का समय, B का समय)<br>A का समय = 4680 / 9 = 520 sec.<br>B का समय = 4680 / 4 = 1170 sec.<br>LCM (520, 1170) = 4680 sec.<br><br>(iii) समान दिशा में मिलन बिंदुओं की संख्या = चालों के सरल अनुपात का अंतर<br>चालों का अनुपात = 9 : 4<br>मिलन बिंदुओं की संख्या = 9 - 4 = 5 points。"
+  },
+  {
+    q: "Q3. यदि वे एक साथ, एक ही बिन्दु से विपरीत दिशा की ओर साथ दौड़ना शुरू करते हैं।<br>(i) कितने सेकंड के बाद वे पहली बार मिलेंगे?<br>(a) 90 sec.<br>(b) 60 sec.<br>(c) 45 sec.<br>(d) 30 sec.<br>(ii) शुरुआती बिंदु पर वे कितने सेकंड के बाद मिलेंगे?<br>(a) 360<br>(b) 420<br>(c) 450<br>(d) 460<br>(iii) वे ट्रैक पर कितने बिन्दुओं पर मिलेंगे?<br>(a) 5 points<br>(b) 2 points<br>(c) 3 points<br>(d) 4 points",
+    tag: "",
+    o: [
+      "(i) (b), (ii) (b), (iii) (b)",
+      "(i) (a), (ii) (a), (iii) (a)",
+      "(i) (c), (ii) (c), (iii) (c)",
+      "(i) (d), (ii) (d), (iii) (d)"
+    ],
+    a: 0,
+    e: "(i) विपरीत दिशा में सापेक्ष चाल = 5 + 2 = 7 m/s<br>पहली बार मिलने का समय = 420 / 7 = 60 sec.<br><br>(ii) शुरुआती बिंदु पर मिलने का समय = LCM (A का समय, B का समय)<br>A का समय = 420 / 5 = 84 sec.<br>B का समय = 420 / 2 = 210 sec.<br>LCM (84, 210) = 420 sec.<br><br>(iii) विपरीत दिशा में मिलन बिंदुओं की संख्या = चालों के सरल अनुपात का योग<br>चालों का अनुपात = 5 : 2<br>मिलन बिंदुओं की संख्या = 5 + 2 = 7 points。"
+  },
+  {
+    q: "Q4. 2,500m की एक वृत्ताकार दौड़ में, रीता और गीता समान दिशा में एक ही बिंदु से और एक ही समय पर क्रमशः 36 km/h और 54 km/h की चाल से दौड़ना शुरू करती हैं। वे कितने समय बाद पथ पर पहली बार मिलेंगी?",
+    tag: "SSC Phase XII 25/06/2024 (Shift-04)",
+    o: [
+      "(a) 480 Second/सेकंड",
+      "(b) 500 Second/सेकंड",
+      "(c) 490 Second/सेकंड",
+      "(d) 510 Second/सेकंड"
+    ],
+    a: 1,
+    e: "रीता की चाल = 36 × 5/18 = 10 m/s<br>गीता की चाल = 54 × 5/18 = 15 m/s<br>समान दिशा में सापेक्ष चाल = 15 - 10 = 5 m/s<br>पहली बार मिलने का समय = Track length / Relative speed<br>समय = 2500 / 5 = 500 Second。"
+  },
+  {
+    q: "Q5. मूल्य एक वृत्ताकार मैदान के चक्कर 7 चक्कर प्रति घंटे की दर से लगाता है, जबकि नेहा उसी वृत्ताकार मैदान के चक्कर 11 चक्कर प्रति घंटे की दर से लगाती है। वे दोनों 02:45 p.m. पर एक ही बिंदु से समान दिशा में चलना शुरू करते हैं। वे पहली बार किस समय एक दूसरे को पार करेंगे?",
+    tag: "SSC CHSL 30/05/2022 (Shift-3)",
+    o: [
+      "(a) 03:00 p.m.",
+      "(b) 03:05 p.m.",
+      "(c) 02:50 p.m.",
+      "(d) 03:00 a.m."
+    ],
+    a: 0,
+    e: "सापेक्ष गति (चक्कर प्रति घंटे में) = 11 - 7 = 4 चक्कर प्रति घंटे<br>एक दूसरे को पहली बार पार करने में लगा समय (जब सापेक्ष दूरी 1 चक्कर हो) = 1 / 4 घंटे<br>1 / 4 घंटे = 15 मिनट<br>शुरुआती समय = 02:45 p.m.<br>मिलने का समय = 02:45 p.m. + 15 मिनट = 03:00 p.m.。"
+  },
+  {
+    q: "Q6. तीन व्यक्ति P, Q, R एक वृत्ताकार ट्रैक पर क्रमशः 3 किमी/घंटा, 4 किमी/घंटा 6 किमी/घंटा की चाल से दौड़ते हैं। यदि ट्रैक की लंबाई 36 किमी है, तो वे फिर से शुरुआती बिंदु पर कितने समय बाद मिलेंगे?",
+    tag: "SSC CPO 10/11/2022 (Shift-02)",
+    o: [
+      "(a) 38 hours",
+      "(b) 36 hours",
+      "(c) 24 hours",
+      "(d) 28 hours"
+    ],
+    a: 1,
+    e: "P द्वारा एक चक्कर में लिया गया समय = 36 / 3 = 12 घंटे<br>Q द्वारा एक चक्कर में लिया गया समय = 36 / 4 = 9 घंटे<br>R द्वारा एक चक्कर में लिया गया समय = 36 / 6 = 6 घंटे<br>शुरुआती बिंदु पर दोबारा मिलने का समय = LCM (12, 9, 6) = 36 hours。"
+  },
+  {
+    q: "Q7. चार धावक एक वृत्ताकार ट्रैक पर एक बिन्दु से एक साथ दौड़ना शुरू करते हैं। उन्होंने एक चक्कर पूरा करने में 400 सेकण्ड, 600 सेकण्ड और 900 सेकण्ड का समय लिया। ज्ञात करें कि वे किनम समय के बाद पहली बार शुरुआती बिन्दु पर मिले थे?",
+    tag: "SSC CHSL 03/06/2022 (Shift-1)",
+    o: [
+      "(a) 4200 Sec",
+      "(b) 2400 Sec",
+      "(c) 3600 Sec",
+      "(d) 1800 Sec"
+    ],
+    a: 2,
+    e: "(नोट: अंग्रेजी प्रश्न में चार धावक के लिए चार समय दिए गए हैं: 400, 600, 720 और 900 सेकण्ड)<br>शुरुआती बिंदु पर पहली बार मिलने का समय सभी धावकों द्वारा लिए गए समय का LCM होगा।<br>समय = LCM (400, 600, 720, 900)<br>400 = 2^4 × 5^2<br>600 = 2^3 × 3 × 5^2<br>720 = 2^4 × 3^2 × 5<br>900 = 2^2 × 3^2 × 5^2<br>LCM = 2^4 × 3^2 × 5^2 = 16 × 9 × 25 = 3600 Sec。"
+  },
+  {
+    q: "Q8. A और B 1200 m लंबे वृत्ताकार ट्रैक पर 12 km की दौड़ लगाते हैं। वे क्रमशः 300 सेंकण्ड और 400 सेंकण्ड में एक चक्कर पूरा करते हैं। प्रारम्भ से कितने समय बाद तेज व्यक्ति, धीमे व्यक्ति से अंतिम बार मिलेगा?",
+    tag: "SSC CPO 10/11/2022 (Shift- 03)",
+    o: [
+      "(a) 2400 seconds",
+      "(b) 8400 seconds",
+      "(c) 9600 seconds",
+      "(d) 10800 seconds"
+    ],
+    a: 0,
+    e: "कुल दौड़ की दूरी = 12 km = 12000 m<br>A की चाल = 1200 / 300 = 4 m/s (तेज व्यक्ति)<br>B की चाल = 1200 / 400 = 3 m/s<br>A को दौड़ पूरी करने में लगा कुल समय = 12000 / 4 = 3000 seconds<br>पहली बार मिलने का समय = Track length / Relative speed = 1200 / (4 - 3) = 1200 seconds<br>वे हर 1200 सेकंड के अंतराल पर मिलेंगे।<br>मिलने का समय अंतराल: 1200s, 2400s, 3600s...<br>चूँकि तेज व्यक्ति (A) 3000 सेकंड में दौड़ पूरी कर लेता है, इसलिए अंतिम बार वह धीमे व्यक्ति से 2400 seconds पर मिलेगा。"
+  },
+  {
+    q: "Q9. जॉय और कैट 1100m लंबाई के एक वृत्ताकार ट्रैक के परितः क्रमशः 6 m/sec और 4 m/sec की प्रारंभिक चाल से विपरीत दिशाओं में दौड़ते हैं। जब भी वे मिलते हैं उसी बिन्दु से शुरू करते हुए, जॉय की चाल आधी हो जाती है और कैट की चाल दोगुनी हो जाती है। वे शुरूआत से कितने समय के बाद दूसरी बार मिलेंगे?",
+    tag: "SSC Phase X 05/08/2022 (Shift-03)",
+    o: [
+      "(a) 220 sec",
+      "(b) 210 sec",
+      "(c) 190 sec",
+      "(d) 200 sec"
+    ],
+    a: 1,
+    e: "पहली बार मिलने में लगा समय (t1):<br>सापेक्ष चाल = 6 + 4 = 10 m/sec<br>t1 = 1100 / 10 = 110 sec<br><br>पहली बार मिलने के बाद चालों में बदलाव:<br>जॉय की नई चाल = 6 / 2 = 3 m/sec<br>कैट की नई चाल = 4 × 2 = 8 m/sec<br><br>दूसरी बार मिलने में लगा समय (t2):<br>नई सापेक्ष चाल = 3 + 8 = 11 m/sec<br>t2 = 1100 / 11 = 100 sec<br><br>शुरुआत से कुल समय = t1 + t2 = 110 + 100 = 210 sec。"
+  },
+  {
+    q: "Q10. अंजलि और बबीता एक वृत्ताकार ट्रैक पर एक ही समय और एक ही बिन्दु से विपरीत दिशाओं में क्रमशः 8 m/sec और 6 m/sec की चाल से दौड़ रही हैं। यदि वृत्ताकार ट्रैक की लम्बाई 960 m है, तो वे अलग-अलग मिलन बिन्दुओं पर कितनी बार मिलेंगी?",
+    tag: "SSC CHSL 09/06/2022 (Shift-3)",
+    o: [
+      "(a) 7 times",
+      "(b) 6 times",
+      "(c) 12 times",
+      "(d) 14 times"
+    ],
+    a: 0,
+    e: "विपरीत दिशा में दौड़ते समय अलग-अलग मिलन बिंदुओं (Distinct meeting points) की संख्या दोनों की चालों के सरलतम अनुपात के योग के बराबर होती है।<br>चालों का अनुपात = 8 : 6 = 4 : 3<br>अलग-अलग मिलन बिंदुओं की संख्या = 4 + 3 = 7 times。"
+  }
+];
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
