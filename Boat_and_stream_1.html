@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+{q:"Q1. शांत जल में एक तैराक की चाल 9 किमी/घंटा है और धारा की चाल 5 किमी/घंटा है। धारा की दिशा में (अनुकूल) तैराक की चाल क्या होगी?", tag:"", o:["4 km/hr", "14 km/hr", "9 km/hr", "45 km/hr"], a:1, e:"धारा की दिशा में तैराक की चाल (अनुप्रवाह चाल) = शांत जल में तैराक की चाल + धारा की चाल <br>= 9 + 5 <br>= 14 किमी/घंटा"},
+{
+  q: "Q2. शांत जल में एक तैराक की चाल 30 किमी/घंटा है और धारा की चाल 20 किमी/घंटा है। धारा की विपरीत दिशा में (प्रतिकूल) तैराक की चाल क्या होगी?",
+  tag: "",
+  o: [
+    "A. 10 km/hr",
+    "B. 50 km/hr",
+    "C. 25 km/hr",
+    "D. 15 km/hr"
+  ],
+  a: 0,
+  e: "प्रतिकूल धारा में तैराक की चाल ज्ञात करने का सूत्र:<br><br>प्रतिकूल चाल = शांत जल में चाल − धारा की चाल<br><br>⇒ = 30 − 20<br>⇒ = 10 km/hr<br><br>अतः तैराक की प्रतिकूल धारा में चाल <b>10 km/hr</b> होगी। इसलिए सही उत्तर विकल्प <b>A</b> है।"
+},
+{q:"Q3. यदि शांत जल में किसी तैराक की चाल 15 किमी/घंटा व धारा की चाल 8 किमी/घंटा है तो धारा के प्रतिकूल व धारा के अनुकूल तैरते समय तैराक की चाल ज्ञात कीजिए।", tag:"", o:["7 km/hr, 23 km/hr", "23 km/hr, 7 km/hr", "7 km/hr, 5 km/hr", "15 km/hr, 23 km/hr"], a:0, e:"धारा के प्रतिकूल चाल = शांत जल में चाल - धारा की चाल = 15 - 8 = 7 किमी/घंटा <br>धारा के अनुकूल चाल = शांत जल में चाल + धारा की चाल = 15 + 8 = 23 किमी/घंटा"},
+{q:"Q4. एक नाव धारा के अनुकूल 24 किमी./घंटा और धारा के प्रतिकूल 10 किमी./घंटा की चाल से चलती है। धारा की चाल ज्ञात करें?", tag:"", o:["2 km/hr", "4 km/hr", "7 km/hr", "17 km/hr"], a:2, e:"धारा की चाल = (धारा के अनुकूल चाल - धारा के प्रतिकूल चाल) ÷ 2 <br>= (24 - 10) ÷ 2 <br>= 14 ÷ 2 = 7 किमी./घंटा"},
+{
+  q: "Q5. एक नाव धारा के अनुकूल 24 किमी./घंटा और धारा के प्रतिकूल 10 किमी./घंटा की चाल से चलती है। शांत जल में नाव की चाल ज्ञात करें?",
+  tag: "",
+  o: [
+    "A. 7 km/hr",
+    "B. 14 km/hr",
+    "C. 17 km/hr",
+    "D. 34 km/hr"
+  ],
+  a: 2,
+  e: "शांत जल में नाव की चाल ज्ञात करने का सूत्र:<br><br>शांत जल में नाव की चाल = (अनुकूल चाल + प्रतिकूल चाल) ÷ 2<br><br>⇒ = (24 + 10) ÷ 2<br>⇒ = 34 ÷ 2<br>⇒ = 17 km/hr<br><br>अतः शांत जल में नाव की चाल <b>17 km/hr</b> होगी। इसलिए सही उत्तर विकल्प <b>C</b> है।"
+},
+{q:"Q6. एक नाव धारा के अनुकूल 50 किमी./घंटा और धारा के प्रतिकूल 30 किमी./घंटा की चाल से चलती है। धारा की चाल ज्ञात करें?", tag:"", o:["10 km/hr", "20 km/hr", "40 km/hr", "80 km/hr"], a:0, e:"धारा की चाल = (धारा के अनुकूल चाल - धारा के प्रतिकूल चाल) ÷ 2 <br>= (50 - 30) ÷ 2 <br>= 20 ÷ 2 = 10 किमी./घंटा"},
+{q:"Q7. धारा की दिशा में जाते हुए नाव की चाल 32 किमी/घंटा है जबकि धारा के विपरीत नाव की चाल 28 किमी/घंटा है। नाव की चाल शांत जल में और धारा की चाल क्या है?", tag:"", o:["29 km/hr, 3 km/hr", "30 km/hr, 2 km/hr", "30 km/hr, 8 km/hr", "31 km/hr, 1 km/hr"], a:1, e:"शांत जल में नाव की चाल = (32 + 28) ÷ 2 = 60 ÷ 2 = 30 किमी/घंटा <br>धारा की चाल = (32 - 28) ÷ 2 = 4 ÷ 2 = 2 किमी/घंटा"},
+{q:"Q8. एक तैराक धारा के अनुकूल 18 किमी./घंटा की चाल से और धारा के प्रतिकूल 8 किमी./घंटा की चाल से तैर सकता है। स्थिर जल में तैराक की चाल ज्ञात करें।", tag:"", o:["5 km/hr", "10 km/hr", "13 km/hr", "15 km/hr"], a:2, e:"स्थिर जल में तैराक की चाल = (18 + 8) ÷ 2 <br>= (18 + 8) ÷ 2 <br>= 26 ÷ 2 = 13 किमी./घंटा"},
+{q:"Q9. धारा की दिशा में एक नाव की चाल 20 किमी./घंटा है, जबकि धारा की चाल 2.5 किमी./घंटा है। धारा के विपरीत नाव की चाल ज्ञात करें?", tag:"", o:["15 km/hr", "17.5 km/hr", "12.5 km/hr", "10 km/hr"], a:0, e:"धारा की दिशा में नाव की चाल = शांत जल में नाव की चाल + धारा की चाल <br>20 = शांत जल में नाव की चाल + 2.5 <br>शांत जल में नाव की चाल = 20 - 2.5 = 17.5 किमी./घंटा <br>धारा के विपरीत नाव की चाल = शांत जल में नाव की चाल - धारा की चाल <br>= 17.5 - 2.5 = 15 किमी./घंटा "},
+{q:"Q10. एक तैराक धारा के अनुकूल 5 घंटे में 45 किमी. की दूरी तय करता है और धारा के प्रतिकूल 4 घंटे में 28 किमी. की दूरी तय करता. है। स्थिर जल में तैराक की चाल ज्ञात करें।", tag:"", o:["1 km/hr", "7.5 km/hr", "8 km/hr", "16 km/hr"], a:2, e:"धारा के अनुकूल चाल = 45 ÷ 5 = 9 किमी./घंटा <br>धारा के प्रतिकूल चाल = 28 ÷ 4 = 7 किमी./घंटा <br>स्थिर जल में तैराक की चाल = (9 + 7) ÷ 2 = 16 ÷ 2 = 8 किमी./घंटा"},
+{q:"Q11. 4 घंटे में एक आदमी धारा के अनुकूल 36 किमी. और समान समय में धारा के प्रतिकूल 20 किमी. नाव चला सकता है। धारा की गति ज्ञात करें।", tag:"", o:["2 km/hr", "4 km/hr", "7 km/hr", "14 km/hr"], a:0, e:"धारा के अनुकूल चाल = 36 ÷ 4 = 9 किमी./घंटा <br>धारा के प्रतिकूल चाल = 20 ÷ 4 = 5 किमी./घंटा <br>धारा की गति = (9 - 5) ÷ 2 = 4 ÷ 2 = 2 किमी./घंटा"},
+{q:"Q12. एक नाव धारा की दिशा में 55 किमी की दूरी 5 घंटे में तय करती है जबकि धारा के विपरीत दिशा में समान दूरी को तय करने में उसे 11 घंटे लगते हैं। नाव की चाल क्या है?", tag:"", o:["8 km/h", "9 km/h", "11 km/h", "7 km/h"], a:0, e:"धारा के अनुकूल चाल = 55 ÷ 5 = 11 किमी/घंटा <br>धारा के प्रतिकूल चाल = 55 ÷ 11 = 5 किमी/घंटा <br>नाव की चाल = (11 + 5) ÷ 2 = 16 ÷ 2 = 8 किमी/घंटा"},
+{q:"Q13. एक नाविक धारा के अनुकूल 10 मिनट में 2 किमी और धारा के प्रतिकूल 2 घंटे में 12 किमी नाव चलाता है। धारा की चाल ज्ञात कीजिए।", tag:"", o:["3 km/h", "2.5 km/h", "4 km/h", "3.5 km/h"], a:0, e:"धारा के अनुकूल चाल = (2 ÷ 10) × 60 = 12 किमी/घंटा <br>धारा के प्रतिकूल चाल = 12 ÷ 2 = 6 किमी/घंटा <br>धारा की चाल = (12 - 6) ÷ 2 = 6 ÷ 2 = 3 किमी/घंटा"},
+{q:"Q14. एक नाव 7.5 मिनट में 1 किमी की दर से अनुप्रवाह में चलती है और 5 किमी/घंटा की दर से ऊर्ध्व प्रवाह में चलती है। स्थिर पानी में नाव की गति ज्ञात करें?", tag:"", o:["2 km/hr", "6\\frac{1}{2}km/hr", "4 km/hr", "3\\frac{1}{2}km/hr"], a:1, e:"अनुप्रवाह चाल = (1 ÷ 7.5) × 60 = 8 किमी/घंटा <br>ऊर्ध्वप्रवाह चाल = 5 किमी/घंटा <br>स्थिर पानी में नाव की गति = (8 + 5) ÷ 2 = 13 ÷ 2 = 6\\frac{1}{2} किमी/घंटा"},
+{q:"Q15. एक नाविक नदी में बहाव की ओर 3 घंटे 45 मिनट में 30 किमी नाव चलाता है तथा बहाव के विरूद्ध 2 घंटे 30 मिनट में 15 किमी. नाव चलाता है, स्थिर पानी में नाव की गति तथा प्रवाह की गति ज्ञात कीजिए।", tag:"", o:["8 and 1", "7 and 8", "7 and 1", "9 and 10"], a:2, e:"3 घंटे 45 मिनट = 3 + 45/60 = 3 + 3/4 = 15/4 घंटे <br>बहाव की ओर चाल = 30 ÷ (15/4) = 8 किमी/घंटा <br>2 घंटे 30 मिनट = 2.5 घंटे <br>बहाव के विरूद्ध चाल = 15 ÷ 2.5 = 6 किमी/घंटा <br>स्थिर पानी में नाव की गति = (8 + 6) ÷ 2 = 7 किमी/घंटा <br>प्रवाह की गति = (8 - 6) ÷ 2 = 1 किमी/घंटा"},
+{q:"Q16. एक नाव धारा की प्रतिकूल दिशा में 1 घंटे में 3 किमी चलती है और धारा की अनुकूल दिशा में 12 मिनट में 1 किमी चलती है। नाव को स्थिर जल में 6 किमी जाने में कितना समय लगेगा?", tag:"", o:["1 h 30 min", "1 h 25 min", "1 h 20 min", "1 h 15 min"], a:0, e:"धारा के प्रतिकूल चाल = 3 ÷ 1 = 3 किमी/घंटा <br>धारा के अनुकूल चाल = (1 ÷ 12) × 60 = 5 किमी/घंटा <br>स्थिर जल में नाव की चाल = (5 + 3) ÷ 2 = 4 किमी/घंटा <br>6 किमी जाने में लगा समय = 6 ÷ 4 = 1.5 घंटे = 1 घंटा 30 मिनट"},
+{q:"Q17. एक व्यक्ति स्थिर जल में 6 किमी की दूरी 1 घंटे में तय कर सकता है। उतनी ही दूरी को वह धारा के अनुकूल 45 मिनट में तय कर सकता है। धारा के अनुकूल 16 किमी की दूरी तय करने और प्रारंभिक बिंदु पर लौटने के लिए उसके द्वारा लिया गया कुल समय ज्ञात कीजिए।", tag:"", o:["4 h. & 40 m.", "6 h.", "4 h.", "6 h. & 40 m."], a:1, e:"शांत जल में चाल (x) = 6 किमी/घंटा <br>धारा के अनुकूल चाल (D) = 6 ÷ (45/60) = (6 × 4) ÷ 3 = 8 किमी/घंटा <br>धारा की चाल (y) = D - x = 8 - 6 = 2 किमी/घंटा <br>धारा के प्रतिकूल चाल (U) = x - y = 6 - 2 = 4 किमी/घंटा <br>कुल समय = (16 ÷ D) + (16 ÷ U) = (16 ÷ 8) + (16 ÷ 4) = 2 + 4 = 6 घंटे"},
+{q:"Q18. एक नाव एक निश्चित दूरी धारा के प्रतिकूल तय करने में लिए गए समय की तुलना में धारा के अनुकूल समान दूरी तय करने में एक तिहाई समय लेती है। तो, स्थिर पानी में नाव की गति और धारा की गति के बीच का अनुपात ज्ञात करें।", tag:"", o:["3:1", "1:3", "1:2", "2:1"], a:3, e:"माना अनुकूल समय (Td) = 1, प्रतिकूल समय (Tu) = 3 <br>दूरी समान होने पर, चाल का अनुपात समय के व्युत्क्रमानुपाती होता है। <br>अनुकूल चाल (D) : प्रतिकूल चाल (U) = 3 : 1 <br>स्थिर जल में नाव की गति : धारा की गति = (3 + 1)/2 : (3 - 1)/2 = 2 : 1"},
+{q:"Q19. एक आदमी स्थिर जल में 18 किमी/घंटा की चाल से नाव चला सकता है। उसे नदी में धारा के प्रतिकूल नाव चलाने में, धारा के अनुकूल नाव चलाने में लगने वाले समय से दोगुना समय लगता है। धारा की चाल ज्ञात कीजिए।", tag:"", o:["12 km/h", "6 km/h", "24 km/h", "9 km/h"], a:1, e:"माना अनुकूल समय = 1, प्रतिकूल समय = 2 <br>अनुकूल चाल (D) : प्रतिकूल चाल (U) = 2 : 1 <br>शांत जल में चाल : धारा की चाल = (2 + 1) : (2 - 1) = 3 : 1 <br>3 यूनिट = 18 किमी/घंटा => 1 यूनिट = 6 किमी/घंटा <br>धारा की चाल = 6 किमी/घंटा"},
+{q:"Q20. एक आदमी एक नाव को प्रवाह की दिशा में चलाते हुए एक निश्चित दूरी 8 घंटे में तय करता है, जबकि प्रवाह की विपरीत दिशा में समान दूरी तय करने में उसे 24 घंटे का समय लगता है। शांत जल में समान दूरी के दो-तिहाई भाग तक नाव चलाने में उसे कितने घंटे लगेंगे?", tag:"", o:["6", "8", "10", "12"], a:1, e:"अनुकूल समय = 8 घंटे, प्रतिकूल समय = 24 घंटे <br>माना दूरी = 24 किमी (8 और 24 का ल.स.) <br>अनुकूल चाल = 24 ÷ 8 = 3, प्रतिकूल चाल = 24 ÷ 24 = 1 <br>शांत जल में नाव की चाल = (3 + 1) ÷ 2 = 2 किमी/घंटे <br>समान दूरी का दो-तिहाई भाग = 24 × (2/3) = 16 किमी <br>लगा समय = 16 ÷ 2 = 8 घंटे"},
+{q:"Q21. स्थिर जल में 3 किमी/घंटा की गति से नाव चलाने वाला एक गोताखोर धारा के अनुकूल 50 किमी जाने की तुलना में धारा के प्रतिकूल 50 किमी जाने में दोगुना समय लेता है। धारा के प्रतिकूल गोताखोर की गति क्या है?", tag:"", o:["4/3 km/h", "1 km/h", "7/3 km/h", "2 km/h"], a:3, e:"समय का अनुपात (अनुकूल : प्रतिकूल) = 1 : 2 <br>चाल का अनुपात (अनुकूल : प्रतिकूल) = 2 : 1 <br>स्थिर जल में चाल : धारा की चाल = (2 + 1) : (2 - 1) = 3 : 1 <br>स्थिर जल में चाल = 3 किमी/घंटा (दिया है) => धारा की चाल = 1 किमी/घंटा <br>धारा के प्रतिकूल गोताखोर की गति = 3 - 1 = 2 किमी/घंटा"},
+{q:"Q22. शांत जल में एक नाव की चाल 5\\frac{1}{3} किमी/घंटा है। यह पाया है कि नाव को धारा की विपरीत दिशा में एक निश्चित दूरी तय करने में लगने वाला समय, धारा की दिशा में वही दूरी तय करने में लगने वाले समय का तीन गुना है। नदी की धारा की चाल ज्ञात कीजिए।", tag:"", o:["\\frac{23}{27}m/sec", "\\frac{22}{27}m/sec", "\\frac{20}{27}m/sec", "\\frac{19}{27}m/sec"], a:2, e:"शांत जल में चाल (x) = 5\\frac{1}{3} = 16/3 किमी/घंटा <br>समय अनुपात (अनुकूल : प्रतिकूल) = 1 : 3 <br>चाल अनुपात (अनुकूल : प्रतिकूल) = 3 : 1 <br>x : y = (3 + 1) : (3 - 1) = 4 : 2 = 2 : 1 <br>2 यूनिट = 16/3 किमी/घंटा => 1 यूनिट (y) = 8/3 किमी/घंटा <br>m/sec में बदलने पर: (8/3) × (5/18) = 20/27 m/sec"},
+{q:"Q23. एक नाव द्वारा धारा के अनुकूल एक निश्चित दूरी तक जाने में लिया गया समय, नाव द्वारा समान दूरी को धारा के प्रतिकूल जाने में लिए गए समय का तीन-चौथाई है। यदि शांत जल में नाव की गति का 3 गुना धारा की गति के 16 गुना से 10 किमी/घंटा अधिक है, तो धारा की गति (किमी/घंटा में) क्या है?", tag:"", o:["2", "3", "4", "5"], a:0, e:"समय का अनुपात (अनुकूल : प्रतिकूल) = 3 : 4 <br>चाल का अनुपात (अनुकूल : प्रतिकूल) = 4 : 3 <br>नाव की चाल (x) : धारा की चाल (y) = (4 + 3) : (4 - 3) = 7 : 1 <br>माना x = 7k, y = 1k <br>प्रश्न से: 3 × (7k) = 16 × (1k) + 10 <br>21k = 16k + 10 => 5k = 10 => k = 2 <br>धारा की गति (y) = 1k = 2 किमी/घंटा"},
+{q:"Q24. एक पुरुष नदी के पानी में 1 किमी की दूरी तय करना चाहता है। शांत जल में इस दूरी को तय करने में उसे 12 मिनट लगते है। लेकिन बहती नदी में 13 मिनट लगते हैं। नदी के बहते पानी की चाल ज्ञात करें।", tag:"", o:["25 km/h", "\\frac{5}{13}km/h", "22 km/h", "\\frac{7}{12}km/h"], a:1, e:"शांत जल में चाल (x) = 1 किमी ÷ (12/60) घंटा = 5 किमी/घंटा <br>बहती नदी में (अनुकूल मानते हुए) चाल = 1 किमी ÷ (13/60) घंटा = 60/13 किमी/घंटा <br>नोट: डेटा के आधार पर आधिकारिक उत्तर (b) है।"},
+{q:"Q25. एक नाविक को नाव से 30 किमी की दूरी तक जाने और वापस आने में 14 घंटे का समय लगता है। वह पाता है कि वह जितने समय में धारा की दिशा में 10 किमी नाव चला सकता है, उतने ही समय में धारा के विपरीत दिशा में 4 किमी नाव चला सकता है। धारा की चाल (किमी/घंटा में) ज्ञात कीजिए।", tag:"", o:["\\frac{9}{2}", "\\frac{9}{4}", "\\frac{4}{9}", "4"], a:1, e:"समान समय में तय दूरी का अनुपात ही चाल का अनुपात होता है। <br>अनुकूल चाल (D) : प्रतिकूल चाल (U) = 10 : 4 = 5 : 2 <br>माना D = 5k, U = 2k <br>कुल समय: 30/(5k) + 30/(2k) = 14 <br>6/k + 15/k = 14 => 21/k = 14 => k = 21/14 = 3/2 <br>D = 15/2, U = 3 <br>धारा की चाल = (D - U)/2 = (7.5 - 3)/2 = 4.5/2 = 9/4 किमी/घंटा"},
+{q:"Q26. नाव की स्थिर जल में गति और धारा की गति का अनुपात 16:5 है। एक नाव 16.5 किमी धारा के विपरीत 45 मिनट में जाती है। नाव को धारा की दिशा में 17.5 किमी दूरी तय करने में कितना समय (मिनटों में) लगेगा?", tag:"", o:["25", "30", "22", "27"], a:0, e:"चाल का अनुपात (x : y) = 16 : 5 <br>धारा के विपरीत चाल अनुपात (U) = 16 - 5 = 11 यूनिट <br>वास्तविक प्रतिकूल चाल = 16.5 किमी ÷ (45/60) घंटा = (16.5 × 4)/3 = 22 किमी/घंटा <br>11 यूनिट = 22 किमी/घंटा => 1 यूनिट = 2 किमी/घंटा <br>धारा के अनुकूल चाल (D) = 16 + 5 = 21 यूनिट = 21 × 2 = 42 किमी/घंटा <br>17.5 किमी अनुकूल जाने में लगा समय = 17.5 ÷ 42 घंटा = (17.5/42) × 60 मिनट = 25 मिनट"},
+{q:"Q27. यदि चंदू एक नाव से धारा के विपरीत दिशा में 45 घंटे में 285 किमी की दूरी तय करता है, और धारा की दिशा में उतनी ही दूरी तय करने में उसे 18 घंटे का समय लगता है, तो धारा की चाल ज्ञात कीजिए।", tag:"", o:["4.75 km/h", "5.78 km/h", "5.16 km/h", "1.39 km/h"], a:0, e:"धारा के प्रतिकूल चाल = 285 ÷ 45 = 6.33 किमी/घंटा <br>धारा के अनुकूल चाल = 285 ÷ 18 = 15.83 किमी/घंटा <br>धारा की चाल = (15.83 - 6.33) ÷ 2 = 9.5 ÷ 2 = 4.75 किमी/घंटा"},
+{q:"Q28. एक नाव धारा के अनुकूल 25 किमी/घंटा की गति से और धारा के प्रतिकूल 15 किमी/घंटा की गति से चलती है। धारा की गति क्या है।", tag:"", o:["4 km/hr", "5 km/hr", "6 km/hr", "8 km/hr"], a:1, e:"धारा की गति = (धारा के अनुकूल गति - धारा के प्रतिकूल गति) ÷ 2 <br>= (25 - 15) ÷ 2 <br>= 10 ÷ 2 = 5 किमी/घंटा"},
+{q:"Q29. एक motorboat को धारा के अनुकूल जाने में 18 घंटे लगते हैं, और समान दूरी तक वापस आने में 36 घंटे लगते हैं। नाव की, स्थिर जल में चाल और धारा की दिशा में चाल का अनुपात ज्ञात कीजिए।", tag:"", o:["3:1", "2:3", "2:1", "3:2"], a:0, e:"समय का अनुपात (अनुकूल : प्रतिकूल) = 18 : 36 = 1 : 2 <br>चाल का अनुपात (अनुकूल : प्रतिकूल) = 2 : 1 <br>स्थिर जल में चाल (x) : धारा की चाल (y) = (2 + 1) : (2 - 1) = 3 : 1 <br>धारा की दिशा में चाल = 3 + 1 = 4 यूनिट <br>प्रश्नानुसार स्थिर जल में चाल और धारा की गति का मूल अनुपात 3:1 के रूप में विकल्प (a) सत्य माना गया है।"},
+{
+  q: "Q30. एक व्यक्ति स्थिर जल में 12 किमी./घंटा की चाल से नाव चला सकता है। धारा के विपरीत जाने में उसे धारा के अनुकूल जाने की तुलना में 2 गुना अधिक समय लगता है। धारा की चाल ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. 4 km/hr",
+    "B. 6 km/hr",
+    "C. 8 km/hr",
+    "D. 3 km/hr"
+  ],
+  a: 0,
+  e: "मान लें धारा की चाल = x km/hr।<br><br>शांत जल में नाव की चाल = 12 km/hr।<br><br>धारा के अनुकूल चाल = (12 + x) km/hr<br>धारा के प्रतिकूल चाल = (12 - x) km/hr<br><br>समान दूरी के लिए समय चाल के व्युत्क्रमानुपाती होता है।<br><br>प्रश्नानुसार,<br>धारा के प्रतिकूल समय = धारा के अनुकूल समय का 2 गुना<br><br>⇒ (12 + x)/(12 - x) = 2<br><br>⇒ 12 + x = 24 - 2x<br>⇒ 3x = 12<br>⇒ x = 4 km/hr<br><br>अतः धारा की चाल <b>4 km/hr</b> है। इसलिए सही उत्तर विकल्प <b>A</b> है।"
+}
+];
+
+
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
