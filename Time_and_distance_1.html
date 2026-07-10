@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "1. 72 किमी/घंटा की गति के समान है:",
+    tag: "",
+    o: ["15 m/s", "20 m/s", "25 m/s", "30 m/s"],
+    a: 1,
+    e: "किमी/घंटा को मी/सेकंड में बदलने के लिए $\\frac{5}{18}$ से गुणा किया जाता है।\\n$$\\text{चाल} = 72 \\times \\frac{5}{18} = 4 \\times 5 = 20\\text{ मी/से. (m/s)}$$"
+  },
+  {
+    q: "2. 108 किमी/घंटा के बराबर है:",
+    tag: "",
+    o: ["25 m/sec", "30 m/sec", "35 m/sec", "40 m/sec"],
+    a: 1,
+    e: "$$\\text{चाल} = 108 \\times \\frac{5}{18} = 6 \\times 5 = 30\\text{ मी/से. (m/sec)}$$"
+  },
+  {
+    q: "3. 90 किमी प्रति घंटा की गति के समान है:",
+    tag: "",
+    o: ["20 m/sec", "25 m/sec", "30 m/sec", "35 m/sec"],
+    a: 1,
+    e: "$$\\text{चाल} = 90 \\times \\frac{5}{18} = 5 \\times 5 = 25\\text{ मी/से. (m/sec)}$$"
+  },
+  {
+    q: "4. 30 मी/से. के बराबर है:",
+    tag: "",
+    o: ["90 km/hr", "100 km/hr", "108 km/hr", "120 km/hr"],
+    a: 2,
+    e: "मी/सेकंड को किमी/घंटा में बदलने के लिए $\\frac{18}{5}$ से गुणा किया जाता है।\\n$$\\text{चाल} = 30 \\times \\frac{18}{5} = 6 \\times 18 = 108\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "5. 7.5 मी/से. वैसा ही है जैसा किः",
+    tag: "",
+    o: ["25 km/hr", "27 km/hr", "30 km/hr", "36 km/hr"],
+    a: 1,
+    e: "$$\\text{चाल} = 7.5 \\times \\frac{18}{5} = 1.5 \\times 18 = 27\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "6. 17.5 मीटर/सेकंड के बराबर है:",
+    tag: "",
+    o: ["54 km/hr", "63 km/hr", "72 km/hr", "1 km/hr"],
+    a: 1,
+    e: "$$\\text{चाल} = 17.5 \\times \\frac{18}{5} = 3.5 \\times 18 = 63\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "7. दोनों में से कौन-सी गति अधिक है: 36 किमी/घंटा की गति या 11.5 मीटर/सेकंड की गति ?",
+    tag: "",
+    o: ["36 km/hr", "11.5 m/sec", "Both are equal", "Cannot be determined"],
+    a: 1,
+    e: "36 किमी/घंटा को मी/सेकंड में बदलने पर:\\n$$36 \\times \\frac{5}{18} = 10\\text{ मी/से.}$$\\nतुलना करने पर: $11.5\\text{ मी/से.} > 10\\text{ मी/से.}$ (अर्थात 36 किमी/घंटा)\\nअतः 11.5 मीटर/सेकंड की गति अधिक है।"
+  },
+  {
+    q: "8. दोनों में से कौन-सी गति कम है: 25 मीटर/सेकेंड की गति या 80 किमी/घंटा की गति ?",
+    tag: "",
+    o: ["25 m/sec", "80 km/hr", "Both are equal", "Cannot be determined"],
+    a: 1,
+    e: "25 मी/सेकंड को किमी/घंटा में बदलने पर:\\n$$25 \\times \\frac{18}{5} = 90\\text{ किमी/घंटा}$$\\nतुलना करने पर: $80\\text{ किमी/घंटा} < 90\\text{ किमी/घंटा}$ (अर्थात 25 मी/से.)\\nअतः 80 किमी/घंटा की गति कम है।"
+  },
+  {
+    q: "9. एक साइकिल चालक की गति 5 मीटर/सेकंड है। किमी/घंटा में गति ज्ञात कीजिए।",
+    tag: "",
+    o: ["15 km/hr", "18 km/hr", "20 km/hr", "24 km/hr"],
+    a: 1,
+    e: "$$\\text{गति} = 5 \\times \\frac{18}{5} = 18\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "10. यदि रोहन 15 किमी/घंटा की गति से दौड़ता है, तो उसे 500 मीटर की दूरी तय करने में कितना समय लगेगा?",
+    tag: "",
+    o: ["1 min", "1.5 min", "2 min", "2.5 min"],
+    a: 2,
+    e: "चाल $= 15\\text{ किमी/घंटा} = 15 \\times \\frac{5}{18} = \\frac{25}{6}\text{ मी/से.}$\\n$$\\text{समय} = \\frac{\\text{दूरी}}{\\text{चाल}} = \\frac{500}{\\frac{25}{6}} = \\frac{500 \\times 6}{25} = 20 \\times 6 = 120\\text{ सेकंड}$$\\n$$120\\text{ सेकंड} = \\frac{120}{60} = 2\\text{ मिनट (min)}$$"
+  },
+  {
+    q: "11. एक कार 1 मिनट में 0.875 किमी चलती है। यह 1 घंटा 45 मिनट में कितनी दूरी तय करती है?",
+    tag: "",
+    o: ["91.875km", "94.576 km", "95.444 km", "92.582 km"],
+    a: 0,
+    e: "1 घंटा 45 मिनट $= 60 + 45 = 105\\text{ मिनट}$\\nचूंकि कार 1 मिनट में 0.875 किमी चलती है,\\n$$\\text{कुल दूरी} = 0.875 \\times 105 = 91.875\\text{ किमी (km)}$$"
+  },
+  {
+    q: "12. एक बस की चाल 6 मीटर/सेकंड है। 8 घंटे और 20 मिनट में बस द्वारा तय की गई दूरी (किलोमीटर में) ज्ञात कीजिए।",
+    tag: "",
+    o: ["184", "175", "185", "180"],
+    a: 3,
+    e: "बस की चाल $= 6\\text{ मी/से.} = 6 \\times \\frac{18}{5} = \\frac{108}{5} = 21.6\\text{ किमी/घंटा}$\\nकुल समय $= 8\\text{ घंटे} + \\frac{20}{60}\\text{ घंटे} = 8 + \\frac{1}{3} = \\frac{25}{3}\text{ घंटे}$\\n$$\\text{दूरी} = \\text{चाल} \\times \\text{समय} = \\frac{108}{5} \\times \\frac{25}{3} = 36 \\times 5 = 180\\text{ किमी}$$"
+  },
+  {
+    q: "13. एक बस को 216 किमी की दूरी तय करनी है। यदि इस बस की गति 20 मी/से. है, तो कितना समय लगेगा?",
+    tag: "",
+    o: ["2 hrs", "3 hrs", "4 hrs", "5 hrs"],
+    a: 1,
+    e: "बस की गति $= 20\\text{ मी/से.} = 20 \\times \\frac{18}{5} = 72\\text{ किमी/घंटा}$\\n$$\\text{समय} = \\frac{\\text{दूरी}}{\\text{चाल}} = \\frac{216}{72} = 3\\text{ घंटे (hrs)}$$"
+  },
+  {
+    q: "14. 90 किमी/घंटा की गति से चलने वाली बस 30 सेकंड में कितनी दूरी तय करेगी?",
+    tag: "",
+    o: ["600 m", "750 m", "800 m", "900 m"],
+    a: 1,
+    e: "गति $= 90\\text{ किमी/घंटा} = 90 \\times \\frac{5}{18} = 25\\text{ मी/से.}$\\n$$\\text{दूरी} = \\text{चाल} \\times \\text{समय} = 25 \\times 30 = 750\\text{ मीटर (m)}$$"
+  },
+  {
+    q: "15. एक एथलीट 4800 मीटर की दूरी 16 मिनट में पार करता है। उसकी गति (किमी/घंटा में) क्या है?",
+    tag: "",
+    o: ["15", "16", "18", "20"],
+    a: 2,
+    e: "दूरी $= 4800\\text{ मीटर} = 4.8\\text{ किमी}$\\nसमय $= 16\\text{ मिनट} = \\frac{16}{60}\\text{ घंटे} = \\frac{4}{15}\\text{ घंटे}$\\n$$\\text{गति} = \\frac{\\text{दूरी}}{\\text{समय}} = \\frac{4.8}{\\frac{4}{15}} = \\frac{4.8 \\times 15}{4} = 1.2 \\times 15 = 18\\text{ किमी/घंटा}$$"
+  },
+  {
+    q: "16. विकास 3 मिनट में 1500 मीटर की दूरी तय करता है। उसकी गति किमी/घंटा में ज्ञात कीजिए।",
+    tag: "",
+    o: ["25 km/hr", "28 km/hr", "30 km/hr", "32 km/hr"],
+    a: 2,
+    e: "दूरी $= 1500\\text{ मीटर} = 1.5\\text{ किमी}$\\nसमय $= 3\\text{ मिनट} = \\frac{3}{60}\\text{ घंटे} = \\frac{1}{20}\\text{ घंटे}$\\n$$\\text{गति} = \\frac{1.5}{\\frac{1}{20}} = 1.5 \\times 20 = 30\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "17. स्नेहा हाई-वे पर 72 किमी प्रति घंटे की गति से यात्रा कर रही है, जबकि राहुल 90 किमी प्रति घंटे की गति से यात्रा कर रहा है। उनकी गति (मीटर प्रति सेकंड में) में कितना अंतर है?",
+    tag: "",
+    o: ["4", "5", "6", "10"],
+    a: 1,
+    e: "गति में अंतर (किमी/घंटा में) $= 90 - 72 = 18\\text{ किमी/घंटा}$\\nइस अंतर को मी/सेकंड में बदलने पर:\\n$$18 \\times \\frac{5}{18} = 5\\text{ मी/से.}$$"
+  },
+  {
+    q: "18. कबीर 4 घंटे में 324 किमी की दूरी तय करता है। उसकी गति मी/सेकंड में क्या है?",
+    tag: "",
+    o: ["20 m/sec", "22.5 m/sec", "25 m/sec", "27.5 m/sec"],
+    a: 1,
+    e: "गति (किमी/घंटा में) $= \\frac{324}{4} = 81\\text{ किमी/घंटा}$\\nमी/सेकंड में गति $= 81 \\times \\frac{5}{18} = \\frac{9 \\times 5}{2} = \\frac{45}{2} = 22.5\\text{ मी/से. (m/sec)}$"
+  },
+  {
+    q: "19. कविता से 1.7 किमी की दूरी पर एक बंदूक चलाई जाती है। वह 5 सेकंड के बाद आवाज सुनती है। ध्वनि जिस गति से चलती है वह है:",
+    tag: "",
+    o: ["320 m/sec", "330 m/sec", "340 m/sec", "350 m/sec"],
+    a: 2,
+    e: "दूरी $= 1.7\\text{ किमी} = 1700\\text{ मीटर}$\\nसमय $= 5\\text{ सेकंड}$\\n$$\\text{गति} = \\frac{\\text{दूरी}}{\\text{समय}} = \\frac{1700}{5} = 340\\text{ मी/से. (m/sec)}$$"
+  },
+  {
+    q: "20. एक बस की गति 54 किमी/घंटा है। बस द्वारा 8 सेकंड में तय की गई दूरी है:",
+    tag: "",
+    o: ["100 m", "120 m", "140 m", "150 m"],
+    a: 1,
+    e: "गति $= 54\\text{ किमी/घंटा} = 54 \\times \\frac{5}{18} = 15\\text{ मी/से.}$\\n$$\\text{दूरी} = \\text{चाल} \\times \\text{समय} = 15 \\times 8 = 120\\text{ मीटर (m)}$$"
+  },
+  {
+    q: "21. एक कार 90 किमी/घंटा की गति से चल रही है। 24 सेकंड में इसके द्वारा तय की गई दूरी कितनी है?",
+    tag: "",
+    o: ["500 meters", "540 meters", "600 meters", "650 meters"],
+    a: 2,
+    e: "गति $= 90\\text{ किमी/घंटा} = 90 \\times \\frac{5}{18} = 25\\text{ मी/से.}$\\n$$\\text{दूरी} = \\text{चाल} \\times \\text{समय} = 25 \\times 24 = 600\\text{ मीटर}$$"
+  },
+  {
+    q: "22. एक train समान गति से 3 घंटे में 300 किमी की दूरी तय करती है तो उसी समान गति से 500 किमी की दूरी कितने समय में तय करेगी:",
+    tag: "",
+    o: ["4", "5", "6", "7"],
+    a: 1,
+    e: "ट्रेन की गति $= \\frac{300}{3} = 100\\text{ किमी/घंटा}$\\n$$\\text{अभीष्ट समय} = \\frac{500}{100} = 5\\text{ घंटे}$$"
+  },
+  {
+    q: "23. एक व्यक्ति 9 किमी/घंटा की गति से चलते हुए एक पुल को 12 मिनट में पार करता है। पुल की लंबाई किलोमीटर में कितनी है?",
+    tag: "",
+    o: ["1.5", "1.8", "2.0", "2.4"],
+    a: 1,
+    e: "गति $= 9\\text{ किमी/घंटा}$\\nसमय $= 12\\text{ मिनट} = \\frac{12}{60}\\text{ घंटे} = \\frac{1}{5}\\text{ घंटे}$\\n$$\\text{पुल की लंबाई (दूरी)} = \\text{गति} \\times \\text{समय} = 9 \\times \\frac{1}{5} = 1.8\\text{ किमी}$$"
+  },
+  {
+    q: "24. एक लड़की को 15 मीटर दौड़ने में उतना ही समय लगता है जितना एक कार को 40 मीटर चलने में लगता है। जितने समय में एक कार 2 किमी चलती है, उतने ही समय में लड़की कितनी दूरी तय करेगी?",
+    tag: "",
+    o: ["600 m", "750 m", "800 m", "1000 m"],
+    a: 1,
+    e: "समय समान होने पर, दूरियों का अनुपात उनकी चालों के अनुपात के बराबर होता है।\\n$$\\frac{\\text{लड़की की दूरी}}{\\text{कार की दूरी}} = \\frac{15}{40} = \\frac{3}{8}$$\\nजब कार 2 किमी ($2000\\text{ मीटर}$) चलती है:\\n$$\\text{लड़की द्वारा तय दूरी} = \\frac{3}{8} \\times 2000 = 3 \\times 250 = 750\\text{ मीटर}$$"
+  },
+  {
+    q: "25. एक कार 9 घंटे में 540 किमी की दूरी तय करती है। समान दूरी को 6 घंटे में तय करने के लिए गति कितनी बढ़ानी होगी?",
+    tag: "",
+    o: ["10 km/h", "20 km/h", "30 km/h", "40 km/h"],
+    a: 2,
+    e: "प्रारंभिक गति $= \\frac{540}{9} = 60\\text{ किमी/घंटा}$\\nनई आवश्यक गति $= \\frac{540}{6} = 90\\text{ किमी/घंटा}$\\n$$\\text{गति में वृद्धि} = 90 - 60 = 30\\text{ किमी/घंटा (km/h)}$$"
+  },
+  {
+    q: "26. दो धावक क्रमशः 150 मीटर/मिनट और 200 मीटर/मिनट की गति से दौड़ते हैं। यदि दूसरे धावक को दौड़ पूरी करने में पहले धावक से 5 मिनट कम समय लगता है, तो दौड़ कितनी लंबी है?",
+    tag: "",
+    o: ["2 km", "3 km", "4 km", "5 km"],
+    a: 1,
+    e: "मान लें दौड़ की लंबाई $d$ मीटर है।\\n$$\\frac{d}{150} - \\frac{d}{200} = 5$$\\n$$\\frac{4d - 3d}{600} = 5 \\implies \\frac{d}{600} = 5 \\implies d = 3000\\text{ मीटर} = 3\\text{ किमी}$$"
+  },
+  {
+    q: "27. दो दोस्त एक जगह के लिए निकले, एक मोटर साइकिल से और दूसरा ट्रेन से। मोटर साइकिल की गति 45 किमी/घंटा है और ट्रेन की गति 36 किमी/घंटा है। पहले वाले को गंतव्य तक पहुंचने में 4 घंटे 24 मिनट लगते हैं। तो दूसरे के पहुँचने का समय ज्ञात कीजिए।",
+    tag: "",
+    o: ["5.25 hrs", "5.50 hrs", "5.75 hrs", "6.00 hrs"],
+    a: 1,
+    e: "पहले व्यक्ति का समय $= 4\\text{ घंटे } 24\\text{ मिनट} = 4 + \\frac{24}{60} = 4 + \\frac{2}{5} = \\frac{22}{5}\text{ घंटे}$\\n$$\\text{दूरी} = \\text{चाल} \\times \\text{समय} = 45 \\times \\frac{22}{5} = 9 \\times 22 = 198\\text{ किमी}$$\\nदूसरे व्यक्ति (ट्रेन) को लगा समय $= \\frac{198}{36} = \\frac{22}{4} = 5.5\\text{ घंटे (hrs)}$"
+  },
+  {
+    q: "28. एक कार 80 किमी/घंटा की गति से चलती है और एक घंटे में एक विशेष दूरी तय करती है। दूसरी कार को समान दूरी 50 किमी/घंटा की गति से तय करने में कितना समय लगेगा?",
+    tag: "",
+    o: ["\\frac{8}{5} hrs", "\\frac{7}{5} hrs", "\\frac{3}{2} hrs", "\\frac{5}{3} hrs"],
+    a: 0,
+    e: "दूरी $= 80 \\times 1 = 80\\text{ किमी}$\\n$$\\text{दूसरी कार का समय} = \\frac{\\text{दूरी}}{\\text{चाल}} = \\frac{80}{50} = \\frac{8}{5}\\text{ घंटे (hrs)}$$"
+  },
+  {
+    q: "29. एक आदमी 5 किमी/प्रति घंटे की गति से चलते हुए 3 घंटे 12 मिनट में एक निश्चित दूरी तय करता है। 20 किमी/प्रति घंटे की गति से दौड़ते हुए व्यक्ति समान दूरी कितने मिनट में तय करेगा?",
+    tag: "",
+    o: ["40 minutes", "45 minutes", "48 minutes", "50 minutes"],
+    a: 2,
+    e: "समय $= 3\\text{ घंटे } 12\\text{ मिनट} = 3 + \\frac{12}{60} = 3 + \\frac{1}{5} = \\frac{16}{5}\text{ घंटे}$\\n$$\\text{दूरी} = 5 \\times \\frac{16}{5} = 16\\text{ किमी}$$\\n20 किमी/घंटा की गति से समय $= \\frac{16}{20}\\text{ घंटे} = \\frac{16}{20} \\times 60 = 16 \\times 3 = 48\\text{ मिनट}$$"
+  },
+  {
+    q: "30. राजू को 300 किमी की दूरी 5 घंटे में तय करनी है। यदि वह यात्रा का एक-चौथाई भाग 2/5 समय में तय करता है, तो यात्रा की शुरुआत में उसकी गति क्या थी?",
+    tag: "",
+    o: ["35 km/hr", "37.5 km/hr", "40 km/hr", "42.5 km/hr"],
+    a: 1,
+    e: "शुरुआती यात्रा की दूरी $= 300 \\text{ का } \\frac{1}{4} = 75\\text{ किमी}$\\nशुरुआती यात्रा का समय $= 5 \\text{ का } \\frac{2}{5} = 2\\text{ घंटे}$\\n$$\\text{शुरुआत में गति} = \\frac{75}{2} = 37.5\\text{ किमी/घंटा}$$"
+  },
+  {
+    q: "31. एक आदमी किसी निश्चित दूरी को p किमी. प्रति घण्टे की चाल से जाता है और q किमी. प्रति घंटे की चाल से आता है। वह आने और जाने में T घंटे लगाता है। दूरी ज्ञात करें।",
+    tag: "",
+    o: ["[\\frac{T}{(p+q)}]\\times pq", "[\\frac{T}{(p-q)}]\\times pq", "[\\frac{(p+q)}{T}]\\times pq", "\\frac{pq}{(p+q)}"],
+    a: 0,
+    e: "जब कुल समय $T$ दिया हो और दूरी नियत हो, तो दूरी का सूत्र होता है:\\n$$\\text{दूरी} = \\left(\\frac{p \\times q}{p + q}\\right) \\times T = \\left[\\frac{T}{(p+q)}\\right]\\times pq$$"
+  },
+  {
+    q: "32. एक आदमी ट्रेन से कुछ निश्चित दूरी 30 किमी/घण्टे की चाल से तय करता है और 5 किमी./घंटे की चाल से वापिस पैदल चलकर आता है। आने जाने में कुल 7 घंटे लगते हैं तो ज्ञात करो कि उसने ट्रेन से कितनी दूरी तय की?",
+    tag: "",
+    o: ["25 km", "30 km", "35 km", "40 km"],
+    a: 1,
+    e: "$$\\text{दूरी} = \\left(\\frac{x \\times y}{x + y}\\right) \\times t = \\left(\\frac{30 \\times 5}{30 + 5}\\right) \\times 7 = \\frac{150}{35} \\times 7 = \\frac{150}{5} = 30\\text{ किमी}$$"
+  },
+  {
+    q: "33. एक आदमी 6 घंटे 30 मिनट की यात्रा करता है। यदि वह यात्रा का पहला आधा भाग 40 किमी/घंटा की गति से और शेष भाग 25 किमी/घंटा की गति से तय करता है। उसके द्वारा तय की गई कुल दूरी ज्ञात कीजिए।",
+    tag: "",
+    o: ["150 km", "180 km", "200 km", "240 km"],
+    a: 2,
+    e: "कुल समय $= 6\\frac{1}{2}\\text{ घंटे} = \\frac{13}{2}\\text{ घंटे}$\\nमान लें आधी दूरी $d$ है, तो कुल दूरी $= 2d$\\n$$\\frac{d}{40} + \\frac{d}{25} = \\frac{13}{2}$$\\n$$\\frac{5d + 8d}{200} = \\frac{13}{2} \\implies \\frac{13d}{200} = \\frac{13}{2} \\implies d = 100\\text{ किमी}$$\\n$$\\text{कुल दूरी} = 2d = 2 \\times 100 = 200\\text{ किमी}$$"
+  },
+  {
+    q: "34. एक लड़का 4 किमी. प्रति घंटे की चाल से school जाता है और 3 किमी. प्रति घंटे की चाल से वापिस आता है और उसे कुल 7 घंटे का समय लगता है। घर से स्कूल की दूरी ज्ञात करें।",
+    tag: "",
+    o: ["10 km", "12 km", "14 km", "16 km"],
+    a: 1,
+    e: "$$\\text{दूरी} = \\left(\\frac{4 \\times 3}{4 + 3}\\right) \\times 7 = \\frac{12}{7} \\times 7 = 12\\text{ किमी}$$"
+  },
+  {
+    q: "35. एक छात्र 4.5 किमी./घंटे की चाल से स्कूल जाता है और 3 किमी./घंटे की चाल से वापस लौटता है। यदि वह पूरी यात्रा में 5 घंटों का समय लेता है, तो छात्र द्वारा तय की गई कुल दूरी (किमी. में) ज्ञात करें।",
+    tag: "",
+    o: ["9", "12", "15", "18"],
+    a: 3,
+    e: "एक तरफ की दूरी (स्कूल से घर) $= \\left(\\frac{4.5 \\times 3}{4.5 + 3}\\right) \\times 5 = \\frac{13.5}{7.5} \\times 5 = \\frac{9}{5} \\times 5 = 9\\text{ किमी}$\\n$$\\text{छात्र द्वारा तय की गई कुल दूरी (आना + जाना)} = 9 + 9 = 18\\text{ किमी}$$"
+  },
+  {
+    q: "36. एक कार एक निश्चित यात्रा 10 घंटे में पूरी करती है। यह आधी दूरी 30 किमी/घंटा की गति से और शेष दूरी 45 किमी/घंटा की गति से तय करती है। यात्रा की लंबाई (किमी. में) है:",
+    tag: "",
+    o: ["300", "320", "360", "400"],
+    a: 2,
+    e: "मान लें आधी दूरी $d$ है।\\n$$\\frac{d}{30} + \\frac{d}{45} = 10 \\implies \\frac{3d + 2d}{90} = 10 \\implies \\frac{5d}{90} = 10 \\implies 5d = 900 \\implies d = 180\\text{ किमी}$$\\n$$\\text{यात्रा की कुल लंबाई} = 2d = 2 \\times 180 = 360\\text{ किमी}$$"
+  },
+  {
+    q: "37. दो धावक क्रमशः 150 मीटर/मिनट और 180 मीटर/मिनट की गति से दौड़ते हैं। यदि दूसरे धावक को दौड़ पूरी करने में पहले धावक से 5 मिनट कम समय लगता है, तो दौड़ कितनी लंबी है?",
+    tag: "",
+    o: ["3.5 km", "4 km", "4.5 km", "5 km"],
+    a: 2,
+    e: "$$\\text{दौड़ की लंबाई (मीटर में)} = \\left(\\frac{150 \\times 180}{180 - 150}\\right) \\times 5 = \\frac{27000}{30} \\times 5 = 900 \\times 5 = 4500\\text{ मीटर}$$\\n$$4500\\text{ मीटर} = 4.5\\text{ किमी}$$"
+  },
+  {
+    q: "38. दो बसें क्रमशः 40 किमी/घंटा और 50 किमी./घंटा की चाल से यात्रा कर रही हैं। यदि दूसरी बस पहली बस की अपेक्षा यात्रा में 2 घंटे कम लेती है, तो बताइए यात्रा कितनी लम्बी है?",
+    tag: "",
+    o: ["300 km", "350 km", "400 km", "450 km"],
+    a: 2,
+    e: "$$\\text{यात्रा की लंबाई} = \\left(\\frac{40 \\times 50}{50 - 40}\\right) \\times 2 = \\frac{2000}{10} \\times 2 = 200 \\times 2 = 400\\text{ किमी}$$"
+  },
+  {
+    q: "39. एक व्यक्ति 400 किमी की दूरी तय करता है और फिर आरंभिक बिंदु पर लौट आता है। जाने में उसके द्वारा लिया गया समय, वापस आने में लिए गए समय से 2 घंटे अधिक है। यदि वह जाने की चाल की तुलना में 10 किमी/घंटा अधिक से लौटा हो, तो जाते समय उसकी चाल (किमी./ घंटा में) क्या थी?",
+    tag: "",
+    o: ["30", "40", "50", "60"],
+    a: 1,
+    e: "मान लें जाते समय चाल $x$ किमी/घंटा थी। तो आते समय चाल $(x + 10)$ किमी/घंटा होगी।\\n$$\\frac{400}{x} - \\frac{400}{x+10} = 2$$\\n$$400 \\left(\\frac{x + 10 - x}{x(x+10)}\\right) = 2 \\implies \\frac{4000}{x(x+10)} = 2 \\implies x(x+10) = 2000$$\\nविकल्पों से जाँच करने पर, यदि $x = 40$:\\n$$40 \\times (40 + 10) = 40 \\times 50 = 2000\\text{ (संतुष्ट होता है)}\\nअतः जाते समय चाल 40 किमी/घंटा थी।"
+  },
+  {
+    q: "40. एक आदमी घर से ऑफिस की एक निश्चित दूरी 20 किमी प्रति घण्टे की चाल से तय करता है तो वह 15 मिनट लेट हो जाता है। लेकिन अगर वह 30 किमी. प्रति घंटे की चाल से जाए तो 5 मिनट पहले पहुंच जाता है। घर से ऑफिस की दूरी ज्ञात करो।",
+    tag: "",
+    o: ["15 km", "20 km", "25 km", "30 km"],
+    a: 1,
+    e: "समय का कुल अंतर $= 15\\text{ मिनट (Late)} + 5\\text{ मिनट (Early)} = 20\\text{ मिनट} = \\frac{20}{60}\\text{ घंटे} = \\frac{1}{3}\\text{ घंटे}$\\n$$\\text{दूरी} = \\left(\\frac{20 \\times 30}{30 - 20}\\right) \\times \\frac{1}{3} = \\frac{600}{10} \\times \\frac{1}{3} = 60 \\times \\frac{1}{3} = 20\\text{ किमी}$$"
+  },
+  {
+    q: "41. एक दिन अपने घर से स्कूल जाते समय एक बच्चा 3 किमी./घंटे की चाल से जाता है और 10 मिनट लेट हो जाता है। अगले दिन वह अपनी चाल 1 किमी. प्रति घंटा बढ़ा देता है और स्कूल 5 मिनट जल्दी पहुंच जाता है। घर से स्कूल की दूरी ज्ञात करो।",
+    tag: "",
+    o: ["2 km", "3 km", "4 km", "5 km"],
+    a: 1,
+    e: "पहले दिन चाल $= 3\\text{ किमी/घंटा}$\\nदूसरे दिन चाल $= 3 + 1 = 4\\text{ किमी/घंटा}$\\nसमय का कुल अंतर $= 10 + 5 = 15\\text{ मिनट} = \\frac{15}{60}\\text{ घंटे} = \\frac{1}{4}\\text{ घंटे}$\\n$$\\text{दूरी} = \\left(\\frac{3 \\times 4}{4 - 3}\\right) \\times \\frac{1}{4} = \\frac{12}{1} \\times \\frac{1}{4} = 3\\text{ किमी}$$"
+  },
+  {
+    q: "42. एक आदमी कोई निश्चित दूरी 15 किमी./घण्टे की चाल से जाता है और 20 मिनट लेट हो जाता है। अगर वही दूरी वह 20 किमी./घण्टे की चाल से जाए तो 8 मिनट लेट होता है। दूरी ज्ञात करो।",
+    tag: "",
+    o: ["10 km", "12 km", "15 km", "18 km"],
+    a: 1,
+    e: "दोनों केस 'Late' के हैं, अतः समय का अंतर $= 20 - 8 = 12\\text{ मिनट} = \\frac{12}{60}\\text{ घंटे} = \\frac{1}{5}\\text{ घंटे}$\\n$$\\text{दूरी} = \\left(\\frac{15 \\times 20}{20 - 15}\\right) \\times \\frac{1}{5} = \\frac{300}{5} \\times \\frac{1}{5} = 60 \\times \\frac{1}{5} = 12\\text{ किमी}$$"
+  },
+  {
+    q: "43. एक आदमी कोई निश्चित दूरी स्कूटर से जाता है। अगर वह अपनी चाल 4 किमी./घंटा बढ़ा दे तो 30 मिनट कम समय लेता है, परंतु अगर वह अपनी गति 3 किमी./घंटा घटा दे तो 30 मिनट ज्यादा समय लगता है। दूरी ज्ञात करो।",
+    tag: "",
+    o: ["72 km", "80 km", "84 km", "90 km"],
+    a: 2,
+    e: "सूत्र: $D = \\frac{S(S+a)}{a} \\times t_1 = \\frac{S(S-b)}{b} \\times t_2$\\n$$\\frac{S(S+4)}{4} \\times \\frac{30}{60} = \\frac{S(S-3)}{3} \\times \\frac{30}{60}$$\\n$$\\frac{S+4}{4} = \\frac{S-3}{3} \\implies 3S + 12 = 4S - 12 \\implies S = 24\\text{ किमी/घंटा}$$\\nअब दूरी ज्ञात करने के लिए $S$ का मान रखने पर:\\n$$D = \\frac{24 \\times (24 + 4)}{4} \\times \\frac{30}{60} = \\frac{24 \\times 28}{4} \\times \\frac{1}{2} = 6 \\times 14 = 84\\text{ किमी}$$"
+  },
+  {
+    q: "44. एक आदमी कोई निश्चित दूरी कार से जाता है। अगर वह अपनी गति 5 किमी./घण्टा बढ़ा दे तो उसे 2 घण्टे कम समय लगता है पर अगर वह अपनी गति 5 किमी./घण्टा घटा दे तो 3 घण्टे ज्यादा समय लगता है। दूरी ज्ञात करो।",
+    tag: "",
+    o: ["250 km", "280 km", "300 km", "320 km"],
+    a: 2,
+    e: "$$\\frac{S(S+5)}{5} \\times 2 = \\frac{S(S-5)}{5} \\times 3$$\\n$$2(S+5) = 3(S-5) \\implies 2S + 10 = 3S - 15 \\implies S = 25\\text{ किमी/घंटा}$$\\nदूरी का मान:\\n$$D = \\frac{25 \\times (25 + 5)}{5} \\times 2 = \\frac{25 \\times 30}{5} \\times 2 = 5 \\times 30 \\times 2 = 300\\text{ किमी}$$"
+  },
+  {
+    q: "45. एक आदमी कोई निश्चित दूरी कार से जाता है। अगर वह अपनी गति 15 किमी. प्रति घंटा बढ़ा दे तो अपने गंतव्य पर 2 घण्टे पहले पहुंच जाता है। परंतु यदि वह अपनी चाल 15 किमी./घण्टा और बढ़ा ले तो 1 घण्टा और जल्दी पहुंच जाता है। तो उसके गंतव्य की दूरी ज्ञात करें।",
+    tag: "",
+    o: ["150 km", "160 km", "180 km", "200 km"],
+    a: 2,
+    e: "पहली स्थिति में चाल में वृद्धि $= 15$, समय की बचत $= 2$ घंटे\\nदूसरी स्थिति में कुल चाल में वृद्धि $= 15 + 15 = 30$, कुल समय की बचत $= 2 + 1 = 3$ घंटे\\n$$\\frac{S(S+15)}{15} \\times 2 = \\frac{S(S+30)}{30} \\times 3$$\\n$$\\frac{S+15}{15} \\times 2 = \\frac{S+30}{10} \\implies 2(S+15) = 1.5(S+30)$$\\n$$2S + 30 = 1.5S + 45 \\implies 0.5S = 15 \\implies S = 30\\text{ किमी/घंटा}$$\\nदूरी का मान:\\n$$D = \\frac{30 \\times (30 + 15)}{15} \\times 2 = \\frac{30 \\times 45}{15} \\times 2 = 2 \\times 45 \\times 2 = 180\\text{ किमी}$$"
+  },
+  {
+    q: "46. यदि एक लड़का 12 किमी/घंटा की गति से अपनी साइकिल से स्कूल जाता है तो वह 5 मिनट पहले (जल्दी) पहुँच जाता है। यदि वह 15 किमी/घंटा की गति से साइकिल चलाता है, तो वह 11 मिनट पहले (जल्दी) पहुँच जाता है। उसके घर से स्कूल की दूरी ज्ञात कीजिए।",
+    tag: "",
+    o: ["4 km", "5 km", "6 km", "8 km"],
+    a: 2,
+    e: "दोनों केस 'Early' के हैं, अतः समय का अंतर $= 11 - 5 = 6\\text{ मिनट} = \\frac{6}{60}\\text{ घंटे} = \\frac{1}{10}\\text{ घंटे}$\\n$$\\text{दूरी} = \\left(\\frac{12 \\times 15}{15 - 12}\\right) \\times \\frac{1}{10} = \\frac{180}{3} \\times \\frac{1}{10} = 60 \\times \\frac{1}{10} = 6\\text{ किमी}$$"
+  },
+  {
+    q: "47. एक व्यक्ति P से Q तक 40 किमी./घंटा की चाल से जाता है और Q से P वापस 60 किमी / घंटा की चाल से आता है। पूरी यात्रा की औसत चाल ज्ञात करो।",
+    tag: "",
+    o: ["45 km/hr", "48 km/hr", "50 km/hr", "52 km/hr"],
+    a: 1,
+    e: "जब समान दूरी अलग-अलग चालों ($S_1$ और $S_2$) से तय की जाए, तो औसत चाल का सूत्र है:\\n$$\\text{औसत चाल} = \\frac{2S_1S_2}{S_1 + S_2} = \\frac{2 \\times 40 \\times 60}{40 + 60} = \\frac{4800}{100} = 48\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "48. एक साइकिल चालक गाँव A से B तक 15 किमी/घंटा की चाल से जाता है, लेकिन B से A तक 10 किमी/घंटा की चाल से वापस आता है। उसकी औसत चाल ज्ञात करें।",
+    tag: "",
+    o: ["12 km/hr", "12.5 km/hr", "13 km/hr", "11.5 km/hr"],
+    a: 0,
+    e: "$$\\text{औसत चाल} = \\frac{2 \\times 15 \\times 10}{15 + 10} = \\frac{300}{25} = 12\\text{ किमी/घंटा (km/hr)}$$"
+  },
+  {
+    q: "49. यदि वह आधी दूरी को 30 किमी/घंटा तथा शेष आधी दूरी को 20 किमी/घंटा की चाल से तय करती है और पूरी यात्रा को 5 घंटे में तय करती है, तो बस द्वारा तय की गई कुल दूरी बताएं।",
+    tag: "",
+    o: ["150 km", "100 km", "120 km", "180 km"],
+    a: 2,
+    e: "$$\\text{औसत चाल} = \\frac{2 \\times 30 \\times 20}{30 + 20} = \\frac{1200}{50} = 24\\text{ किमी/घंटा}$$\\n$$\\text{कुल दूरी} = \\text{औसत चाल} \\times \\text{कुल समय} = 24 \\times 5 = 120\\text{ किमी}$$"
+  },
+  {
+    q: "50. राहुल P से Q की यात्रा 10 किमी/घंटा की चाल से, Q से R की यात्रा 12 किमी/घंटा की चाल से तथा R से S की यात्रा 15 किमी/घंटा की चाल से तय करता है। यदि PQ=QR=RS हो, तो राहुल की औसत चाल ज्ञात करें।",
+    tag: "",
+    o: ["12 km/h", "11 km/h", "13 km/h", "12.5 km/h"],
+    a: 0,
+    e: "चूंकि तीनों दूरियाँ समान हैं, हम मान लेते हैं कि प्रत्येक दूरी 10, 12, और 15 का लघुत्तम समापवर्त्य (LCM) अर्थात् 60 किमी है।\\nकुल दूरी $= 60 + 60 + 60 = 180\\text{ किमी}$\\nकुल समय $= \\frac{60}{10} + \\frac{60}{12} + \\frac{60}{15} = 6 + 5 + 4 = 15\\text{ घंटे}$\\n$$\\text{औसत चाल} = \\frac{\\text{कुल दूरी}}{\\text{कुल समय}} = \\frac{180}{15} = 12\\text{ किमी/घंटा (km/h)}$$"
+  }
+];
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+
+ txt=txt.replace(/\\n/g,"<br>");
+ txt=txt.replace(/\$\$/g,"").replace(/\$/g,"");
+ txt=txt.replace(/\\\(/g,"").replace(/\\\)/g,"");
+ txt=txt.replace(/\\\[/g,"").replace(/\\\]/g,"");
+ txt=txt.replace(/\\left/g,"").replace(/\\right/g,"");
+
+ while(/\\text\{([^{}]*)\}/.test(txt)){
+   txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1");
+ }
+
+ function fracPass(s){
+   return s.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,
+   '<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ }
+ let old;
+ do{
+   old=txt;
+   txt=fracPass(txt);
+ }while(txt!==old);
+
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+
+ const rep={
+"\\\\times":"×","\\\\div":"÷","\\\\cdot":"·","\\\\pm":"±","\\\\approx":"≈",
+"\\\\neq":"≠","\\\\geq":"≥","\\\\ge":"≥","\\\\leq":"≤","\\\\le":"≤",
+"\\\\implies":"⇒","\\\\therefore":"∴","\\\\because":"∵",
+"\\\\alpha":"α","\\\\beta":"β","\\\\gamma":"γ","\\\\theta":"θ","\\\\lambda":"λ",
+"\\\\mu":"μ","\\\\pi":"π","\\\\sigma":"σ","\\\\phi":"φ","\\\\omega":"ω","\\\\Omega":"Ω"
+};
+ for(const k in rep){ txt=txt.replace(new RegExp(k,"g"),rep[k]); }
+
+ txt=txt.replace(/\\,/g,"");
+ txt=txt.replace(/\\([A-Za-z]+)/g,"$1");
+ txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+ 
+// Final cleanup (added)
+txt = txt.replace(/\\text\s*\{([^}]*)\}/gi, "$1");
+txt = txt.replace(/\btext\s*\{([^}]*)\}/gi, "$1");
+txt = txt.replace(/\bext\s*\{([^}]*)\}/gi, "$1");
+txt = txt.replace(/\\left/g,"");
+txt = txt.replace(/\\right/g,"");
+
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

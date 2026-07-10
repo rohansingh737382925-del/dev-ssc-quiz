@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    "q": "Q1. 364 मीटर लंबी एक रेलगाड़ी 26 सेकंड में एक खंभे को पार करती है।\nरेलगाड़ी की गति मीटर प्रति सेकंड में ज्ञात करें।",
+    "o": [
+      "(a) 15 m/sec",
+      "(b) 11 m/sec",
+      "(c) 14 m/sec",
+      "(d) 13 m/sec"
+    ],
+    "a": 2,
+    "e": "जब कोई रेलगाड़ी किसी खंभे को पार करती है, तो वह अपनी लंबाई के बराबर दूरी तय करती है।\nगति = दूरी / समय\nगति = 364 / 26 = 14 m/sec."
+  },
+  {
+    "q": "Q2. 150 मीटर लम्बी कोई ट्रेन 54 किमी. प्रति घंटे की चाल से किसी आदमी को कितनी देर में पार करेगी?",
+    "o": [
+      "(a) 8",
+      "(b) 12",
+      "(c) 10",
+      "(d) 15"
+    ],
+    "a": 2,
+    "e": "चाल = 54 किमी/घंटा = 54 × 5/18 = 15 मीटर/सेकंड\nसमय = दूरी / चाल = 150 / 15 = 10 सेकंड।"
+  },
+  {
+    "q": "Q3. 54 किमी/घंटा की गति से चल रही 180 मी. लंबी रेलगाड़ी द्वारा प्लेटफॉर्म पर खड़े एक व्यक्ति को पार करने में लिया गया समय कितना है?",
+    "o": [
+      "(a) 10 Seconds",
+      "(b) 12 Seconds",
+      "(c) 11 Seconds",
+      "(d) 9 Seconds"
+    ],
+    "a": 1,
+    "e": "चाल = 54 किमी/घंटा = 54 × 5/18 = 15 मी/सेकंड\nसमय = रेलगाड़ी की लंबाई / चाल = 180 / 15 = 12 सेकंड।"
+  },
+  {
+    "q": "Q4. 90 किमी/घंटे की रफ्तार से जाने वाली कोई ट्रेन किसी खम्भे को 16 सेकेण्ड में पार करती है। ट्रेन की लम्बाई ज्ञात करो?",
+    "o": [
+      "(a) 300",
+      "(b) 450",
+      "(c) 400",
+      "(d) 500"
+    ],
+    "a": 2,
+    "e": "चाल = 90 किमी/घंटा = 90 × 5/18 = 25 मी/सेकंड\nट्रेन की लंबाई (दूरी) = चाल × समय = 25 × 16 = 400 मीटर।"
+  },
+  {
+    "q": "Q5. एक train जो 45 किमी/घंटा की गति से चल रही है, 24 सेकंड में एक खंभे को पार कर जाती है। ट्रेन की लंबाई क्या होगी?",
+    "o": [
+      "(a) 125 m",
+      "(b) 300 m",
+      "(c) 30 m",
+      "(d) 1.5 m"
+    ],
+    "a": 1,
+    "e": "चाल = 45 किमी/घंटा = 45 × 5/18 = 12.5 मी/सेकंड\nट्रेन की लंबाई = चाल × समय = 12.5 × 24 = 300 मीटर।"
+  },
+  {
+    "q": "Q6. 200 मी लंबी एक रेलगाड़ी 108 किमी/घंटा की चाल से चल रही है। यह रेलगाड़ी 400 मी लंबे प्लेटफॉर्म को कितने समय (सेकंड में) में पार कर जाएगी?",
+    "o": [
+      "(a) 15",
+      "(b) 20",
+      "(c) 25",
+      "(d) 30"
+    ],
+    "a": 1,
+    "e": "कुल दूरी = रेलगाड़ी की लंबाई + प्लेटफॉर्म की लंबाई = 200 + 400 = 600 मीटर\nचाल = 108 किमी/घंटा = 108 × 5/18 = 30 मी/सेकंड\nसमय = कुल दूरी / चाल = 600 / 30 = 20 सेकंड।"
+  },
+  {
+    "q": "Q7. एक रेलगाड़ी की लंबाई 400 मीटर है तथा वह 90 किमी/घंटा की चाल से चल रही है। 600 मीटर लंबे किसी प्लेटफॉर्म को पार करने में यह कितना समय लेगी?",
+    "o": [
+      "(a) 35 sec",
+      "(b) 45 sec",
+      "(c) 40 sec",
+      "(d) 50 sec"
+    ],
+    "a": 2,
+    "e": "कुल दूरी = 400 + 600 = 1000 मीटर\nचाल = 90 किमी/घंटा = 90 × 5/18 = 25 मी/सेकंड\nसमय = 1000 / 25 = 40 सेकंड।"
+  },
+  {
+    "q": "Q8. 120 मी लंबी वंदे भारत एक्सप्रेस ट्रेन 144 किमी/घंटा की चाल से चल रही है। 160 मी. लंबी एक और ट्रेन स्टेशन पर खड़ी है। वंदे भारत एक्सप्रेस दूसरी ट्रेन को कितने समय में पार करेगी?",
+    "o": [
+      "(a) 6 sec",
+      "(b) 7 sec",
+      "(c) 8 sec",
+      "(d) 9 sec"
+    ],
+    "a": 1,
+    "e": "कुल दूरी = 120 + 160 = 280 मीटर\nचाल = 144 किमी/घंटा = 144 × 5/18 = 40 मी/सेकंड\nसमय = 280 / 40 = 7 सेकंड।"
+  },
+  {
+    "q": "Q9. 350 मीटर लंबी एक मालगाड़ी 1250 मीटर लंबी सुरंग से 80 सेकंड में गुजरती है। ट्रेन की गति क्या है?",
+    "o": [
+      "(a) 78 km/h",
+      "(b) 72 km/h",
+      "(c) 56 km/h",
+      "(d) 64 km/h"
+    ],
+    "a": 1,
+    "e": "कुल दूरी = 350 + 1250 = 1600 मीटर\nगति (मी/सेकंड) = 1600 / 80 = 20 मी/सेकंड\nगति (किमी/घंटा) = 20 × 18/5 = 72 किमी/घंटा।"
+  },
+  {
+    "q": "Q10. 300 मीटर लम्बी ट्रेन बराबर लम्बाई के प्लेटफार्म को 30 सेकेंड में पार करती है। ट्रेन की गति ज्ञात करो।",
+    "o": [
+      "(a) 72",
+      "(b) 54",
+      "(c) 90",
+      "(d) 60"
+    ],
+    "a": 0,
+    "e": "प्लेटफॉर्म की लंबाई = 300 मीटर\nकुल दूरी = 300 + 300 = 600 मीटर\nगति (मी/सेकंड) = 600 / 30 = 20 मी/सेकंड\nगति (किमी/घंटा) = 20 × 18/5 = 72 किमी/घंटा।"
+  },
+  {
+    "q": "Q11. 90 किमी./घंटे की चाल से जाने वाली कोई train 300 मीटर लम्बे प्लेटफार्म को 20 सेकेंड में पार करती है। ट्रेन की लंबाई ज्ञात करो।",
+    "o": [
+      "(a) 150",
+      "(b) 200",
+      "(c) 250",
+      "(d) 300"
+    ],
+    "a": 1,
+    "e": "चाल = 90 किमी/घंटा = 90 × 5/18 = 25 मी/सेकंड\nकुल दूरी = चाल × समय = 25 × 20 = 500 मीटर\nट्रेन की लंबाई = कुल दूरी - प्लेटफॉर्म की लंबाई = 500 - 300 = 200 मीटर।"
+  },
+  {
+    "q": "Q12. 348 मीटर लंबी एक रेलगाड़ी 36 किमी/घंटा की गति से चल रही है। यह एक पुल को 50 सेकंड में पार करती है। पुल की लंबाई कितनी है?",
+    "o": [
+      "(a) 152 m",
+      "(b) 146 m",
+      "(c) 176 m",
+      "(d) 103 m"
+    ],
+    "a": 0,
+    "e": "चाल = 36 किमी/घंटा = 36 × 5/18 = 10 मी/सेकंड\nकुल दूरी = चाल × समय = 10 × 50 = 500 मीटर\nपुल की लंबाई = कुल दूरी - ट्रेन की लंबाई = 500 - 348 = 152 मीटर।"
+  },
+  {
+    "q": "Q13. 54 किमी/घंटे की चाल से चलने वाली रेलगाड़ी, किसी खंभे को 20 सेकंड में पार करती है। 450 मी लंबे पुल को पार करने में इसे कितना समय (सेकंड में) लगेगा।",
+    "o": [
+      "(a) 40",
+      "(b) 50",
+      "(c) 60",
+      "(d) 45"
+    ],
+    "a": 1,
+    "e": "चाल = 54 किमी/घंटा = 54 × 5/18 = 15 मी/सेकंड\nट्रेन की लंबाई = चाल × समय = 15 × 20 = 300 मीटर\nपुल पार करने के लिए कुल दूरी = 300 + 450 = 750 मीटर\nसमय = 750 / 15 = 50 सेकंड।"
+  },
+  {
+    "q": "Q14. 40\\frac{1}{2} किमी/घंटा की चाल से चलने की वाली एक रेलगाड़ी एक खम्भे को पार करने में 24 सेकंड का समय लेती है। 450 मीटर लंबे पुल को पार करने में कितना समय (सेकंड में) लगेगा?",
+    "o": [
+      "(a) 56",
+      "(b) 52",
+      "(c) 60",
+      "(d) 64"
+    ],
+    "a": 3,
+    "e": "चाल = 40(1/2) किमी/घंटा = 81/2 किमी/घंटा = (81/2) × (5/18) = 45/4 मी/सेकंड\nट्रेन की लंबाई = चाल × समय = (45/4) × 24 = 270 मीटर\nपुल पार करने के लिए कुल दूरी = 270 + 450 = 720 मीटर\nसमय = कुल दूरी / चाल = 720 / (45/4) = (720 × 4) / 45 = 16 × 4 = 64 सेकंड।"
+  },
+  {
+    "q": "Q15. 90 किमी./घंटे की रफ्तार से कोई ट्रेन एक आदमी को 12 सेकेंड में पार कर लेती है। ज्ञात करो कि अपने से 50% ज्यादा लंबाई वाली दूसरी ट्रेन को यह ट्रेन कितनी देर में पार कर पायेगी अगर दूसरी ट्रेन प्लेटफार्म पर स्थिर खड़ी हो?",
+    "o": [
+      "(a) 24",
+      "(b) 30",
+      "(c) 36",
+      "(d) 40"
+    ],
+    "a": 1,
+    "e": "चाल = 90 किमी/घंटा = 90 × 5/18 = 25 मी/सेकंड\nपहली ट्रेन की लंबाई = 25 × 12 = 300 मीटर\nदूसरी ट्रेन की लंबाई = 300 का 150% = 450 मीटर\nस्थिर ट्रेन को पार करने में कुल दूरी = 300 + 450 = 750 मीटर\nसमय = 750 / 25 = 30 सेकंड।"
+  },
+  {
+    "q": "Q16. एक रेल 400 मी. लंबे प्लेटफॉर्म तथा उस पर खड़े व्यक्ति को क्रमशः 35 सेकण्ड तथा 15 सेकण्ड में पार कर लेती है। बताएं यह रेलगाड़ी एक 250 मी. लम्बे रेलवे प्लेटफॉर्म को पार करने में कितना समय लेगी?",
+    "o": [
+      "(a) 25 sec",
+      "(b) 27.5 sec",
+      "(c) 30 sec",
+      "(d) 32.5 sec"
+    ],
+    "a": 1,
+    "e": "व्यक्ति को पार करने का समय = 15 सेकंड (केवल ट्रेन की लंबाई)\nप्लेटफॉर्म को पार करने का समय = 35 सेकंड (ट्रेन + 400 मीटर)\nअर्थात, 400 मीटर की दूरी तय करने में लगा अतिरिक्त समय = 35 - 15 = 20 सेकंड\nट्रेन की चाल = 400 / 20 = 20 मी/सेकंड\nट्रेन की लंबाई = 20 × 15 = 300 मीटर\n250 मीटर लंबे प्लेटफॉर्म को पार करने में कुल दूरी = 300 + 250 = 550 मीटर\nसमय = 550 / 20 = 27.5 सेकंड।"
+  },
+  {
+    "q": "Q17. एक रेलगाड़ी 600 मी और 300 मी लंबे दो पुलों को क्रमशः 80 सेकंड और 50 सेकंड में पार कर लेती है। रेलगाड़ी की लंबाई कितनी है?",
+    "o": [
+      "(a) 150m",
+      "(b) 200m",
+      "(c) 250m",
+      "(d) 300m"
+    ],
+    "a": 1,
+    "e": "माना ट्रेन की लंबाई L है।\nचाल समान है: (L + 600) / 80 = (L + 300) / 50\n5 × (L + 600) = 8 × (L + 300)\n5L + 3000 = 8L + 2400\n3L = 600 ⇒ L = 200 मीटर।"
+  },
+  {
+    "q": "Q18. एक railway इंजन 500 मी और 250 मी लंबे दो पुलों को क्रमशः 120 सेकंड और 70 सेकंड में पार करता है। रेल इंजन की लंबाई का दोगुना (मी में) कितना है?",
+    "o": [
+      "(a) 100",
+      "(b) 200",
+      "(c) 300",
+      "(d) 400"
+    ],
+    "a": 1,
+    "e": "माना इंजन की लंबाई L है।\n(L + 500) / 120 = (L + 250) / 70\n7 × (L + 500) = 12 × (L + 250)\n7L + 3500 = 12L + 3000\n5L = 500 ⇒ L = 100 मीटर\nइंजन की लंबाई का दोगुना = 2 × 100 = 200 मीटर।"
+  },
+  {
+    "q": "Q19. 90 किमी./घंटे की रफ्तार से कोई ट्रेन अपने से आधी लंबाई की सुरंग को 36 सेकेंड में पार कर लेती है। ज्ञात करो कि अपने से duगुनी लंबाई की स्थिर ट्रेन को अपनी 60% चाल से कितनी देर में पार करेगी?",
+    "o": [
+      "(a) 100",
+      "(b) 120",
+      "(c) 150",
+      "(d) 180"
+    ],
+    "a": 1,
+    "e": "चाल = 90 किमी/घंटा = 25 मी/सेकंड\nमाना ट्रेन की लंबाई 2x है, तो सुरंग की लंबाई x होगी।\nकुल दूरी = 3x\n3x = चाल × समय = 25 × 36 = 900 मीटर ⇒ x = 300 मीटर\nट्रेन की लंबाई = 600 मीटर, स्थिर ट्रेन की लंबाई = 1200 मीटर\nकुल दूरी = 600 + 1200 = 1800 मीटर\nनई चाल = 25 का 60% = 15 मी/सेकंड\nसमय = 1800 / 15 = 120 सेकंड।"
+  },
+  {
+    "q": "Q20. 230 मीटर और 270 मीटर लंबी दो रेलगाड़ियाँ क्रमशः 42 किमी/घंटे और 48 किमी/घंटे की चाल से विपरीत दिशाओं में चल रही हैं। वे एक दूसरे को कितने समय में पार करेंगी?",
+    "o": [
+      "(a) 30 seconds",
+      "(b) 22 seconds",
+      "(c) 20 seconds",
+      "(d) 25 seconds"
+    ],
+    "a": 2,
+    "e": "कुल दूरी = 230 + 270 = 500 मीटर\nसापेक्ष चाल (विपरीत दिशा) = 42 + 48 = 90 किमी/घंटा = 90 × 5/18 = 25 मी/सेकंड\nसमय = 500 / 25 = 20 सेकंड।"
+  },
+  {
+    "q": "Q21. दो ट्रेनें, जिनकी लंबाई क्रमशः 135 मीटर and 155 मीटर है, विपरीत दिशाओं में चल रही हैं, एक 80 किमी/घंटा की गति से और दूसरी 65 किमी/घंटा की गति से। वे एक-दूसरे से मिलते समय पूरी तरह से एक-दूसरे से कितने समय में अलग हो जाएंगी?",
+    "o": [
+      "(a) 7.5 sec",
+      "(b) 6.8 sec",
+      "(c) 6.5 sec",
+      "(d) 7.2 sec"
+    ],
+    "a": 3,
+    "e": "कुल दूरी = 135 + 155 = 290 मीटर\nसापेक्ष चाल = 80 + 65 = 145 किमी/घंटा = 145 × 5/18 मी/सेकंड\nसमय = 290 / (145 × 5/18) = (290 × 18) / (145 × 5) = 2 × 18 / 5 = 36 / 5 = 7.2 सेकंड।"
+  },
+  {
+    "q": "Q22. समान चाल वाली दो रेलगाड़िया विपरीत दिशाओ में चल रही है। यदि प्रत्येक रेलगाड़ी की लंबाई 120 मीटर है और वे एक-दूसरे को 8 सेकंड में पार करती है, तो प्रत्येक रेलगाड़ी की चाल (किमी/घंटा में) क्या है?",
+    "o": [
+      "(a) 60",
+      "(b) 45",
+      "(c) 50",
+      "(d) 54"
+    ],
+    "a": 3,
+    "e": "कुल दूरी = 120 + 120 = 240 मीटर\nमाना प्रत्येक की चाल v मी/सेकंड है। सापेक्ष चाल = 2v\n2v = 240 / 8 = 30 मी/सेकंड ⇒ v = 15 मी/सेकंड\nकिमी/घंटा में चाल = 15 × 18/5 = 54 किमी/घंटा।"
+  },
+  {
+    "q": "Q23. एक 320 मीटर लंबी ट्रेन विपरीत दिशा से आ रही 240 मीटर लंबी ट्रेन को y सेकंड में पूरी तरह से पार कर जाती है। यदि पहली ट्रेन 44 किमी/घंटा की गति से यात्रा कर रही है और दूसरी ट्रेन 56.8 किमी/घंटा की गति से यात्रा कर रही है, तो y का मान क्या है?",
+    "o": [
+      "(a) 21",
+      "(b) 18",
+      "(c) 20",
+      "(d) 22"
+    ],
+    "a": 2,
+    "e": "कुल दूरी = 320 + 240 = 560 मीटर\nसापेक्ष चाल = 44 + 56.8 = 100.8 किमी/घंटा = 100.8 × 5/18 = 28 मी/सेकंड\ny = 560 / 28 = 20 सेकंड।"
+  },
+  {
+    "q": "Q24. एक 140 मीटर लंबी रेलगाड़ी दूसरी 180 मीटर लंबी रेलगाड़ी जो उसकी समानांतर पटरी पर विपरीत दिशा में चल रही है, को 8 सेकंड में पार करती है। यदि 180 मीटर लंबी रेलगाड़ी की गति 64 किमी/घंटा है, तो दूसरी रेलगाड़ी की गति (किमी/घंटा में) क्या है?",
+    "o": [
+      "(a) 72",
+      "(b) 80",
+      "(c) 90",
+      "(d) 84"
+    ],
+    "a": 1,
+    "e": "कुल दूरी = 140 + 180 = 320 मीटर\nसापेक्ष चाल = 320 / 8 = 40 मी/सेकंड = 40 × 18/5 = 144 किमी/घंटा\nमाना दूसरी ट्रेन की गति v है। v + 64 = 144 ⇒ v = 80 किमी/घंटा।"
+  },
+  {
+    "q": "Q25. 240 मीटर लंबी एक रेलगाड़ी एक पत्थर को 24 सेकंड में पार करती है और विपरीत दिशा से आने वाली उतनी ही लंबाई की दूसरी रेलगाड़ी को 12 सेकंड में पार करती है। दूसरी रेलगाड़ी की चाल कितनी है?",
+    "o": [
+      "(a) 108 km/h",
+      "(b) 90 km/h",
+      "(c) 120 km/h",
+      "(d) 72 km/h"
+    ],
+    "a": 0,
+    "e": "पहली ट्रेन की चाल = 240 / 24 = 10 मी/सेकंड\nविपरीत दिशा में पार करने में कुल दूरी = 240 + 240 = 480 मीटर\nसापेक्ष चाल = 480 / 12 = 40 मी/सेकंड\nमाना दूसरी ट्रेन की चाल v है। 10 + v = 40 ⇒ v = 30 मी/सेकंड\nचाल (किमी/घंटा में) = 30 × 18/5 = 108 किमी/घंटा।"
+  },
+  {
+    "q": "Q26. 65 किमी/घंटा की चाल से चल रही एक रेलगाड़ी A, 43 किमी/घंटा की चाल से विपरीत दिशा से आ रही एक दूसरी रेलगाड़ी B को 14 सेकंड में पार करती है। यदि रेलगाड़ी B की लंबाई, रेलगाड़ी A की लंबाई का तीन-चौथाई है, तो रेलगाड़ी B की लंबाई (मी. में) कितनी होगी?",
+    "o": [
+      "(a) 180",
+      "(b) 240",
+      "(c) 160",
+      "(d) 200"
+    ],
+    "a": 0,
+    "e": "सापेक्ष चाल = 65 + 43 = 108 किमी/घंटा = 108 × 5/18 = 30 मी/सेकंड\nकुल दूरी = सापेक्ष चाल × समय = 30 × 14 = 420 मीटर\nमाना रेलगाड़ी A की लंबाई L है, तो B की लंबाई 3/4 L होगी।\nL + 3/4 L = 420 ⇒ 7/4 L = 420 ⇒ L = 240 मीटर\nरेलगाड़ी B की लंबाई = 3/4 × 240 = 180 मीटर।"
+  },
+  {
+    "q": "Q27. ट्रेन A और ट्रेन B की लंबाई का अनुपात 2: 3 है। A की चाल 36 किमी/घंटा है और B की चाल 54 किमी/घंटा है। विपरीत दिशाओं में यात्रा करते समय, ये 10 सेकंड में एक दूसरे को पूरी तरह से पार करती हैं। ट्रेन B कितने समय में (सेकंड में) 450 मीटर लंबी सुरंग को पूरी तरह से पार करेगी?",
+    "o": [
+      "(a) 60",
+      "(b) 45",
+      "(c) 40",
+      "(d) 50"
+    ],
+    "a": 2,
+    "e": "सापेक्ष चाल = 36 + 54 = 90 किमी/घंटा = 25 मी/सेकंड\nकुल लंबाई (A + B) = 25 × 10 = 250 मीटर\nअनुपात 2:3 है, अतः B की लंबाई = (3/5) × 250 = 150 मीटर\nट्रेन B की चाल = 54 किमी/घंटा = 15 मी/सेकंड\nसुरंग पार करने में कुल दूरी = 150 + 450 = 600 मीटर\nसमय = 600 / 15 = 40 सेकंड।"
+  },
+  {
+    "q": "Q28. एक रेलगाड़ी 240 मीटर लंबी सुरंग को पार करने में 18 सेकंड का समय लेती है और विपरीत दिशा में 54 किमी/घंटा की चाल से चल रही 270 मीटर लंबी दूसरी रेलगाड़ी को पार करने में 12 सेकंड का समय लेती है। रेलगाड़ी की लंबाई (मीटर में) कितनी है?",
+    "o": [
+      "(a) 160",
+      "(b) 220",
+      "(c) 210",
+      "(d) 180"
+    ],
+    "a": 2,
+    "e": "माना पहली रेलगाड़ी की लंबाई L और चाल v है।\nसुरंग के लिए: L + 240 = 18v ⇒ v = (L + 240) / 18\nदूसरी रेलगाड़ी की चाल = 54 किमी/घंटा = 15 मी/सेकंड\nविपरीत दिशा के लिए कुल दूरी = L + 270, सापेक्ष चाल = v + 15\nL + 270 = 12 × (v + 15)\nL + 270 = 12v + 180 ⇒ L + 90 = 12v\n12v का मान रखने पर: L + 90 = 12 × (L + 240) / 18 = 2/3 × (L + 240)\n3L + 270 = 2L + 480 ⇒ L = 210 मीटर।"
+  },
+  {
+    "q": "Q29. 140 मीटर और 120 मीटर लंबी दो रेलगाड़ियाँ क्रमशः 60 किमी/घंटा और 78 किमी/घंटा की चाल से एक ही दिशा में चल रही हैं। कितने समय में वे एक दूसरे को पूरी तरह से पार कर लेंगी?",
+    "o": [
+      "(a) 52 seconds",
+      "(b) 58 seconds",
+      "(c) 48 seconds",
+      "(d) 65 seconds"
+    ],
+    "a": 0,
+    "e": "कुल दूरी = 140 + 120 = 260 मीटर\nसापेक्ष चाल (समान दिशा) = 78 - 60 = 18 किमी/घंटा = 18 × 5/18 = 5 मी/सेकंड\nसमय = 260 / 5 = 52 सेकंड।"
+  },
+  {
+    "q": "Q30. 75 किमी/घंटा की चाल से चलने वाली 60 मीटर लंबी एक रेलगाड़ी, उसी दिशा में 48 किमी/घंटा की चाल से चल रही दूसरी 90 मीटर लंबी रेलगाड़ी को पार करने में कितना समय लेगी?",
+    "o": [
+      "(a) 15 sec",
+      "(b) 20 sec",
+      "(c) 25 sec",
+      "(d) 20 sec"
+    ],
+    "a": 1,
+    "e": "कुल दूरी = 60 + 90 = 150 मीटर\nसापेक्ष चाल = 75 - 48 = 27 किमी/घंटा = 27 × 5/18 = 7.5 मी/सेकंड\nसमय = 150 / 7.5 = 20 सेकंड।"
+  },
+  {
+    "q": "Q31. 140 मी. और 160 मी. लंबाई की दो रेलगाड़ियाँ समान दिशा में समानांतर पटरियों पर क्रमशः 45 किमी/घंटा और 63 किमी/घंटा की चाल से चल रही हैं। वे एक-दूसरे को कितने समय में पार करेंगी?",
+    "o": [
+      "(a) 60 sec",
+      "(b) 72 sec",
+      "(c) 50 sec",
+      "(d) 80 sec"
+    ],
+    "a": 0,
+    "e": "कुल दूरी = 140 + 160 = 300 मीटर\nसापेक्ष चाल = 63 - 45 = 18 किमी/घंटा = 5 मी/सेकंड\nसमय = 300 / 5 = 60 सेकंड।"
+  },
+  {
+    "q": "Q32. दो ट्रेनें, जो एक ही दिशा में 40 किमी/घंटा और 22 किमी/घंटा की गति से चल रही हैं, 1 मिनट में पूरी तरह से एक-दूसरे को पार कर जाती हैं। यदि पहली ट्रेन की लंबाई 125 मीटर है, तो दूसरी ट्रेन की लंबाई क्या होगी?",
+    "o": [
+      "(a) 175 m",
+      "(b) 185 m",
+      "(c) 150 m",
+      "(d) 125 m"
+    ],
+    "a": 0,
+    "e": "सापेक्ष चाल = 40 - 22 = 18 किमी/घंटा = 5 मी/सेकंड\nसमय = 1 मिनट = 60 सेकंड\nकुल दूरी = सापेक्ष चाल × समय = 5 × 60 = 300 मीटर\nदूसरी ट्रेन की लंबाई = कुल दूरी - पहली ट्रेन की लंबाई = 300 - 125 = 175 मीटर।"
+  },
+  {
+    "q": "Q33. समान लंबाई की दो ट्रेन समांतर पटरियों पर एक ही दिशा में 101 किमी/घंटा और 29 किमी/घंटा की चाल से चल रही हैं। तेज चलने वाली ट्रेन, धीमी चलने वाली ट्रेन को 21 सेकंड में पार करती है। प्रत्येक ट्रेन की लंबाई ज्ञात कीजिए।",
+    "o": [
+      "(a) 210 meters",
+      "(b) 209 meters",
+      "(c) 208 meters",
+      "(d) 202 meters"
+    ],
+    "a": 0,
+    "e": "सापेक्ष चाल = 101 - 29 = 72 किमी/घंटा = 72 × 5/18 = 20 मी/सेकंड\nकुल दूरी = 20 × 21 = 420 मीटर\nचूंकि दोनों ट्रेनों की लंबाई बराबर है, प्रत्येक की लंबाई = 420 / 2 = 210 मीटर।"
+  },
+  {
+    "q": "Q34. 85 किमी/घंटा की चाल से चलने वाली एक train, समान दिशा में 49 किमी/घंटा की चाल से चलने वाली दूसरी ट्रेन को 30 सेकंड में पार करती है। दोनों ट्रेनों की संयुक्त लंबाई (मीटर में) क्या है?",
+    "o": [
+      "(a) 350",
+      "(b) 250",
+      "(c) 300",
+      "(d) 400"
+    ],
+    "a": 2,
+    "e": "सापेक्ष चाल = 85 - 49 = 36 किमी/घंटा = 36 × 5/18 = 10 मी/सेकंड\nसंयुक्त लंबाई = चाल × समय = 10 × 30 = 300 मीटर।"
+  },
+  {
+    "q": "Q35. 90 किमी/घंटा की चाल से चलती हुई एक train X, एक दूसरी ट्रेन Y को जो उसी दिशा में जा रही है, 1.5 मिनट में पार कर लेती है। यदि ट्रेन X और Y की लंबाई क्रमशः 200 m और 300 m हो, तो ट्रेन Y की चाल (किमी/घंटा में) क्या है?",
+    "o": [
+      "(a) 60",
+      "(b) 70",
+      "(c) 80",
+      "(d) 85"
+    ],
+    "a": 1,
+    "e": "कुल दूरी = 200 + 300 = 500 मीटर\nसमय = 1.5 मिनट = 90 सेकंड\nसापेक्ष चाल = 500 / 90 = 50/9 मी/सेकंड = (50/9) × 18/5 = 20 किमी/घंटा\nचूंकि X पार कर रही है, चाल X > Y.\n90 - चाल(Y) = 20 ⇒ चाल(Y) = 70 किमी/घंटा।"
+  },
+  {
+    "q": "Q36. 350 मीटर लंबी ट्रेन एक 850 मीटर लंबे पुल को 1\\frac{1}{3} मिनट में पार करती है। कितना समय (मिनटों में) समान दिशा में 42 किमी/घंटा की गति से चल रही 250 मीटर लंबी ट्रेन Y को पूरी तरह से पार करने में समय लगेगा?",
+    "o": [
+      "(a) 4",
+      "(b) 3\\frac{1}{2}",
+      "(c) 3",
+      "(d) 2\\frac{2}{3}"
+    ],
+    "a": 2,
+    "e": "पुल को पार करने में कुल दूरी = 350 + 850 = 1200 मीटर\nसमय = 1(1/3) मिनट = 4/3 मिनट = 80 सेकंड\nट्रेन X की चाल = 1200 / 80 = 15 मी/सेकंड = 15 × 18/5 = 54 किमी/घंटा\nट्रेन Y को पार करने में कुल दूरी = 350 + 250 = 600 मीटर\nसापेक्ष चाल = 54 - 42 = 12 किमी/घंटा = 12 × 5/18 = 10/3 मी/सेकंड\nसमय (सेकंड में) = 600 / (10/3) = 180 सेकंड\nसमय (मिनट में) = 180 / 60 = 3 मिनट।"
+  },
+  {
+    "q": "Q37. एक मालगाड़ी और एक एक्सप्रेस ट्रेन एक ही दिशा में जा रही हैं जिनकी चालों का अनुपात 2:3 है। मालगाड़ी का ड्राइवर यह देखता है कि पीछे से आने वाली एक्सप्रेस ट्रेन उसकी ट्रेन को 80 सेकंड में पूरी तरह पार कर लेती है। जबकि एक्सप्रेस ट्रेन का एक यात्री यह देखता है कि उसने मालगाड़ी को 50 सेकंड में पार किया है। उनकी लंबाई का अनुपात ज्ञात कीजिए।",
+    "o": [
+      "(a) 3:5",
+      "(b) 5:3",
+      "(c) 2:3",
+      "(d) 5:8"
+    ],
+    "a": 1,
+    "e": "माना मालगाड़ी की चाल 2v और एक्सप्रेस की चाल 3v है। सापेक्ष चाल = 3v - 2v = v\nड्राइवर के अनुसार पार करने में दूरी = दोनों ट्रेनों की कुल लंबाई (L_g + L_e)\nL_g + L_e = v × 80 = 80v\nयात्री के अनुसार पार करने में केवल मालगाड़ी की लंबाई पार होती है (L_g)\nL_g = v × 50 = 50v\nअतः, L_e = 80v - 50v = 30v\nलंबाई का अनुपात (मालगाड़ी:एक्सप्रेस) = L_g : L_e = 50v : 30v = 5:3."
+  },
+  {
+    "q": "Q38. एक मालगाड़ी और एक मेल ट्रेन की चालों का अनुपात समान दिशा में 3:5 है। यदि मेल ट्रेन मालगाड़ी को 100 सेकंड में पार करती है, जबकि मेल ट्रेन का एक यात्री देखता है कि उसने मालगाड़ी को 60 सेकंड में पार किया है। मालगाड़ी और मेल ट्रेन की लंबाई का अनुपात ज्ञात कीजिए।",
+    "o": [
+      "(a) 3:2",
+      "(b) 2:3",
+      "(c) 5:3",
+      "(d) 4:1"
+    ],
+    "a": 0,
+    "e": "सापेक्ष चाल = 5v - 3v = 2v\nकुल लंबाई (L_freight + L_mail) = 2v × 100 = 200v\nयात्री द्वारा मालगाड़ी को पार करने में तय दूरी (L_freight) = 2v × 60 = 120v\nL_mail = 200v - 120v = 80v\nअनुपात = L_freight : L_mail = 120v : 80v = 3:2."
+  },
+  {
+    "q": "Q39. दो ट्रेनें जिनकी लम्बाई क्रमशः 120 मी. और 90 मी. है, समानांतर पटरियों पर चल रही हैं। अगर वे एक ही दिशा में चलें तो वे एक-दूसरे को 30 सेकंड में पार कर लेती हैं। लेकिन अगर वे विपरीत दिशा से आएं तो वे एक-दूसरे को 10 सेकंड में पार करती हैं। तेज चलने वाली ट्रेन की गति ज्ञात करो।",
+    "o": [
+      "(a) 14 m/s",
+      "(b) 12 m/s",
+      "(c) 16 m/s",
+      "(d) 10 m/s"
+    ],
+    "a": 0,
+    "e": "कुल दूरी = 120 + 90 = 210 मीटर\nसमान दिशा में सापेक्ष चाल (u - v) = 210 / 30 = 7 मी/सेकंड\nविपरीत दिशा में सापेक्ष चाल (u + v) = 210 / 10 = 21 मी/सेकंड\nतेज ट्रेन की गति (u) = (21 + 7) / 2 = 14 मी/सेकंड."
+  },
+  {
+    "q": "Q40. क्रमशः 150 मीटर और 100 मीटर लंबाई की दो ट्रेनें समानांतर पटरियों पर चल रही हैं। जब वे एक ही दिशा में चलती हैं, तो तेज ट्रेन धीमी ट्रेन को 50 सेकंड में पार कर लेती है। जब वे विपरीत दिशाओं में चलती हैं, तो वे एक-दूसरे को 10 सेकंड में पार करती हैं। धीमी ट्रेन की गति ज्ञात कीजिए।",
+    "o": [
+      "(a) 10 m/s",
+      "(b) 15 m/s",
+      "(c) 12 m/s",
+      "(d) 20 m/s"
+    ],
+    "a": 0,
+    "e": "कुल दूरी = 150 + 100 = 250 मीटर\nसमान दिशा में: u - v = 250 / 50 = 5 मी/सेकंड\nविपरीत दिशा में: u + v = 250 / 10 = 25 मी/सेकंड\nदोनों समीकरणों को घटाने पर: 2v = 25 - 5 = 20 ⇒ v (धीमी ट्रेन) = 10 मी/सेकंड."
+  }
+];
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q101. दो शहर M और N एक-दूसरे से 250 किमी. की दूरी पर हैं। एक कार सुबह 8:00 बजे 40 किमी./घंटा की चाल से M से N की ओर चलती है। दूसरी कार सुबह 9:00 बजे 30 किमी./घंटा की चाल से N से M की ओर चलती है। दोनों कारें किस समय मिलेंगी?",
+    tag: "",
+    o: ["(a) 11:00 AM", "(b) 12:00 PM", "(c) 11:30 AM", "(d) 12:30 PM"],
+    a: 1,
+    e: "पहली कार सुबह 8:00 बजे से 9:00 बजे तक (1 घंटे में) 40 किमी की दूरी तय कर लेगी।\nअब दोनों कारों के बीच की शेष दूरी = 250 - 40 = 210 किमी।\n9:00 बजे दोनों कारें एक-दूसरे की विपरीत दिशा में चल रही हैं, इसलिए सापेक्ष चाल = 40 + 30 = 70 किमी/घंटा।\nमिलने में लगा समय = शेष दूरी / सापेक्ष चाल = 210 / 70 = 3 घंटे।\nअतः दोनों कारें सुबह 9:00 बजे के 3 घंटे बाद अर्थात 12:00 PM पर मिलेंगी।"
+  },
+  {
+    q: "Q102. एक धावक सुबह 5:00 बजे एक बिंदु से 10 किमी/घंटा की गति से दौड़ना शुरू करता है। दूसरा धावक सुबह 8:00 बजे उसी बिंदु से 15 किमी/घंटा की गति से उसी दिशा में चलना शुरू करता है। दिन के किस समय दूसरा धावक पहले धावक से आगे निकल जाएगा?",
+    tag: "",
+    o: ["(a) 2:00 pm", "(b) 12:30 pm", "(c) 12:00 pm", "(d) 1:00 pm"],
+    a: 0,
+    e: "पहला धावक सुबह 5:00 बजे से 8:00 बजे तक (3 घंटे) में तय की गई दूरी = 10 × 3 = 30 किमी।\nदोनों धावक एक ही दिशा में दौड़ रहे हैं, इसलिए सापेक्ष चाल = 15 - 10 = 5 किमी/घंटा।\nपकड़ने में लगा समय = दूरी / सापेक्ष चाल = 30 / 5 = 6 घंटे।\nअतः दूसरा धावक सुबह 8:00 बजे के 6 घंटे बाद अर्थात 2:00 pm पर पहले धावक से आगे निकल जाएगा।"
+  },
+  {
+    q: "Q103. मान लीजिए A, 8 किमी/घंटा की चाल से चलना शुरू करता है। 8 घंटे के बाद B, 24 किमी/घंटा की चाल से साइकिल से यात्रा करना शुरू करता है। प्रारंभिक स्थान से वह दूरी जहाँ B, A से मिल सकता है, कितनी है?",
+    tag: "",
+    o: ["(a) 64 km", "(b) 96 km", "(c) 72 km", "(d) 88 km"],
+    a: 1,
+    e: "8 घंटे में A द्वारा तय की गई दूरी = 8 × 8 = 64 किमी।\nसापेक्ष चाल = 24 - 8 = 16 किमी/घंटा।\nB को A को पकड़ने में लगा समय = 64 / 16 = 4 घंटे।\nप्रारंभिक स्थान से वह दूरी जहाँ B, A से मिलेगा = B की चाल × समय = 24 × 4 = 96 किमी।"
+  },
+  {
+    q: "Q104. मीनू और दया क्रमशः 10 km/h and 25 km/h की चाल से A से B 105 km की दूरी तय करते हैं। दया पहले बिन्दु B पर पहुँचती है और तुरंत लौटती है और मीनू से बिन्दु C पर मिलती है। बिन्दु A से बिन्दु C तक की दूरी ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 35 km", "(b) 60 km", "(c) 45 km", "(d) 62 km"],
+    a: 1,
+    e: "मीनू और दया द्वारा मिलकर तय की गई कुल दूरी = 2 × 105 = 210 किमी।\nदोनों की चाल का अनुपात (मीनू : दया) = 10 : 25 = 2 : 5 है।\nसमान समय में उनके द्वारा तय की गई दूरी का अनुपात भी 2 : 5 होगा।\nकुल दूरी = 2 + 5 = 7 यूनिट -> 210 किमी, तो 1 यूनिट = 30 किमी।\nबिन्दु A से बिन्दु C तक की दूरी मीनू द्वारा तय की गई दूरी है = 2 यूनिट = 2 × 30 = 60 किमी।"
+  },
+  {
+    q: "Q105. A और B एक ही समय पर बिंदु M से बिंदु N की ओर चलना शुरू करते हैं। B, N पर पहुँचता है और तुरंत वापस M की ओर चलना शुरू करता है। वह बिंदु O (M और N के बीच) पर A से मिलता है। M और N के बीच की दूरी 245 किमी है। यदि A और B की चाल क्रमशः 26 किमी/घंटा और 65 किमी/घंटा है, तो O और N के बीच की दूरी कितनी है?",
+    tag: "",
+    o: ["(a) 115 km", "(b) 105 km", "(c) 95 km", "(d) 140 km"],
+    a: 1,
+    e: "समान समय में A और B द्वारा तय की गई कुल दूरी = 2 × MN = 2 × 245 = 490 किमी।\nचाल का अनुपात (A : B) = 26 : 65 = 2 : 5।\nदूरी का अनुपात भी 2 : 5 होगा।\nकुल दूरी = 2 + 5 = 7 यूनिट -> 490 किमी, तो 1 यूनिट = 70 किमी।\nA द्वारा तय की गई दूरी (MO) = 2 यूनिट = 2 × 70 = 140 किमी।\nO और N के बीच की दूरी = MN - MO = 245 - 140 = 105 किमी।"
+  },
+  {
+    q: "Q106. 11 बजे चलते हैं और उनकी चाल क्रमशः 10 किमी./घंटा, 15 किमी./घंटा और 20 किमी./घंटा है। रास्ते में Y के X से मिलने के बाद, Y संदेश के साथ X को वापस Z के पास भेजता है। Z को X से किस समय संदेश प्राप्त होगा?",
+    tag: "",
+    o: ["(a) 12:45 PM", "(b) 1:30 PM", "(c) 12:20 PM", "(d) 1:00 PM"],
+    a: 2,
+    e: "(नोट: मूल अंग्रेजी प्रश्न के अनुसार X, Y और Z क्रमशः 9:00 am, 10:00 am और 11:00 am पर चलते हैं और Y, X को वापस Z के पास भेजता है।)\n9:00 am से 10:00 am तक (1 घंटे में) X द्वारा तय की गई दूरी = 10 × 1 = 10 किमी।\nY और X की सापेक्ष चाल = 15 - 10 = 5 किमी/घंटा।\nY को X से मिलने में लगा समय = 10 / 5 = 2 घंटे।\nयानी Y और X सुबह 10:00 + 2 = 12:00 PM पर मिलते हैं।\n12:00 PM तक X द्वारा तय की गई कुल दूरी = 10 किमी/घंटा × 3 घंटे = 30 किमी।\n11:00 am पर Z चलना शुरू करता है, तो 12:00 PM तक (1 घंटे में) Z द्वारा तय की गई दूरी = 20 × 1 = 20 किमी।\n12:00 PM पर X (जो अब वापस Z की ओर आ रहा है) और Z के बीच की दूरी = 30 - 20 = 10 किमी।\nअब X और Z विपरीत दिशा में हैं, सापेक्ष चाल = 10 (X की चाल) + 20 (Z की चाल) = 30 किमी/घंटा।\nमिलने में लगा समय = 10 / 30 घंटे = 1/3 घंटे = 20 मिनट।\nअतः Z को संदेश 12:00 PM + 20 मिनट = 12:20 PM पर प्राप्त होगा।"
+  },
+  {
+    q: "Q107. राम बिन्दु A से 8 a.m पर चलना शुरू करता है और उसी दिन बिन्दु B पर 2 p.m पर पहुँचता है। राजू बिन्दु B से 8 a.m. पर चलना शुरू करता है और उसी दिन बिन्दु A पर 6 p.m. पर पहुँचता है। वे दोनों कितने बजे मिलते हैं?",
+    tag: "",
+    o: ["(a) 11:45 a.m.", "(b) 9:42 a.m.", "(c) 10:42 a.m.", "(d) 12:42 p.m."],
+    a: 0,
+    e: "राम द्वारा लिया गया कुल समय = 8 a.m. से 2 p.m. = 6 घंटे।\nराजू द्वारा लिया गया कुल समय = 8 a.m. से 6 p.m. = 10 घंटे।\nमाना कुल दूरी = 6 और 10 का ल.स. (LCM) = 30 किमी।\nराम की चाल = 30 / 6 = 5 किमी/घंटा।\nराजू की चाल = 30 / 10 = 3 किमी/घंटा।\nचूंकि दोनों 8 a.m. पर एक साथ चलते हैं, सापेक्ष चाल = 5 + 3 = 8 किमी/घंटा।\nमिलने में लगा समय = 30 / 8 = 3¾ घंटे = 3 घंटे 45 मिनट।\nअतः वे सुबह 8:00 + 3 घंटे 45 मिनट = 11:45 a.m. पर मिलेंगे।"
+  },
+  {
+    q: "Q108. एक रेलगाड़ी सुबह 8 बजे स्टेशन A से निकलती है और दोपहर 12 बजे स्टेशन B पर पहुंचती है। एक अन्य रेलगाड़ी सुबह 8:30 बजे स्टेशन B से निकलती है और स्टेशन A पर उसी समय पहुंचती है जब पहली रेलगाड़ी स्टेशन B पर पहुंचती है। वे एक-दूसरे से किस समय मिलती है?",
+    tag: "",
+    o: ["(a) 9:38 am", "(b) 10:22 am", "(c) 10:08 am", "(d) 9:52 am"],
+    a: 2,
+    e: "पहली ट्रेन का समय = 8 am से 12 pm = 4 घंटे।\nदूसरी ट्रेन का समय = 8:30 am से 12 pm = 3½ घंटे = 7/2 घंटे।\nमाना कुल दूरी = 4 और 7 का ल.स. = 28 किमी।\nपहली ट्रेन की चाल = 28 / 4 = 7 किमी/घंटा।\nदूसरी ट्रेन की चाल = 28 / (7/2) = 8 किमी/घंटा।\nसुबह 8:00 से 8:30 तक (½ घंटे में) पहली ट्रेन द्वारा तय दूरी = 7 × ½ = 3.5 किमी।\nशेष दूरी = 28 - 3.5 = 24.5 किमी।\n8:30 am पर सापेक्ष चाल = 7 + 8 = 15 किमी/घंटा।\nमिलने में लगा समय = 24.5 / 15 = 49 / 30 घंटे = 1 घंटे 38 मिनट (लगभग)।\nसटीक गणना: 24.5 / 15 = 245 / 150 = 49 / 30 घंटे = 1 घंटा 19 मिनट 12 second.\nउत्तर कुंजी के विकल्पानुसार (c) 10:08 am सही उत्तर है (8:30 + 1 घंटा 38 मिनट = 10:08 am)।"
+  },
+  {
+    q: "Q109. एक बस शहर A से सुबह 6 बजे चलती है और सुबह 10 बजे शहर B पहुँचती है। दूसरी बस शहर B से सुबह 7 बजे चलती है और दोपहर 12 बजे शहर A पहुँचती है। दोनों बसें एक-दूसरे को किस समय पार करेंगी?",
+    tag: "",
+    o: ["(a) 8:20 AM", "(b) 8:40 AM", "(c) 9:00 AM", "(d) 7:50 AM"],
+    a: 1,
+    e: "पहली बस का समय = 6 am से 10 am = 4 घंटे।\nदूसरी बस का समय = 7 am से 12 pm = 5 घंटे।\nमाना दूरी = 4 और 5 का LCM = 20 किमी।\nपहली बस की चाल = 20 / 4 = 5 किमी/घंटा।\nदूसरी बस की चाल = 20 / 5 = 4 किमी/घंटा।\nसुबह 6 से 7 बजे तक (1 घंटे में) पहली बस द्वारा तय दूरी = 5 × 1 = 5 किमी।\nशेष दूरी = 20 - 5 = 15 किमी।\nसापेक्ष चाल = 5 + 4 = 9 किमी/घंटा।\nसमय = 15 / 9 = 5/3 घंटे = 1 घंटा 40 मिनट।\n7:00 AM + 1 घंटा 40 मिनट = 8:40 AM."
+  },
+  {
+    q: "Q110. एक train कानपुर से लखनऊ के लिए सुबह 7:00 बजे चलती है और 9:00 बजे पहुँचती है। दूसरी ट्रेन लखनऊ से कानपुर के लिए सुबह 7:00 बजे चलती है और 10:30 बजे पहुँचती है। उनके मिलने का समय ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 8:16 AM", "(b) 8:06 AM", "(c) 8:24 AM", "(d) 7:54 AM"],
+    a: 0,
+    e: "पहली ट्रेन का समय = 2 घंटे।\nदूसरी ट्रेन का समय = 3½ घंटे = 7/2 घंटे।\nमाना दूरी = 2 और 7 का LCM = 14 किमी।\nपहली ट्रेन की चाल = 14 / 2 = 7 किमी/घंटा।\nदूसरी ट्रेन की चाल = 14 / (7/2) = 4 किमी/घंटा।\nचूंकि दोनों 7:00 AM पर चलती हैं, सापेक्ष चाल = 7 + 4 = 11 किमी/घंटा।\nमिलने में लगा समय = 14 / 11 घंटे = 1 3/11 घंटे ≈ 1 घंटा 16 मिनट।\nअतः मिलने का समय = 7:00 AM + 1 घंटा 16 मिनट = 8:16 AM."
+  },
+  {
+    q: "Q111. A समान समय अंतराल पर B का पीछा कर रहा है। A 8 बार कूदता है, जबकि B 6 बार कूदता है। लेकिन A द्वारा 7 कूदों में तय की गई दूरी ठीक वही है, जो B द्वारा 5 कूदों में तय की जाती है। A और B की चालों के बीच अनुपात ज्ञात करें।",
+    tag: "",
+    o: ["(a) 32:24", "(b) 30:56", "(c) 20:21", "(d) 28:36"],
+    a: 2,
+    e: "माना A की एक कूद की दूरी = a और B की एक कूद की दूरी = b.\nदिया है: 7a = 5b => a/b = 5/7.\nचाल = (कूद की संख्या) × (एक कूद की दूरी)\nA की चाल : B की चाल = (8 × 5) : (6 × 7) = 40 : 42 = 20 : 21."
+  },
+  {
+    q: "Q112. एक कुत्ता खरगोश का पीछा करता है। खरगोश कुत्ते से 125 छलांगे आगे है। खरगोश एक बार में 4 बार कूद सकता है जिसे कुत्ता 3 बार में कूद सकता है। खरगोश और कुत्ता एक छलांग में क्रमशः 1.75 और 2.75 मीटर की दूरी तय करते हैं। कुत्ता कितनी छलांगों में खरगोश को पकड़ लेगा?",
+    tag: "",
+    o: ["(a) 175", "(b) 350", "(c) 525", "(d) 700"],
+    a: 2,
+    e: "खरगोश की शुरुआती बढ़त = 125 छलांग × 1.75 मीटर = 218.75 मीटर।\nसमान समय में:\nकुत्ते द्वारा तय की गई दूरी = 3 छलांग × 2.75 मीटर = 8.25 मीटर।\nखरगोश द्वारा तय की गई दूरी = 4 छलांग × 1.75 मीटर = 7.00 मीटर।\nप्रति समय अंतराल कुत्ते की सापेक्ष बढ़त = 8.25 - 7.00 = 1.25 मीटर।\nआवश्यक समय अंतराल = 218.75 / 1.25 = 175 अंतराल।\nकुत्ते की कुल छलांग = 175 × 3 = 525 छलांग."
+  },
+  {
+    q: "Q113. एक शेर अपनी 40 छलांग के बराबर एक जेबरा से पीछे है। वह शेर प्रत्येक 4 छलांग लगाता है जबकि जेबरा 5 छलांग लगाता है। यदि शेर और जेबरा अपने प्रत्येक कदम में क्रमशः 10 मी. और 6 मी. दूरी को तय करते हैं, तो शेर को जेबरा को पकड़ने से पहले कितनी दूरी तय करनी होगी?",
+    tag: "",
+    o: ["(a) 1200 m", "(b) 1600 m", "(c) 1000 m", "(d) 800 m"],
+    a: 1,
+    e: "शेर की शुरुआती दूरी = 40 छलांग × 10 मीटर = 400 मीटर।\nसमान समय अंतराल में:\nशेर की दूरी = 4 छलांग × 10 मीटर = 40 मीटर।\nजेबरा की दूरी = 5 छलांग × 6 मीटर = 30 मीटर।\nसापेक्ष चाल का अंतर = 40 - 30 = 10 मीटर प्रति अंतराल।\nअंतरालों की संख्या = 400 / 10 = 40 अंतराल।\nशेर द्वारा तय की गई कुल दूरी = 40 अंतराल × 40 मीटर/अंतराल = 1600 मीटर."
+  },
+  {
+    q: "Q114. दो कस्बों के बीच की दूरी 72 किमी/घंटा की चाल से 7 घंटे 30 मिनट में तय की जाती है। यदि चाल को 25% बढ़ा दिया जाए, तो कितने समय की बचत होगी?",
+    tag: "",
+    o: ["(a) 1 hours 36 minutes", "(b) 1 hour 50 minutes", "(c) 1 hour 30 minutes", "(d) 1 hour 20 minutes"],
+    a: 2,
+    e: "मूल समय = 7.5 घंटे।\nचाल में 25% की वृद्धि (यानी चाल का अनुपात 4 : 5) होने पर, समान दूरी के लिए समय का अनुपात 5 : 4 हो जाएगा।\n5 यूनिट = 7.5 घंटे => 1 यूनिट = 1.5 घंटे।\nसमय की बचत = 1 यूनिट = 1.5 घंटे = 1 घंटा 30 मिनट।"
+  },
+  {
+    q: "Q115. एक महिला प्रतिदिन घर से अपने कार्यालय पैदल चलकर जाती है, जिसके लिए उसने एक समय निर्धारित किया है। किसी एक दिन वह अपनी चाल को 25% कम कर देती है। उस दिन उसे अपने सामान्य समय के किस भाग (fraction) तक देरी होगी?",
+    tag: "",
+    o: ["(a) 1/3", "(b) 1/4", "(c) 1/6", "(d) 2/3"],
+    a: 0,
+    e: "चाल में 25% की कमी का मतलब है कि चाल 4 से घटकर 3 हो गई (अनुपात 4 : 3)।\nदूरी समान होने के कारण समय का अनुपात 3 : 4 हो जाएगा।\nदेरी = 4 - 3 = 1 यूनिट।\nसामान्य समय = 3 यूनिट।\nदेरी का भाग = 1/3."
+  },
+  {
+    q: "Q116. अपनी सामान्य चाल की 6/7 चाल से चलती हुई एक bus 20 मिनट देरी से पहुँचती है। बस का इस यात्रा को पूरा करने का सामान्य समय क्या है?",
+    tag: "",
+    o: ["(a) 2 hours", "(b) 4 hours", "(c) 1.5 hours", "(d) 3 hours"],
+    a: 0,
+    e: "चाल का अनुपात = 7 : 6, इसलिए समय का अनुपात = 6 : 7.\nसमय में अंतर = 7 - 6 = 1 यूनिट -> 20 मिनट।\nसामान्य समय = 6 यूनिट = 6 × 20 = 120 मिनट = 2 घंटे।"
+  },
+  {
+    q: "Q117. राजधानी एक्सप्रेस दिल्ली से पटना के लिए 1 घंटा 30 मिनट देरी से निकलती है और अपनी चाल में 10% की वृद्धि करके पटना निर्धारित समय पर पहुँचती है। ट्रेन द्वारा दिल्ली से पटना पहुँचने में लिया गया सामान्य समय ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 16 hours", "(b) 16½ hours", "(c) 16⅔ hours", "(d) 12½ hours"],
+    a: 1,
+    e: "चाल में 10% की वृद्धि का अर्थ है चाल का अनुपात 10 : 11.\nसमय का अनुपात = 11 : 10.\nसमय में कमी = 11 - 10 = 1 यूनिट -> 1 घंटा 30 मिनट (1.5 घंटे)।\nसामान्य समय = 11 यूनिट = 11 × 1.5 = 16.5 घंटे = 16½ घंटे।"
+  },
+  {
+    q: "Q118. एक रेलगाड़ी अपनी सामान्य चाल में 2/5 की कमी करने से किसी निश्चित गंतव्य स्थान पर 3 घंटे की देरी से पहुँचती है। रेलगाड़ी द्वारा गंतव्य स्थान तक पहुँचने में लिया गया वर्तमान समय ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 7 hours", "(b) 8 hours", "(c) 6½ hours", "(d) 7½ hours"],
+    a: 3,
+    e: "चाल में 2/5 की कमी का मतलब है चाल 5 से 3 हो गई (अनुपात 5 : 3)।\nसमय का अनुपात = 3 : 5.\nसमय में अंतर = 5 - 3 = 2 यूनिट -> 3 घंटे, तो 1 यूनिट = 1.5 घंटे।\nवर्तमान (नया) समय = 5 यूनिट = 5 × 1.5 = 7.5 घंटे = 7½ घंटे."
+  },
+  {
+    q: "Q119. शताब्दी एक्सप्रेस दिल्ली से 40 मिनट की देरी से निकलती है। आधी दूरी तय करने के बाद यह अपनी सामान्य चाल में 1/6 की वृद्धि करती है और चंडीगढ़ निर्धारित समय से पहुँच जाती है। संपूर्ण यात्रा में शताब्दी एक्सप्रेस द्वारा लिया गया सामान्य समय ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 560 minutes", "(b) 520 minutes", "(c) 540 minutes", "(d) 420 minutes"],
+    a: 0,
+    e: "शेष आधी दूरी के लिए चाल में 1/6 की वृद्धि की गई, जिससे चाल का अनुपात 6 : 7 हो गया।\nसमय का अनुपात = 7 : 6.\nसमय की बचत = 7 - 6 = 1 यूनिट -> 40 मिनट।\nआधी दूरी को तय करने का सामान्य समय = 7 यूनिट = 7 × 40 = 280 मिनट।\nसंपूर्ण यात्रा का सामान्य समय = 2 × 280 = 560 मिनट।"
+  },
+  {
+    q: "Q120. कोई कार, 54 किमी./घंटा की चाल से किसी निश्चित दूरी को 50 मिनट में तय करती है। यदि चाल में 25% की वृद्धि होती है, तो कार उस दूरी के 3/4 भाग को कितने समय में तय करेगी?",
+    tag: "",
+    o: ["(a) 25 minutes", "(b) 35 minutes", "(c) 30 minutes", "(d) 40 minutes"],
+    a: 2,
+    e: "चाल में 25% की वृद्धि का मतलब समय 4/5 गुना हो जाएगा।\nदूरी का केवल 3/4 भाग तय करना है, इसलिए नया समय = 50 मिनट × (4/5) × (3/4) = 30 मिनट।"
+  },
+  {
+    q: "Q121. दो कार क्रमशः 45 किमी/घंटा और 55 किमी/घंटा की चाल से एक स्थान तक चलती हैं। यदि यात्रा में दूसरी कार, पहली कार से 40 मिनट कम समय लेती है, तो यात्रा की लंबाई (किमी में) कितनी है?",
+    tag: "",
+    o: ["(a) 145", "(b) 165", "(c) 180", "(d) 99"],
+    a: 1,
+    e: "चाल का अनुपात = 45 : 55 = 9 : 11.\nसमय का अनुपात = 11 : 9.\nसमय का अंतर = 11 - 9 = 2 यूनिट -> 40 मिनट, तो 1 यूनिट = 20 मिनट = 1/3 घंटा।\nपहली कार का समय = 11 यूनिट = 11/3 घंटा।\nदूरी = चाल × समय = 45 × (11/3) = 15 × 11 = 165 किमी।"
+  },
+  {
+    q: "Q122. यदि कोई रेलगाड़ी अपनी चाल 70 किमी/घंटे से घटाकर 62 किमी/घंटा कर दे तो यह अपने गंतव्य स्थान पर 1 घंटे की देरी से पहुँचेगी। रेलगाड़ी द्वारा तय की गई दूरी ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 540.5 km", "(b) 535.5 km", "(c) 542.5 km", "(d) 545.5 km"],
+    a: 2,
+    e: "चाल का अनुपात = 70 : 62 = 35 : 31.\nसमय का अनुपात = 31 : 35.\nसमय का अंतर = 35 - 31 = 4 यूनिट -> 1 घंटा, तो 1 यूनिट = 1/4 घंटा।\nवास्तविक समय = 31 × 1/4 = 31/4 घंटा।\nदूरी = चाल × समय = 70 × (31/4) = 2170 / 4 = 542.5 किमी।"
+  },
+  {
+    q: "Q123. एक व्यक्ति एक निश्चित चाल से एक निश्चित दूरी तय करता है। यदि कोई दूसरा व्यक्ति तीन गुना समय में 25% दूरी तय करता है, तो पहले व्यक्ति की चाल और दूसरे व्यक्ति की चाल का अनुपात क्या है?",
+    tag: "",
+    o: ["(a) 1:6", "(b) 1:12", "(c) 6:1", "(d) 12:1"],
+    a: 3,
+    e: "माना पहले व्यक्ति की दूरी = 1, समय = 1, तो चाल V1 = 1/1 = 1.\nदूसरे व्यक्ति की दूरी = 25% = 1/4, समय = 3, तो चाल V2 = (1/4) / 3 = 1/12.\nअनुपात V1 : V2 = 1 : (1/12) = 12 : 1."
+  },
+  {
+    q: "Q124. 416 किमी. की दूरी तय करने में ट्रेन A को ट्रेन B से 2⅔ घंटे अधिक लगते हैं। यदि A की गति दोगुनी हो जाए, तो वह B से 1⅓ घंटे कम समय लगाएगी। ट्रेन A की गति (किमी/घंटा में) क्या है?",
+    tag: "",
+    o: ["(a) 56", "(b) 54", "(c) 52", "(d) 65"],
+    a: 2,
+    e: "A की गति दोगुनी करने पर समय का अनुपात 2 : 1 हो जाता है।\nसमय का अंतर = 2 - 1 = 1 यूनिट।\nवास्तविक अंतर = 2⅔ + 1⅓ = 4 घंटे।\nअतः 1 यूनिट = 4 घंटे, जिसका अर्थ है A को सामान्य गति से 2 यूनिट = 8 घंटे लगते हैं।\nट्रेन A की गति = कुल दूरी / समय = 416 / 8 = 52 किमी/घंटा।"
+  },
+  {
+    q: "Q125. 40 किमी. की दूरी तय करने में A को B से 2 घंटे 30 मिनट अधिक लगते हैं। यदि A अपनी चाल दोगुनी करता है, तो वह इसे B से 1 घंटा कम समय में तय कर सकता है। A द्वारा 40 किमी. की दूरी तय करने में लगने वाला समय (घंटे में) ज्ञात करें।",
+    tag: "",
+    o: ["(a) 7", "(b) 5", "(c) 6", "(d) 9"],
+    a: 0,
+    e: "(नोट: उत्तर कुंजी के अनुसार विकल्प (a) 7 दिया गया है। सामान्य हल: A की चाल दोगुनी करने पर समय आधा हो जाता है। समय का अंतर = 2.5 + 1 = 3.5 घंटे। अतः A का वास्तविक समय = 2 × 3.5 = 7 घंटे।)"
+  },
+  {
+  q: "Q126. विकास अपने गाँव से 48 किमी दूर स्थित शहर दो यातायात माध्यमों से जाता है। वह कुल दूरी का कुछ भाग साइकिल से और शेष बस से तय करता है। साइकिल की औसत चाल 16 किमी/घंटा जबकि बस की चाल 40 किमी/घंटा है और वह संपूर्ण दूरी 2 घंटे में तय करता है। उसके द्वारा साइकिल से तय की गई दूरी ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. 20\\frac{1}{3} km",
+    "B. 21\\frac{1}{3} km",
+    "C. 24\\frac{1}{3} km",
+    "D. 25\\frac{1}{3} km"
+  ],
+  a: 1,
+  e: "मान लीजिए विकास ने साइकिल से x किमी तथा बस से (48 - x) किमी यात्रा की। कुल समय 2 घंटे है। अतः x/16 + (48 - x)/40 = 2। दोनों पक्षों में 80 का गुणा करने पर 5x + 2(48 - x) = 160। अर्थात 5x + 96 - 2x = 160 ⇒ 3x = 64 ⇒ x = 64/3 = 21\\frac{1}{3} km। इसलिए सही उत्तर विकल्प B है।"
+},
+  {
+    q: "Q127. एक व्यक्ति दिल्ली से 240 किमी दूर स्थित जयपुर जाता है। वह यात्रा की कुछ दूरी बस से और शेष भाग रेलगाड़ी से तय करता है। उसे कुल दूरी तय करने में 6 घंटे का समय लगता है। बस की औसत चाल 30 किमी/घंटा और रेलगाड़ी की चाल 55 किमी/घंटा है। व्यक्ति द्वारा रेलगाड़ी से तय की गई दूरी ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 100 km", "(b) 105 km", "(c) 110 km", "(d) 132 km"],
+    a: 3,
+    e: "माना ट्रेन से यात्रा का समय = t घंटे, तो बस का समय = (6 - t) घंटे।\nकुल दूरी: 55t + 30(6 - t) = 240\n55t + 180 - 30t = 240\n25t = 60 => t = 60/25 = 12/5 घंटे।\nट्रेन द्वारा तय दूरी = 55 × (12/5) = 11 × 12 = 132 किमी."
+  },
+  {
+    q: "Q128. एक व्यक्ति एक व्यूपॉइंट तक पैदल जाता है और अपनी कार से अपरिवर्ती चाल बनाए रखते हुए वापस प्रारंभिक बिंदु पर लौटता है और इस प्रकार उसे कुल 9 घंटे 30 मिनट का समय लगता है। दोनों तरफ गाड़ी से यात्रा करने में उसे 7 घंटे कम लगते। दोनों ओर समान चाल से पैदल यात्रा करने में उसे कुल कितना समय लगता?",
+    tag: "",
+    o: ["(a) 17 hours 30 minutes", "(b) 16 hours 45 minutes", "(c) 15 hours 15 minutes", "(d) 16 hours 30 minutes"],
+    a: 3,
+    e: "पैदल (W) + कार (C) = 9 घंटे 30 मिनट।\nदोनों तरफ कार (2C) = 9 घंटे 30 मिनट - 7 घंटे = 2 घंटे 30 मिनट।\nदोनों तरफ पैदल (2W) = 2 × (W + C) - 2C = 2(9 घंटे 30 मिनट) - 2 घंटे 30 मिनट = 19 घंटे - 2 घंटे 30 मिनट = 16 घंटे 30 मिनट।"
+  },
+  {
+    q: "Q129. किसी व्यक्ति को एक निश्चित दूरी पैदल जाने और घोड़े से वापिस आने में कुल 4 घंटे 30 मिनट लगते है। दोनों तरफ की दूरी घोड़े से वह 3 घंटे में तय कर सकता है। दोनों तरफ की दूरी को पैदल चलने में लगने वाला आवश्यक समय ज्ञात करेंः",
+    tag: "",
+    o: ["(a) 4 hrs 30 min", "(b) 4 hrs 45 min", "(c) 5 hrs", "(d) 6 hrs"],
+    a: 3,
+    e: "पैदल (P) + घोड़ा (H) = 4.5 घंटे।\n2H = 3 घंटे => H = 1.5 घंटे।\nP = 4.5 - 1.5 = 3 घंटे।\nदोनों तरफ पैदल (2P) = 2 × 3 = 6 घंटे।"
+  },
+  {
+    q: "Q130. एक बस 6 किमी/घंटा की प्रारंभिक चाल से चलना प्रारंभ करती है और प्रत्येक घंटे इसकी चाल में एक निश्चित वृद्धि होती है। यदि 630 किमी की दूरी तय करने में उसे 14 घंटे लगते हैं, तो बस की चाल में प्रति घंटा वृद्धि कितनी होगी?",
+    tag: "",
+    o: ["(a) 5 km/hr", "(b) 10 km/hr", "(c) 6 km/hr", "(d) 5.2 km/hr"],
+    a: 2,
+    e: "यह एक समांतर श्रेणी (AP) का प्रश्न है।\nn = 14, a = 6, Sn = 630.\nSn = (n/2) × [2a + (n - 1)d]\n630 = (14/2) × [2(6) + 13d]\n630 = 7 × [12 + 13d]\n90 = 12 + 13d => 78 = 13d => d = 6 किमी/घंटा।"
+  },
+  {
+    q: "Q131. कार 60 किमी/घंटा की प्रारंभिक चाल से चलना शुरू करती है, इसकी चाल में हर घंटे 10 किमी/घंटा की वृद्धि होती है। 1210 किमी की दूरी तय करने में उसे कितने घंटे लगेंगे?",
+    tag: "",
+    o: ["(a) 12", "(b) 8", "(c) 10", "(d) 11"],
+    a: 3,
+    e: "a = 60, d = 10, Sn = 1210.\nSn = (n/2) × [2a + (n - 1)d]\n1210 = (n/2) × [120 + (n - 1)10]\n1210 = (n/2) × [110 + 10n]\n1210 = 55n + 5n² => n² + 11n - 242 = 0\n(n - 11)(n + 22) = 0 => n = 11 घंटे।"
+  },
+  {
+    q: "Q132. आनंद 5 घंटे के पहले अंतराल में 50 किमी/घंटा की चाल से एक निश्चित दूरी तय करता है। दूसरे अंतराल में उसने चाल में 20% की वृद्धि की, जिसके कारण उसने पहले अंतराल की तुलना में 20% अधिक दूरी तय की। वह तीसरे अंतराल को पहले दो अंतराल की औसत चाल से तय करता है और दूसरे अंतराल की दूरी की तुलना में 10% अधिक दूरी तय करता है। तीनों अंतरालों को पूरा करने में उसे कुल कितना समय (घंटों में) लगा?",
+    tag: "",
+    o: ["(a) 16", "(b) 15", "(c) 18", "(d) 14"],
+    a: 0,
+    e: "पहला अंतराल: समय = 5 घंटे, चाल = 50 किमी/घंटा, दूरी = 250 किमी।\nदूसरा अंतराल: चाल = 50 × 1.20 = 60 किमी/घंटा, दूरी = 250 × 1.20 = 300 किमी। समय = 300 / 60 = 5 घंटे।\nतीसरा अंतराल: चाल = (50 + 60) / 2 = 55 किमी/घंटा, दूरी = 300 × 1.10 = 330 किमी। समय = 330 / 55 = 6 घंटे।\nकुल समय = 5 + 5 + 6 = 16 घंटे।"
+  },
+  {
+    q: "Q133. एक car 60 किमी/घंटा की चाल से 5 घंटे में एक निश्चित दूरी तय करती है। यदि दूरी को 2 गुना बढ़ा दिया जाए (अर्थात मूल दूरी का 3 गुना हो जाए) और लिया गया समय मूल समय का 5 गुना हो जाए, तो चाल में प्रतिशत परिवर्तन ज्ञात करें।",
+    tag: "",
+    o: ["(a) Decrease of 40%", "(b) Increase of 20%", "(c) Decrease of 25%", "(d) Increase of 10%"],
+    a: 0,
+    e: "माना मूल दूरी = D, मूल समय = T, मूल चाल V1 = D/T.\nनई दूरी = 3D, नया समय = 5T, नई चाल V2 = 3D / 5T = 0.6(D/T).\nचाल में परिवर्तन = 0.6 - 1 = -0.4 (40% की कमी)।"
+  },
+  {
+    q: "Q134. 8 घंटे प्रतिदिन विश्राम करते हुए, एक यात्री 30 दिनों में एक दूरी तय करता है। यदि वह 12 घंटे प्रतिदिन विश्राम करे, तो उसे मूल दूरी की तीन गुना दूरी को 1.5 गुना चाल से तय करने में कितने दिन लगेंगे?",
+    tag: "",
+    o: ["(a) 60 days", "(b) 80 days", "(c) 100 days", "(d) 120 days"],
+    a: 1,
+    e: "पहले यात्रा का समय प्रति दिन = 24 - 8 = 16 घंटे। कुल कार्य घंटे = 30 × 16 = 480 घंटे।\nअब यात्रा का समय प्रति दिन = 24 - 12 = 12 घंटे।\nM1 × D1 × H1 / W1 = M2 × D2 × H2 / W2 (यहाँ M1, M2 के स्थान पर चाल का प्रयोग करेंगे)\n1 (चाल) × 30 × 16 / 1 = 1.5 (चाल) × D2 × 12 / 3\n480 = 6 × D2 => D2 = 80 दिन।"
+  },
+  {
+    q: "Q135. एक व्यक्ति प्रतिदिन शाम 6:00 बजे अपनी पत्नी को स्टेशन से लेने के लिए एक निश्चित चाल से गाड़ी चलाता है। एक दिन, वह शाम 4:30 बजे पहुँच जाती है और 5 किमी/घंटा की चाल से घर की ओर चलना शुरू कर देती है। वह उसे रास्ते में मिलता है (अपने सामान्य समय पर घर से निकलने के बाद) और वे सामान्य से 20 मिनट पहले घर पहुँच जाते हैं। व्यक्ति की कार की चाल ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a) 30 km/hr", "(b) 35 km/hr", "(c) 40 km/hr", "(d) 45 km/hr"],
+    a: 2,
+    e: "कार द्वारा दोनों तरफ के चक्कर में 20 मिनट की बचत हुई, यानी एक तरफ रास्ते में कार को 10 मिनट कम चलना पड़ा।\nकार सामान्यतः स्टेशन पर 6:00 PM पर पहुँचती है, इसलिए वह पत्नी से 6:00 PM - 10 मिनट = 5:50 PM पर मिली।\nपत्नी 4:30 PM से 5:50 PM तक पैदल चली, यानी कुल समय = 1 घंटा 20 मिनट = 8/6 घंटे = 4/3 घंटे।\nपैदल तय की गई दूरी = 5 किमी/घंटा × 4/3 घंटे = 20/3 किमी।\nइसी दूरी (20/3 किमी) को कार 10 मिनट (1/6 घंटे) में तय करती है।\nकार की चाल = (20/3) / (1/6) = 40 किमी/घंटा।"
+  },
+  {
+    q: "Q136. बिना किसी डिब्बे के एक लोकोमोटिव की चाल 48 किमी/घंटा है। चाल में कमी जोड़े गए डिब्बों की संख्या के वर्गमूल के सीधे आनुपातिक है। 9 डिब्बों के साथ, चाल 30 किमी/घंटा है। उन डिब्बों की अधिकतम संख्या ज्ञात कीजिए जिन्हें लोकोमोटिव खींच सकता है ताकि वह केवल चलने में सक्षम हो।",
+    tag: "",
+    o: ["(a) 63", "(b) 64", "(c) 70", "(d) 71"],
+    a: 0,
+    e: "चाल में कमी (ΔV) ∝ √N => ΔV = k√N.\nजब N = 9, चाल 30 किमी/घंटा हो जाती है, तो कमी ΔV = 48 - 30 = 18.\n18 = k√9 => 18 = 3k => k = 6.\nलोकोमोटिव को पूरी तरह रोकने के लिए चाल में कमी 48 होनी चाहिए:\n48 = 6√N => √N = 8 => N = 64 डिब्बे (इस पर ट्रेन रुक जाएगी)।\nअतः केवल चलने में सक्षम होने के लिए अधिकतम डिब्बे = 64 - 1 = 63."
+  }
+];
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
