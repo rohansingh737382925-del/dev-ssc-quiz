@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    "q": "Q1. P तथा Q किसी काम को क्रमशः 40 तथा 60 दिन में पूरा कर सकते हैं, तो दोनों एक साथ उस काम को कितने दिनों मे पूरा करेंगे?",
+    "o": [
+      "24 days",
+      "20 days",
+      "30 days",
+      "15 days"
+    ],
+    "a": 0,
+    "e": "P का समय = 40 दिन<br>Q का समय = 60 दिन<br>कुल कार्य (40 और 60 का LCM) = 120 इकाई<br>P की कार्यक्षमता = 120 / 40 = 3 इकाई/दिन<br>Q की कार्यक्षमता = 120 / 60 = 2 इकाई/दिन<br>दोनों की कुल कार्यक्षमता = 3 + 2 = 5 इकाई/दिन<br>एक साथ मिलकर काम पूरा करने में लगा समय = 120 / 5 = 24 दिन"
+  },
+  {
+    "q": "Q2. अखिल एक काम 24 दिनों में पूरा कर सकता है। श्याम उसी काम को 12 दिनों में पूरा कर सकता है। यदि वे दोनों साथ मिलकर काम करते हैं, तो वे उसी काम को कितने दिनों में पूरा कर सकते हैं?",
+    "o": [
+      "6 days",
+      "8 days",
+      "10 days",
+      "12 days"
+    ],
+    "a": 1,
+    "e": "अखिल का समय = 24 दिन<br>श्याम का समय = 12 दिन<br>कुल कार्य (24 और 12 का LCM) = 24 इकाई<br>अखिल की कार्यक्षमता = 24 / 24 = 1 इकाई/दिन<br>श्याम की कार्यक्षमता = 24 / 12 = 2 इकाई/दिन<br>दोनों की कुल कार्यक्षमता = 1 + 2 = 3 इकाई/दिन<br>कुल समय = 24 / 3 = 8 दिन"
+  },
+  {
+    "q": "Q3. एक फैक्ट्री में, एक काम को सीता 20 दिनों में पूरा करती है, जबकि गीता उसी काम को 30 दिनों में पूरा कर सकती है। फैक्ट्री मैनेजर को काम को जितनी जल्दी हो सके पूरा कराना है, इसलिए वह सीता और गीता को साथ मिलकर काम करने का आदेश देता है। वे दोनों मिलकर उस काम को कितने दिनों में पूरा करेंगी?",
+    "o": [
+      "10",
+      "15",
+      "12",
+      "18"
+    ],
+    "a": 2,
+    "e": "सीता का समय = 20 दिन<br>गीता का समय = 30 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>सीता की कार्यक्षमता = 60 / 20 = 3 इकाई/दिन<br>गीता की कार्यक्षमता = 60 / 30 = 2 इकाई/दिन<br>कुल कार्यक्षमता = 3 + 2 = 5 इकाई/दिन<br>लिया गया समय = 60 / 5 = 12 दिन"
+  },
+  {
+    "q": "Q4. जैसन अकेले किसी कार्य को 23.4 दिनों में कर सकता है, जबकि रफीक अकेले उसी कार्य को 39 दिनों में कर सकता है। यदि वे साथ मिलकर कार्य करें तो दोनों उसी कार्य को कितने दिनों में पूरा कर सकते हैं?",
+    "o": [
+      "14.750",
+      "14.625",
+      "14.875",
+      "14.375"
+    ],
+    "a": 1,
+    "e": "जैसन का समय = 23.4 दिन = 234 / 10 = 117 / 5 दिन<br>रफीक का समय = 39 दिन<br>कुल कार्य (117 और 39 का LCM) = 117 इकाई<br>जैसन की कार्यक्षमता = 117 / (117/5) = 5 इकाई/दिन<br>रफीक की कार्यक्षमता = 117 / 39 = 3 इकाई/दिन<br>कुल कार्यक्षमता = 5 + 3 = 8 इकाई/दिन<br>दोनों द्वारा मिलकर लिया गया समय = 117 / 8 = 14.625 दिन"
+  },
+  {
+    "q": "Q5. P एक काम का 1/5 भाग 12 दिनों में पूरा कर सकता है और उसी काम का 1/6 भाग 8 दिनों में पूरा कर सकता है। P और Q दोनों साथ मिलकर उस काम को कितने दिनों में पूरा कर सकते हैं?",
+    "o": [
+      "26\\frac{2}{3}",
+      "25\\frac{4}{5}",
+      "22\\frac{4}{5}",
+      "24\\frac{2}{3}"
+    ],
+    "a": 0,
+    "e": "P पूरे काम को करता है = 12 × 5 = 60 दिनों में<br>Q पूरे काम को करता है = 8 × 6 = 48 दिनों में<br>कुल कार्य (60 और 48 का LCM) = 240 इकाई<br>P की कार्यक्षमता = 240 / 60 = 4 इकाई/दिन<br>Q की कार्यक्षमता = 240 / 48 = 5 इकाई/दिन<br>कुल कार्यक्षमता = 4 + 5 = 9 इकाई/दिन<br>लिया गया समय = 240 / 9 = 80 / 3 = 26\\frac{2}{3} दिन"
+  },
+  {
+    "q": "Q6. A किसी कार्य का 1/3 भाग 7 दिन में पूरा कर सकता है और B उसी कार्य का 2/7 भाग 10 दिन में पूरा कर सकता है। A और B दोनों मिलकर उस कार्य को कितने दिन में पूरा कर सकते हैं?",
+    "o": [
+      "12\\frac{3}{8}",
+      "11\\frac{7}{8}",
+      "13\\frac{1}{8}",
+      "15\\frac{1}{7}"
+    ],
+    "a": 2,
+    "e": "A पूरा कार्य करेगा = 7 × 3 = 21 दिनों में<br>B पूरा कार्य करेगा = 10 × (7/2) = 35 दिनों में<br>कुल कार्य (21 और 35 का LCM) = 105 इकाई<br>A की कार्यक्षमता = 105 / 21 = 5 इकाई/दिन<br>B की कार्यक्षमता = 105 / 35 = 3 इकाई/दिन<br>कुल कार्यक्षमता = 5 + 3 = 8 इकाई/दिन<br>कुल समय = 105 / 8 = 13\\frac{1}{8} दिन"
+  },
+  {
+    "q": "Q7. A किसी कार्य के 1/5 भाग को 6 दिनों में पूरा कर सकता है और B उसी कार्य के 3/8 भाग को 15 दिनों में पूरा कर सकता है। A और B दोनों मिलकर उस कार्य को कितने दिनों में पूरा करेंगे?",
+    "o": [
+      "120/7",
+      "110/7",
+      "130/7",
+      "100/7"
+    ],
+    "a": 0,
+    "e": "A पूरा कार्य करता है = 6 × 5 = 30 दिनों में<br>B पूरा कार्य करता है = 15 × (8/3) = 40 दिनों में<br>कुल कार्य (30 और 40 का LCM) = 120 इकाई<br>A की कार्यक्षमता = 120 / 30 = 4 इकाई/दिन<br>B की कार्यक्षमता = 120 / 40 = 3 इकाई/दिन<br>कुल कार्यक्षमता = 4 + 3 = 7 इकाई/दिन<br>कुल समय = 120 / 7 दिन"
+  },
+  {
+    "q": "Q8. A, 7 दिन में 20% कार्य कर सकता है और B, 7 दिन में 25% कार्य कर सकता है, यदि वे अकेले कार्य करते हैं। यदि वे एक साथ कार्य करते हैं, तो 7 दिन में वे कितना कार्य (प्रतिशत में) पूरा कर सकते हैं?",
+    "o": [
+      "38%",
+      "52%",
+      "56%",
+      "45%"
+    ],
+    "a": 3,
+    "e": "7 दिन में A द्वारा किया गया कार्य = 20%<br>7 दिन में B द्वारा किया गया कार्य = 25%<br>यदि वे एक साथ कार्य करते हैं, तो 7 दिन में किया गया कुल कार्य = 20% + 25% = 45%"
+  },
+  {
+    "q": "Q9. A, 9 दिनों में 50% काम पूरा कर सकता है और B, 9 दिनों में उस काम का 25% पूरा कर सकता है, यदि वे अकेले-अकेले काम करते हैं। यदि वे एक साथ काम करते हैं तो 9 दिन में कितना काम (% में) पूरा हो सकता है?",
+    "o": [
+      "80",
+      "90",
+      "75",
+      "100"
+    ],
+    "a": 2,
+    "e": "9 दिन में A द्वारा किया गया काम = 50%<br>9 दिन में B द्वारा किया गया काम = 25%<br>9 दिन में दोनों द्वारा मिलकर किया गया काम = 50% + 25% = 75%"
+  },
+  {
+    "q": "Q10. A किसी काम को 10 दिनों में और B उसी काम को 15 दिनों में कर सकता है। यदि वे दोनों मिलकर 4 दिनों तक काम करें, तो काम का कितना भाग शेष बचेगा?",
+    "o": [
+      "2/3",
+      "1/3",
+      "3/4",
+      "1/4"
+    ],
+    "a": 1,
+    "e": "A का समय = 10 दिन, B का समय = 15 दिन<br>कुल कार्य (LCM) = 30 इकाई<br>A की कार्यक्षमता = 3 इकाई/दिन, B की कार्यक्षमता = 2 इकाई/दिन<br>दोनों की कुल कार्यक्षमता = 3 + 2 = 5 इकाई/दिन<br>4 दिनों में किया गया कार्य = 5 × 4 = 20 इकाई<br>शेष कार्य = 30 - 20 = 10 इकाई<br>शेष कार्य का भाग = 10 / 30 = 1/3"
+  },
+  {
+    "q": "Q11. A एक काम को 12 दिनों में कर सकता है और B उसी काम को 18 दिनों में कर सकता है। अगर वे दोनों मिलकर 4 दिनों तक काम करते हैं, तो काम का कितना हिस्सा बाकी रह जाएगा?",
+    "o": [
+      "4/9",
+      "14/9",
+      "11/9",
+      "13/9"
+    ],
+    "a": 0,
+    "e": "A का समय = 12 दिन, B का समय = 18 दिन<br>कुल कार्य (LCM) = 36 इकाई<br>A की क्षमता = 3, B की क्षमता = 2<br>कुल क्षमता = 5<br>4 दिनों में किया गया कार्य = 5 × 4 = 20 इकाई<br>शेष कार्य = 36 - 20 = 16 इकाई<br>शेष भाग = 16 / 36 = 4/9"
+  },
+  {
+    "q": "Q12. A एक काम को 8 day में और B उसी काम को 12 day में कर सकता है। वे दोनों 3 day तक एक साथ काम करते हैं। काम का कितना हिस्सा बचा है?",
+    "o": [
+      "5/8",
+      "430",
+      "3/8",
+      "7/24"
+    ],
+    "a": 2,
+    "e": "A का समय = 8 दिन, B का समय = 12 दिन<br>कुल कार्य (LCM) = 24 इकाई<br>A की क्षमता = 3, B की क्षमता = 2<br>कुल क्षमता = 5<br>3 दिन में किया गया कार्य = 5 × 3 = 15 इकाई<br>शेष कार्य = 24 - 15 = 9 इकाई<br>शेष भाग = 9 / 24 = 3/8"
+  },
+  {
+    "q": "Q13. सुमित और राजीव, मिलकर काम करते हुए, किसी काम को 20 घंटे में कर सकते हैं जबकि सुमित अकेले उसी काम को 25 घंटे में कर सकता है। राजीव अकेले उस काम को कितने घंटे में पूरा कर सकता है?",
+    "o": [
+      "70",
+      "90",
+      "80",
+      "100"
+    ],
+    "a": 3,
+    "e": "(सुमित + राजीव) का समय = 20 घंटे<br>सुमित का समय = 25 घंटे<br>कुल कार्य (20 और 25 का LCM) = 100 इकाई<br>(सुमित + राजीव) की क्षमता = 100 / 20 = 5 इकाई/घंटा<br>सुमित की क्षमता = 100 / 25 = 4 इकाई/घंटा<br>राजीव की क्षमता = 5 - 4 = 1 इकाई/घंटा<br>राजीव द्वारा अकेले लिया गया समय = 100 / 1 = 100 घंटे"
+  },
+  {
+    "q": "Q14. धवल और धीरज मिलकर एक काम 12 दिनों में कर सकते हैं। धवल अकेले उसी काम को 20 दिनों में कर सकता है। धीरज अकेले उसी काम को कितने दिनों कर सकता है?",
+    "o": [
+      "30",
+      "28",
+      "29",
+      "27"
+    ],
+    "a": 0,
+    "e": "(धवल + धीरज) का समय = 12 दिन<br>धवल का समय = 20 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>संयुक्त क्षमता = 60 / 12 = 5 इकाई/दिन<br>धवल की क्षमता = 60 / 20 = 3 इकाई/दिन<br>धीरज की क्षमता = 5 - 3 = 2 इकाई/दिन<br>धीरज का समय = 60 / 2 = 30 दिन"
+  },
+  {
+    "q": "Q15. A किसी कार्य का 87.5%, 35 दिनों में कर सकता है जबकि B उसी कार्य का 65%, 23.4 दिनों में कर सकता है। यदि वे एक साथ काम करते हैं, तो काम का कितना भाग 1 दिन में पूरा हो जाएगा?",
+    "o": [
+      "7/120",
+      "19/360",
+      "1/4",
+      "1/20"
+    ],
+    "a": 1,
+    "e": "87.5% = 7/8 भाग<br>A पूरा काम करेगा = 35 × (8/7) = 40 दिनों में<br>B, 65% काम करता है 23.4 दिनों में, अतः पूरा काम करेगा = 23.4 × 100 / 65 = 36 दिनों में<br>कुल कार्य (40 और 36 का LCM) = 360 इकाई<br>A की क्षमता = 360 / 40 = 9 इकाई/दिन<br>B की क्षमता = 360 / 36 = 10 इकाई/दिन<br>दोनों की 1 दिन की कुल क्षमता = 9 + 10 = 19 इकाई<br>1 दिन में पूरा होने वाला भाग = 19 / 360"
+  },
+  {
+    "q": "Q16. A किसी कार्य का 84%, 42 दिनों में कर सकता है जबकि B उसी कार्य का 70%, 31.5 दिनों में कर सकता है। यदि वे एक साथ काम करते हैं, तो काम का कितना भाग 1 दिन में पूरा हो जाएगा?",
+    "o": [
+      "2/95",
+      "19/225",
+      "7/225",
+      "19/450"
+    ],
+    "a": 3,
+    "e": "A पूरा काम करेगा = 42 × 100 / 84 = 50 दिनों में<br>B पूरा काम करेगा = 31.5 × 100 / 70 = 45 दिनों में<br>कुल कार्य (50 और 45 का LCM) = 450 इकाई<br>A की क्षमता = 450 / 50 = 9 इकाई/दिन<br>B की क्षमता = 450 / 45 = 10 इकाई/दिन<br>1 दिन में किया गया कुल कार्य = 9 + 10 = 19 इकाई<br>1 दिन में पूरा होने वाला भाग = 19 / 450"
+  },
+  {
+    "q": "Q17. राजू और अकबर को एक कंप्यूटर पर क्रमशः 32 पेज और 48 पेज टाइप करने में 4 घंटे और 6 घंटे लगते हैं। उन्हें 256 पेज टाइप करने का एक असाइनमेंट दिया जाता है। यदि वे दो अलग-अलग कंप्यूटरों पर साथ मिलकर काम करते है और एक ही समय पर टाइप करना शुरू करते हैं तो उन्हें असाइनमेंट को पूरा करने में (घंटों में) कितना समय लगेगा?",
+    "o": [
+      "16",
+      "14",
+      "18",
+      "12"
+    ],
+    "a": 0,
+    "e": "राजू की टाइपिंग दर = 32 / 4 = 8 पेज/घंटा<br>अकबर की टाइपिंग दर = 48 / 6 = 8 पेज/घंटा<br>दोनों की संयुक्त दर = 8 + 8 = 16 पेज/घंटा<br>कुल समय = 256 / 16 = 16 घंटे"
+  },
+  {
+    "q": "Q18. अमित और सुमित को एक computer पर क्रमशः 60 पेज और 90 पेज टाइप करने में 5 घंटे और 6 घंटे लगते हैं। उन्हें 324 पेज टाइप करने का एक असाइनमेंट दिया जाता है। यदि वे दो अलग-अलग कंप्यूटरों पर साथ मिलकर काम करते हैं और एक ही समय पर टाइप करना शुरू करते हैं तो उन्हें असाइनमेंट को पूरा करने में (घंटों में) कितना समय लगेगा?",
+    "o": [
+      "10",
+      "12",
+      "14",
+      "15"
+    ],
+    "a": 1,
+    "e": "अमित की गति = 60 / 5 = 12 पेज/घंटा<br>सुमित की गति = 90 / 6 = 15 पेज/घंटा<br>संयुक्त गति = 12 + 15 = 27 पेज/घंटा<br>कुल समय = 324 / 27 = 12 घंटे"
+  },
+  {
+    "q": "Q19. विपिन एक काम को 2 दिनों में कर सकता है; वैभव उसी कार्य को 3 दिनों में और चिराग उसी कार्य को 6 दिनों में कर सकता है। यदि वे एक साथ काम करना शुरू करते हैं, तो काम पूरा करने में उन्हें कितने दिन लगेंगे?",
+    "o": [
+      "3",
+      "5",
+      "1",
+      "4"
+    ],
+    "a": 2,
+    "e": "विपिन = 2 दिन, वैभव = 3 दिन, चिराग = 6 दिन<br>कुल कार्य (LCM) = 6 इकाई<br>विपिन की क्षमता = 3, वैभव की क्षमता = 2, चिराग की क्षमता = 1<br>कुल क्षमता = 3 + 2 + 1 = 6 इकाई/दिन<br>लिया गया समय = 6 / 6 = 1 दिन"
+  },
+  {
+    "q": "Q20. A, B और C एक काम को क्रमशः 12, 15 and 20 दिनों में पूरा कर सकते हैं। यदि वे एक साथ मिलकर काम करते हैं तो काम को पूरा करने में उन्हें कितने दिन का समय लगेगा?",
+    "o": [
+      "5 days",
+      "4 days",
+      "6 days",
+      "3 days"
+    ],
+    "a": 0,
+    "e": "A = 12 दिन, B = 15 दिन, C = 20 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>A की क्षमता = 5, B की क्षमता = 4, C की क्षमता = 3<br>कुल क्षमता = 5 + 4 + 3 = 12 इकाई/दिन<br>लिया गया समय = 60 / 12 = 5 दिन"
+  },
+  {
+    "q": "Q21. एक पुरुष, एक लड़का और एक महिला किसी काम को क्रमशः 12 दिन, 15 दिन और 20 दिन में पूरा कर सकते हैं। यदि तीनों मिलकर साथ काम करें, तो वह काम कितने दिनों में पूरा होगा?",
+    "o": [
+      "5",
+      "6",
+      "8",
+      "4"
+    ],
+    "a": 0,
+    "e": "पुरुष = 12 दिन, लड़का = 15 दिन, महिला = 20 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>पुरुष की क्षमता = 5, लड़के की क्षमता = 4, महिला की क्षमता = 3<br>कुल क्षमता = 5 + 4 + 3 = 12 इकाई/दिन<br>लिया गया समय = 60 / 12 = 5 दिन"
+  },
+  {
+    "q": "Q22. एक कार्यालय में, टाइपिंग का एक काम नेहा अकेले 5 घंटे में, प्रिया 7 घंटे में और रिया 10 घंटे में पूरा कर सकती हैं। यदि वे तीनों मिलकर काम करें, तो वे उस काम को कितने घंटों में पूरा करेंगी?",
+    "o": [
+      "2\\frac{8}{31}",
+      "2\\frac{5}{31}",
+      "3\\frac{1}{31}",
+      "3\\frac{1}{31}"
+    ],
+    "a": 0,
+    "e": "नेहा = 5 घंटे, प्रिया = 7 घंटे, रिया = 10 घंटे<br>कुल कार्य (LCM) = 70 इकाई<br>नेहा की क्षमता = 14, प्रिया की क्षमता = 10, रिया की क्षमता = 7<br>कुल क्षमता = 14 + 10 + 7 = 31 इकाई/घंटा<br>लिया गया समय = 70 / 31 = 2\\frac{8}{31} घंटे"
+  },
+  {
+    "q": "Q23. एक कंपनी में, X, Y और Z किसी काम को अकेले क्रमशः 5 दिन, 8 दिन और 20 दिन में पूरा कर सकते हैं। यदि वे तीनों मिलकर काम करें, तो वह काम कितने दिनों में पूरा होगा? (उत्तर को दशमलव के बाद 2 स्थान तक पूर्णांकित करें।)",
+    "o": [
+      "2.67",
+      "2.33",
+      "2.45",
+      "2.76"
+    ],
+    "a": 0,
+    "e": "X = 5 दिन, Y = 8 दिन, Z = 20 दिन<br>कुल कार्य (LCM) = 40 इकाई<br>X की क्षमता = 8, Y की क्षमता = 5, Z की क्षमता = 2<br>कुल क्षमता = 8 + 5 + 2 = 15 इकाई/दिन<br>लिया गया समय = 40 / 15 = 8 / 3 = 2.67 दिन"
+  },
+  {
+    "q": "Q24. A किसी काम को 4 घंटे में कर सकता है। B उसी काम के दोगुने काम को 12 घंटे में कर सकता है और C उस काम को 12 घंटे में कर सकता है। यदि वे तीनों मिलकर काम करें, तो वह काम कितने समय में पूरा होगा?",
+    "o": [
+      "2 hr",
+      "3 hr",
+      "4 hr",
+      "1 hr"
+    ],
+    "a": 0,
+    "e": "A का समय = 4 घंटे<br>B दोगुना काम 12 घंटे में करता है, अतः वह काम 6 घंटे में करेगा<br>C का समय = 12 घंटे<br>कुल कार्य (LCM) = 12 इकाई<br>A की क्षमता = 3, B की क्षमता = 2, C की क्षमता = 1<br>कुल क्षमता = 3 + 2 + 1 = 6 इकाई/घंटा<br>लिया गया समय = 12 / 6 = 2 घंटे"
+  },
+  {
+    "q": "Q25. M, N और O अकेले एक काम को क्रमशः 10, 12 और 15 दिनों में पूरा कर सकते हैं। M, N और O मिलकर उसी काम का 1/6 भाग कितने दिनों में पूरा कर सकते हैं?",
+    "o": [
+      "4/3 days",
+      "2/3 days",
+      "5/3 days",
+      "1/3 days"
+    ],
+    "a": 1,
+    "e": "M = 10 दिन, N = 12 दिन, O = 15 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>M की क्षमता = 6, N की क्षमता = 5, O की क्षमता = 4<br>कुल क्षमता = 6 + 5 + 4 = 15 इकाई/दिन<br>कार्य का 1/6 भाग = 60 × (1/6) = 10 इकाई<br>लिया गया समय = 10 / 15 = 2/3 दिन"
+  },
+  {
+    "q": "Q26. A, B और C किसी काम को अकेले क्रमशः 15 दिन, 20 दिन और 30 दिन में पूरा कर सकते हैं। यदि वे तीनों मिलकर 3 दिन तक काम करें, तो काम का कितना भाग शेष बचेगा?",
+    "o": [
+      "11/20",
+      "9/20",
+      "7/20",
+      "1/2"
+    ],
+    "a": 0,
+    "e": "A = 15 दिन, B = 20 दिन, C = 30 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>A की क्षमता = 4, B की क्षमता = 3, C की क्षमता = 2<br>कुल क्षमता = 4 + 3 + 2 = 9 इकाई/दिन<br>3 दिनों में किया गया कार्य = 9 × 3 = 27 इकाई<br>शेष कार्य = 60 - 27 = 33 इकाई<br>शेष भाग = 33 / 60 = 11/20"
+  },
+  {
+  q: "Q27. A, B और C किसी काम को अकेले क्रमशः 12 दिन, 15 दिन और 20 दिन में पूरा कर सकते हैं। यदि वे तीनों मिलकर 2 दिन तक काम करें, तो काम का कितना भाग शेष बचेगा?",
+  tag: "",
+  o: [
+    "A. 2/5",
+    "B. 1/2",
+    "C. 3/5",
+    "D. 4/5"
+  ],
+  a: 2,
+  e: "Short Trick:<br><br><pre>12      15      20\n │       │       │\n 5       4       3\n  \\      │      /\n   \\     │     /\n      कुल = 12\n\nLCM = 60\n\n2 दिन का कार्य = 12 × 2 = 24\n\nशेष कार्य = 60 − 24 = 36\n\nशेष भाग = 36/60 = 3/5</pre><br>अतः काम का <b>3/5</b> भाग शेष बचेगा। इसलिए सही उत्तर विकल्प <b>C</b> है।"
+},
+  {
+    "q": "Q28. A किसी कार्य का 1/3 भाग 15 दिनों में पूरा कर सकता है, B इसी कार्य का 3/4 भाग 18 दिनों में तथा C यही कार्य 36 दिनों में कर सकता है। B और C, 8 दिनों तक साथ कार्य करते हैं। A अकेला शेष कार्य को कितने दिनों में पूरा करेगा?",
+    "o": [
+      "24 days",
+      "18 days",
+      "20 days",
+      "16 days"
+    ],
+    "a": 2,
+    "e": "A पूरा कार्य करेगा = 15 × 3 = 45 दिनों में<br>B पूरा कार्य करेगा = 18 × (4/3) = 24 दिनों में<br>C का समय = 36 दिन<br>कुल कार्य (45, 24, 36 का LCM) = 360 इकाई<br>A की क्षमता = 8, B की क्षमता = 15, C की क्षमता = 10<br>B और C की कुल क्षमता = 15 + 10 = 25 इकाई/दिन<br>B और C द्वारा 8 दिनों में किया गया कार्य = 25 × 8 = 200 इकाई<br>शेष कार्य = 360 - 200 = 160 इकाई<br>A द्वारा लिया गया समय = 160 / 8 = 20 दिन"
+  },
+  {
+    "q": "Q29. अली, अवतार सिंह और अशोक एक साथ काम करते हुए एक काम को 8 दिनों में पूरा कर सकते हैं। अली अकेले इसे 20 दिनों में कर सकता है और अवतार सिंह अकेले इसे 24 दिनों में कर सकता है। अशोक उसी कार्य को अकेले कितने दिनों में कर सकता है?",
+    "o": [
+      "30",
+      "28",
+      "26",
+      "25"
+    ],
+    "a": 0,
+    "e": "(अली + अवतार + अशोक) = 8 दिन<br>अली = 20 दिन, अवतार = 24 दिन<br>कुल कार्य (LCM) = 120 इकाई<br>संयुक्त क्षमता = 120 / 8 = 15<br>अली की क्षमता = 6, अवतार की क्षमता = 5<br>अशोक की क्षमता = 15 - (6 + 5) = 4 इकाई/दिन<br>अशोक द्वारा लिया गया समय = 120 / 4 = 30 दिन"
+  },
+  {
+    "q": "Q30. A और B मिलकर एक कार्य को 30 दिनों में पूरा कर सकते हैं। C के साथ मिलकर वे उसी कार्य को 24 दिनों में पूरा कर सकते हैं। C अकेले उसी कार्य को कितने दिनों में पूरा कर सकता है?",
+    "o": [
+      "150 days",
+      "120 days",
+      "96 days",
+      "90 days"
+    ],
+    "a": 1,
+    "e": "(A + B) का समय = 30 दिन<br>(A + B + C) का समय = 24 दिन<br>कुल कार्य (LCM) = 120 इकाई<br>(A + B) की क्षमता = 4, (A + B + C) की क्षमता = 5<br>C की क्षमता = 5 - 4 = 1 इकाई/दिन<br>C का समय = 120 / 1 = 120 दिन"
+  },
+  {
+    "q": "Q31. A, B और C मिलकर किसी काम का 1/4 भाग 3 दिनों में पूरा कर सकते हैं और अगले 6 दिनों में B और C मिलकर उसी काम का 2/5 भाग पूरा कर सकते हैं। बताइए कि A अकेले उस पूरे काम को कितने दिनों में पूरा कर सकता है?",
+    "o": [
+      "60 days",
+      "30 days",
+      "45 days",
+      "50 days"
+    ],
+    "a": 0,
+    "e": "(A + B + C) पूरा काम करेंगे = 3 × 4 = 12 दिनों में<br>(B + C) पूरा काम करेंगे = 6 × (5/2) = 15 दिनों में<br>कुल कार्य (12 और 15 का LCM) = 60 इकाई<br>(A + B + C) की क्षमता = 5, (B + C) की क्षमता = 4<br>A की क्षमता = 5 - 4 = 1 इकाई/दिन<br>A द्वारा अकेले लिया गया समय = 60 / 1 = 60 दिन"
+  },
+  {
+    "q": "Q32. A, B और C मिलकर किसी काम का 1/3 भाग 5 दिनों में पूरा कर सकते हैं और अगले 9 दिनों में B और C मिलकर उसी काम का 3/8 भाग पूरा कर सकते हैं। बताइए कि A अकेले उस पूरे काम को कितने दिनों में पूरा कर सकता है?",
+    "o": [
+      "40 days",
+      "36 days",
+      "45 days",
+      "48 days"
+    ],
+    "a": 0,
+    "e": "(A + B + C) पूरा काम करेंगे = 5 × 3 = 15 दिनों में<br>(B + C) पूरा काम करेंगे = 9 × (8/3) = 24 दिनों में<br>कुल कार्य (15 और 24 का LCM) = 120 इकाई<br>(A + B + C) की क्षमता = 8, (B + C) की क्षमता = 5<br>A की क्षमता = 3 इकाई/दिन<br>A का समय = 120 / 3 = 40 दिन"
+  },
+  {
+    "q": "Q33. A एक काम को 7 घंटे में पूरा कर सकता है, B और C इसे 21/4 घंटे में पूरा कर सकते हैं और C और A इसे 7/2 घंटे में पूरा कर सकते हैं। B को अकेले इस काम को पूरा करने में कितना समय लगेगा?",
+    "o": [
+      "22 hours",
+      "20 hours",
+      "21 hours",
+      "24 hours"
+    ],
+    "a": 2,
+    "e": "A = 7 घंटे, (B + C) = 21/4 घंटे, (C + A) = 7/2 घंटे<br>कुल कार्य (अंशों का LCM: 7, 21, 7) = 21 इकाई<br>A की क्षमता = 21 / 7 = 3<br>(B + C) की क्षमता = 21 / (21/4) = 4<br>(C + A) की क्षमता = 21 / (7/2) = 6<br>चूंकि A = 3, इसलिए C = 6 - 3 = 3<br>चूंकि C = 3 और B + C = 4, इसलिए B = 4 - 3 = 1 इकाई/घंटा<br>B अकेले समय लेगा = 21 / 1 = 21 घंटे"
+  },
+  {
+    "q": "Q34. A और B एक काम को 10 दिनों में कर सकते हैं। B और C उसी कार्य को 12 दिनों में कर सकते हैं। C और A उसी कार्य को 15 दिनों में कर सकते हैं। यदि तीनों एक साथ मिलकर कार्य करते हैं, तो कार्य को पूरा करने के लिए आवश्यक दिनों की संख्या ज्ञात कीजिए।",
+    "o": [
+      "6",
+      "10",
+      "8",
+      "12"
+    ],
+    "a": 2,
+    "e": "(A + B) = 10 दिन, (B + C) = 12 दिन, (C + A) = 15 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>(A + B) की क्षमता = 6, (B + C) की क्षमता = 5, (C + A) की क्षमता = 4<br>2(A + B + C) की कुल क्षमता = 6 + 5 + 4 = 15<br>(A + B + C) की क्षमता = 15 / 2 = 7.5 इकाई/दिन<br>लिया गया समय = 60 / 7.5 = 8 दिन"
+  },
+  {
+    "q": "Q35. A और B एक परियोजना को 9 दिनों में पूरा कर सकते हैं, B और C इसे 12 दिनों में पूरा कर सकते हैं, जबकि C और A इसे 18 दिनों में पूरा कर सकते हैं। A, B और C मिलकर कितने दिनों में परियोजना को पूरा कर सकते हैं?",
+    "o": [
+      "9",
+      "8",
+      "11",
+      "10"
+    ],
+    "a": 1,
+    "e": "(A + B) = 9 दिन, (B + C) = 12 दिन, (C + A) = 18 दिन<br>कुल कार्य (LCM) = 36 इकाई<br>(A + B) की क्षमता = 4, (B + C) की क्षमता = 3, (C + A) की क्षमता = 2<br>2(A + B + C) की क्षमता = 4 + 3 + 2 = 9<br>(A + B + C) की क्षमता = 9 / 2 इकाई/दिन<br>लिया गया समय = 36 / (9/2) = 8 दिन"
+  },
+  {
+    "q": "Q36. A और B मिलकर एक काम को 12 दिनों में पूरा कर सकते हैं। B और C मिलकर उसी काम को 15 दिनों में पूरा कर सकते हैं। C और A मिलकर उसे 20 दिनों में कर सकते हैं। A अकेला उस काम को कितने दिनों में पूरा कर सकता है?",
+    "o": [
+      "30 days",
+      "20 days",
+      "50 days",
+      "15 days"
+    ],
+    "a": 0,
+    "e": "(A + B) = 12 दिन, (B + C) = 15 दिन, (C + A) = 20 दिन<br>कुल कार्य (LCM) = 60 इकाई<br>(A + B) की क्षमता = 5, (B + C) की क्षमता = 4, (C + A) की क्षमता = 3<br>(A + B + C) की क्षमता = (5 + 4 + 3) / 2 = 6 इकाई/दिन<br>A की क्षमता = (A + B + C) की क्षमता - (B + C) की क्षमता = 6 - 4 = 2 इकाई/दिन<br>A का समय = 60 / 2 = 30 दिन"
+  },
+  {
+    "q": "Q37. A और B एक काम को 9 दिनों में पूरा कर सकते हैं, जबकि B और C उसी काम को 18 दिनों में पूरा कर सकते हैं। A, B और C साथ मिलकर काम करते हुए उसी काम को 8 दिनों में पूरा कर सकते हैं। A और C को साथ मिलकर काम पूरा करने में कितने दिन लगेंगे?",
+    "o": [
+      "11",
+      "14",
+      "12",
+      "13"
+    ],
+    "a": 2,
+    "e": "(A + B) = 9 दिन, (B + C) = 18 दिन, (A + B + C) = 8 दिन<br>कुल कार्य (LCM) = 72 इकाई<br>(A + B) की क्षमता = 8, (B + C) की क्षमता = 4, (A + B + C) की क्षमता = 9<br>C की क्षमता = (A + B + C) - (A + B) = 9 - 8 = 1<br>A की क्षमता = (A + B + C) - (B + C) = 9 - 4 = 5<br>(A + C) की कुल क्षमता = 5 + 1 = 6 इकाई/दिन<br>(A + C) का समय = 72 / 6 = 12 दिन"
+  },
+  {
+    "q": "Q38. A और B मिलकर किसी कार्य को 25 दिनों में पूरा कर सकते हैं, B और C मिलकर उसी कार्य को 36 दिनों में पूरा कर सकते हैं, जबकि C और A मिलकर उसी कार्य को 30 दिनों में पूरा कर सकते हैं। यदि A, B, C और D मिलकर इस कार्य को 18 दिनों में पूरा कर सकते हैं, तो D अकेला इस कार्य को कितने दिनों में पूरा कर सकता है?",
+    "o": [
+      "225",
+      "210",
+      "200",
+      "180"
+    ],
+    "a": 2,
+    "e": "(A + B) = 25 दिन, (B + C) = 36 दिन, (C + A) = 30 दिन, (A + B + C + D) = 18 दिन<br>कुल कार्य (LCM) = 900 इकाई<br>(A + B) की क्षमता = 36, (B + C) की क्षमता = 25, (C + A) की क्षमता = 30<br>2(A + B + C) की क्षमता = 36 + 25 + 30 = 91<br>(A + B + C) की क्षमता = 91 / 2 = 45.5<br>(A + B + C + D) की क्षमता = 900 / 18 = 50<br>D की क्षमता = 50 - 45.5 = 4.5 इकाई/दिन<br>D का समय = 900 / 4.5 = 200 दिन"
+  },
+  {
+    "q": "Q39. A और B मिलकर एक कार्य को 12.5 दिनों में पूरा कर सकते हैं; B और C मिलकर उसी कार्य को 18.75 दिनों में पूरा कर सकते हैं, जबकि C और A मिलकर उसी कार्य को 15 दिनों में पूरा कर सकते है। D को साथ लेते हुए, जो C की तुलना में केवल 40% कुशल है, A, B और C मिलकर उसी कार्य को कितने दिनों में पूरा कर पाएंगे?",
+    "o": [
+      "9\\frac{1}{3}",
+      "9\\frac{2}{3}",
+      "9\\frac{17}{27}",
+      "9\\frac{7}{27}"
+    ],
+    "a": 3,
+    "e": "(A + B) = 12.5 = 25/2 दिन, (B + C) = 18.75 = 75/4 दिन, (C + A) = 15 दिन<br>कुल कार्य (LCM) = 75 इकाई<br>(A + B) की क्षमता = 6, (B + C) की क्षमता = 4, (C + A) की क्षमता = 5<br>(A + B + C) की क्षमता = (6 + 4 + 5) / 2 = 7.5<br>C की क्षमता = (A + B + C) - (A + B) = 7.5 - 6 = 1.5<br>D की क्षमता = 1.5 × 40% = 0.6<br>(A + B + C + D) की कुल क्षमता = 7.5 + 0.6 = 8.1 इकाई/दिन<br>लिया गया समय = 75 / 8.1 = 750 / 81 = 250 / 27 = 9\\frac{7}{27} दिन"
+  },
+  {
+    "q": "Q40. A और B मिलकर एक कार्य को 15 दिनों में पूरा कर सकते हैं; B और C मिलकर उसी कार्य को 22.5 दिनों में पूरा कर सकते हैं, जबकि C और A मिलकर उसी कार्य को 18 दिनों में पूरा कर सकते हैं। D को साथ लेते हुए, जो C की तुलना में केवल 80% कुशल है, A, B और C मिलकर उसी कार्य को कितने दिनों में पूरा कर पाएंगे?",
+    "o": [
+      "10\\frac{15}{29}",
+      "11\\frac{5}{29}",
+      "10\\frac{10}{29}",
+      "9\\frac{20}{29}"
+    ],
+    "a": 2,
+    "e": "(A + B) = 15 दिन, (B + C) = 22.5 = 45/2 दिन, (C + A) = 18 दिन<br>कुल कार्य (LCM) = 90 इकाई<br>(A + B) की क्षमता = 6, (B + C) की क्षमता = 4, (C + A) की क्षमता = 5<br>(A + B + C) की क्षमता = (6 + 4 + 5) / 2 = 7.5<br>C की क्षमता = (A + B + C) - (A + B) = 7.5 - 6 = 1.5<br>D की क्षमता = 1.5 × 80% = 1.2<br>(A + B + C + D) की कुल क्षमता = 7.5 + 1.2 = 8.7 इकाई/दिन<br>लिया गया समय = 90 / 8.7 = 900 / 87 = 300 / 29 = 10\\frac{10}{29} दिन"
+  }
+];
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
