@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. पाइप L एक पूल को 30 घंटे में और पाइप M इसे 45 घंटे में भर सकता है। यदि दोनों पाइपों को एक खाली पूल में खोल दिया जाए, तो उन्हें इसे भरने में कितना समय लगेगा?",
+    tag: "",
+    o: ["(a) 24 hrs.", "(b) 17 hrs.", "(c) 18 hrs.", "(d) 20 hrs."],
+    a: 2,
+    e: "L का समय = 30 घंटे<br>M का समय = 45 घंटे<br>कुल कार्य (LCM of 30, 45) = 90 इकाई<br>L की क्षमता = 90 / 30 = 3<br>M की क्षमता = 90 / 45 = 2<br>दोनों की कुल क्षमता = 3 + 2 = 5<br>लिया गया समय = 90 / 5 = 18 घंटे"
+  },
+  {
+    q: "Q2. एक नल, किसी टंकी को 4 घंटे में भर सकता है। दूसरा नल, उसी टंकी को 6 घंटे में भर सकता है। यदि दोनों नल एक साथ खोले जाते हैं, तो खाली टंकी को पूरी तरह से भरने में कितना समय लगेगा?",
+    tag: "",
+    o: ["(a) 3 h", "(b) 2 h 24 min", "(c) 2 h 30 min", "(d) 2 h"],
+    a: 1,
+    e: "पहले नल का समय = 4 घंटे<br>दूसरे नल का समय = 6 घंटे<br>कुल कार्य = 12 इकाई<br>पहले नल की क्षमता = 12 / 4 = 3<br>दूसरे नल की क्षमता = 12 / 6 = 2<br>कुल क्षमता = 3 + 2 = 5<br>लिया गया समय = 12 / 5 = 2 घंटे 2/5 घंटे = 2 घंटे 24 मिनट"
+  },
+  {
+    q: "Q3. पाइप A, 6 घंटे में टैंक का 50% भाग भर सकता है और पाइप B उसी टैंक को 18 घंटे में पूरी तरह से भर सकता है। यदि दोनों पाइपों को एक ही समय पर खोल दिया जाए, तो खाली टैंक कितने समय में (मिनट में) पूर्णतः भर जाएगा?",
+    tag: "",
+    o: ["(a) 420", "(b) 425", "(c) 432", "(d) 435"],
+    a: 2,
+    e: "पाइप A 50% भाग 6 घंटे में भरता है, तो पूरा टैंक = 12 घंटे में भरेगा।<br>पाइप B पूरा टैंक = 18 घंटे में भरता है।<br>कुल कार्य = 36 इकाई<br>A की क्षमता = 36 / 12 = 3<br>B की क्षमता = 36 / 18 = 2<br>कुल समय = 36 / (3 + 2) = 36 / 5 घंटे<br>मिनट में समय = (36 / 5) × 60 = 36 × 12 = 432 मिनट"
+  },
+  {
+    q: "Q4. दो पाइप A और B एक पूरी तरह भरी हुई पानी की टंकी को क्रमशः 12 घंटे और 15 घंटे में खाली कर सकते हैं। यदि दोनों पाइपों को एक साथ खोल दिया जाए, तो टंकी का 60% पानी खाली करने में कितना समय लगेगा?",
+    tag: "",
+    o: ["(a) 3 h 20 m", "(b) 4 h", "(c) 5 h", "(d) 5 h 15 m"],
+    a: 1,
+    e: "A का समय = -12 घंटे<br>B का समय = -15 घंटे<br>कुल कार्य = 60 इकाई<br>A की क्षमता = -5<br>B की क्षमता = -4<br>60% कार्य = 60 का 60% = 36 इकाई<br>लिया गया समय = 36 / (5 + 4) = 36 / 9 = 4 घंटे"
+  },
+  {
+    q: "Q5. एक टैंक को पानी से भरने के लिए दो पंप हैं। पहला पंप खाली टैंक को 6 घंटे में भर सकता है, जबकि दूसरा पंप टैंक को 8 घंटे में भर सकता है। यदि दोनों पंपों को एक ही समय पर खोला जाए और 2 घंटे तक खुला रखा जाए, तो टैंक का कितना हिस्सा भर जाएगा।",
+    tag: "",
+    o: ["(a) 9/10", "(b) 7/10", "(c) 7/12", "(d) 11/12"],
+    a: 2,
+    e: "पहला पंप = 6 घंटे<br>दूसरा पंप = 8 घंटे<br>कुल कार्य = 24 इकाई<br>पहले की क्षमता = 4, दूसरे की क्षमता = 3<br>2 घंटे में किया गया कार्य = (4 + 3) × 2 = 14 इकाई<br>टैंक का भरा हिस्सा = 14 / 24 = 7/12"
+  },
+  {
+  q: "Q6. एक टंकी में 3 नल हैं। पहला नल टंकी को 4 दिन में भरता है, दूसरा नल 48 घंटे में तथा तीसरा नल केवल 12 घंटे में भरता है। तीनों नलों का उपयोग करने पर टंकी कितने समय में भर जाएगी?",
+  tag: "",
+  o: [
+    "A. 6\\frac{1}{2} घंटे",
+    "B. 6 घंटे",
+    "C. 8\\frac{8}{11} घंटे",
+    "D. 1\\frac{1}{11} घंटे"
+  ],
+  a: 2,
+  e: "<b>विधि 1 (Short Trick):</b><br><br>समय = 96 hr, 48 hr, 12 hr<br><br>Alligation:<br>96 &nbsp;&nbsp;&nbsp;&nbsp;1<br>48 &nbsp;&nbsp;&nbsp;&nbsp;2<br>12 &nbsp;&nbsp;&nbsp;&nbsp;8<br><br>⇒ संयुक्त समय = 96/(1+2+8) = 96/11 = 8\\frac{8}{11} घंटे।<br><br><hr><br><b>विधि 2 (सामान्य विधि):</b><br><br>4 दिन = 96 घंटे<br><br>संयुक्त चाल = 1/96 + 1/48 + 1/12<br>= (1+2+8)/96<br>= 11/96 टंकी/घंटा<br><br>समय = 1 ÷ (11/96)<br>= 96/11 = 8\\frac{8}{11} घंटे<br><br>अतः सही उत्तर विकल्प <b>C</b> है।"
+},
+  {
+  q: "Q7. पाइप A एक टैंक को 16 घंटे में भर सकता है, पाइप B उसी टैंक को 25 घंटे में तथा पाइप C उसी टैंक को 12 घंटे में भर सकता है। यदि तीनों पाइप एक साथ चलाए जाएँ, तो टैंक भरने में कितना समय लगेगा?",
+  tag: "",
+  o: [
+    "A. 5\\frac{85}{223} घंटे",
+    "B. 3\\frac{85}{223} घंटे",
+    "C. 1\\frac{85}{223} घंटे",
+    "D. 4\\frac{85}{223} घंटे"
+  ],
+  a: 0,
+  e: "<b>विधि 1 (Short Trick):</b><br><br>समय = 16 hr, 25 hr, 12 hr<br><br>Alligation:<br>16 &nbsp;&nbsp;&nbsp;&nbsp;75<br>25 &nbsp;&nbsp;&nbsp;&nbsp;48<br>12 &nbsp;&nbsp;&nbsp;&nbsp;100<br><br>⇒ संयुक्त समय = 1200/(75+48+100)<br>= 1200/223<br>= 5\\frac{85}{223} घंटे।<br><br><hr><br><b>विधि 2 (सामान्य विधि):</b><br><br>संयुक्त चाल = 1/16 + 1/25 + 1/12<br>= (75+48+100)/1200<br>= 223/1200 टैंक/घंटा<br><br>समय = 1 ÷ (223/1200)<br>= 1200/223<br>= 5\\frac{85}{223} घंटे।<br><br>अतः सही उत्तर विकल्प <b>A</b> है।"
+},
+  {
+    q: "Q8. पाइप A, B तथा C मिलकर एक टैंक को 9 मिनटों में भर सकते हैं। पाइप B तथा C मिलकर उसी टैंक को 12 मिनटों में भर सकते हैं। पाइप C तथा A मिलकर उसी टैंक को 18 मिनटों में भर सकते हैं। पाइप B अकेले उस टैंक को कितने समय (मिनटों में) में भर सकता है?",
+    tag: "",
+    o: ["(a) 16", "(b) 18", "(c) 20", "(d) 17"],
+    a: 1,
+    e: "A + B + C = 9 मिनट<br>B + C = 12 मिनट<br>C + A = 18 मिनट<br>कुल कार्य = 36 इकाई<br>A + B + C की क्षमता = 4<br>B + C की क्षमता = 3<br>C + A की क्षमता = 2<br>A की क्षमता = (A + B + C) - (B + C) = 4 - 3 = 1<br>B की क्षमता = (A + B + C) - (C + A) = 4 - 2 = 2<br>B अकेले समय लेगा = 36 / 2 = 18 मिनट"
+  },
+  {
+    q: "Q9. पाइप A, B तथा C मिलकर एक टैंक को 20 मिनटों में भर सकते हैं। पाइप B तथा C मिलकर उसी टैंक को 30 मिनट में भर सकते हैं। पाइप C तथा A मिलकर उसी टैंक को 24 मिनट में भर सकते हैं। पाइप B अकेले उसी टैंक को कितने समय (मिनटों में) में भर सकता है?",
+    tag: "",
+    o: ["(a) 100", "(b) 110", "(c) 120", "(d) 130"],
+    a: 2,
+    e: "A + B + C = 20 मिनट<br>B + C = 30 मिनट<br>C + A = 24 मिनट<br>कुल कार्य = 120 इकाई<br>A + B + C की क्षमता = 6<br>B + C की क्षमता = 4<br>C + A की क्षमता = 5<br>A की क्षमता = 6 - 4 = 2<br>B की क्षमता = 6 - 5 = 1<br>B का समय = 120 / 1 = 120 मिनट"
+  },
+  {
+    q: "Q10. पाइप A तथा B मिलकर एक टैंक को 16 मिनटों में भर सकते हैं। पाइप B तथा C मिलकर उसी टैंक को 20 मिनटों में भर सकते हैं। पाइप C तथा A मिलकर उसी टैंक को 24 मिनटों में भर सकते हैं। सबसे पहले पाइप C खोला जाता है। L मिनट बाद, पाइप A तथा B दोनों भी खोल दिए जाते हैं। शेष टैंक 4 मिनटों में भर जाता है। L का मान क्या है?",
+    tag: "",
+    o: ["(a) 157/7", "(b) 314/7", "(c) 332/7", "(d) 166/7"],
+    a: 2,
+    e: "A+B = 16, B+C = 20, C+A = 24<br>कुल कार्य = 240 इकाई<br>A+B क्षमता = 15, B+C क्षमता = 12, C+A क्षमता = 10<br>2(A+B+C) = 15 + 12 + 10 = 37 => A+B+C = 37/2 = 18.5<br>C की क्षमता = (A+B+C) - (A+B) = 18.5 - 15 = 3.5 = 7/2<br>अंतिम 4 मिनट में A, B, C तीनों खुले थे। कार्य = 4 × 18.5 = 74 इकाई<br>शेष कार्य जो C ने L मिनट में किया = 240 - 74 = 166 इकाई<br>L = 166 / (7/2) = 332/7 मिनट"
+  },
+  {
+    q: "Q11. पाइप A तथा B मिलकर एक tank को 12 मिनटों में भर सकते हैं। पाइप B तथा C मिलकर उसी टैंक को 15 मिनटों में भर सकते हैं। पाइप C तथा A मिलकर उसी टैंक को 20 मिनटों में भर सकते हैं। सबसे पहले पाइप C खोला जाता है। L मिनट बाद, पाइप A तथा B दोनों भी खोल दिए जाते हैं। शेष टैंक 5 मिनटों में भर जाता है। L का मान क्या है?",
+    tag: "",
+    o: ["(a) 20", "(b) 30", "(c) 25", "(d) 35"],
+    a: 1,
+    e: "A+B = 12, B+C = 15, C+A = 20<br>कुल कार्य = 60 इकाई<br>A+B क्षमता = 5, B+C क्षमता = 4, C+A क्षमता = 3<br>2(A+B+C) = 12 => A+B+C = 6<br>C की क्षमता = 6 - 5 = 1<br>अंतिम 5 मिनट में A, B, C द्वारा किया कार्य = 5 × 6 = 30 इकाई<br>शुरुआत में C द्वारा किया गया कार्य = 60 - 30 = 30 इकाई<br>L = 30 / 1 = 30 मिनट"
+  },
+  {
+    q: "Q12. पाइप A, B और C किसी टंकी को क्रमशः 15, 30 और 40 घंटों में भर सकते हैं। एक ही दिन में पाइप A, B और C को क्रमशः 6 a.m., 8 a.m. और 10 a.m. बजे खोला जाता है। टंकी कितने बजे भर जाएगी?",
+    tag: "",
+    o: ["(a) 3:20 p.m.", "(b) 11:20 p.m.", "(c) 7:20 p.m.", "(d) 5:20 p.m."],
+    a: 0,
+    e: "A = 15, B = 30, C = 40<br>कुल कार्य = 120 इकाई<br>A की क्षमता = 8, B की क्षमता = 4, C की क्षमता = 3<br>6 a.m. से 10 a.m. (4 घंटे) में A द्वारा कार्य = 4 × 8 = 32<br>8 a.m. से 10 a.m. (2 घंटे) में B द्वारा कार्य = 2 × 4 = 8<br>10 a.m. तक कुल कार्य = 32 + 8 = 40 इकाई<br>शेष कार्य = 120 - 40 = 80 इकाई<br>10 a.m. के बाद संयुक्त क्षमता = 8 + 4 + 3 = 15<br>लगा समय = 80 / 15 = 16 / 3 = 5 घंटे 20 मिनट<br>10 a.m. + 5 घंटे 20 मिनट = 3:20 p.m."
+  },
+  {
+    q: "Q13. एक पानी की टंकी पूरी तरह भरी हुई है। तीन निकासी पाइप A, B और C अकेले इस टंकी को क्रमशः 20 घंटे, 30 घंटे और 40 घंटे में खाली कर सकते हैं। इन पाइपों को क्रमशः शाम 5:00 बजे, 6:00 बजे और 7:00 बजे एक के बाद एक खोला जाता है। टंकी पूरी तरह से किस सटीक समय पर खाली होगी?",
+    tag: "",
+    o: ["(a) 03:00 AM", "(b) 12:00 AM", "(c) 03:00 PM", "(d) 2:00 AM"],
+    a: 0,
+    e: "A = 20, B = 30, C = 40<br>कुल टंकी की क्षमता = 120 इकाई<br>A की क्षमता = -6, B की क्षमता = -4, C की क्षमता = -3<br>5:00 PM से 7:00 PM (2 घंटे) में A द्वारा खाली किया गया भाग = 2 × 6 = 12<br>6:00 PM से 7:00 PM (1 घंटा) में B द्वारा खाली किया गया भाग = 1 × 4 = 4<br>7:00 PM तक कुल खाली हुआ भाग = 12 + 4 = 16 इकाई<br>शेष पानी = 120 - 16 = 104 इकाई<br>7:00 PM के बाद तीनों की कुल क्षमता = 6 + 4 + 3 = 13<br>लगा समय = 104 / 13 = 8 घंटे<br>7:00 PM + 8 घंटे = 3:00 AM"
+  },
+  {
+    q: "Q14. नल M एक टंकी को 8 घंटे में भर सकता है और नल N भरी हुई टंकी को 12 घंटे में खाली कर सकता है। यदि दोनों नल M और N एक साथ खोल दिए जाएं, तो ज्ञात कीजिए कि खाली टंकी कितने घंटों में पूरी तरह भर जाएगी.",
+    tag: "",
+    o: ["(a) 18 hours", "(b) 20 hours", "(c) 24 hours", "(d) 30 hours"],
+    a: 2,
+    e: "M = +8 घंटे, N = -12 घंटे<br>कुल कार्य = 24 इकाई<br>M की क्षमता = 3, N की क्षमता = -2<br>संयुक्त क्षमता = 3 - 2 = 1<br>लिया गया समय = 24 / 1 = 24 घंटे"
+  },
+  {
+    q: "Q15. एक पाइप एक खाली टंकी को 5 मिनट में भर सकता है और दूसरा पाइप इसे 6 मिनट में खाली कर सकता है। यदि दोनों पाइप को एक साथ खोल दिया जाए, तो खाली टंकी को भरने में कितना समय (मिनट में) लगेगा?",
+    tag: "",
+    o: ["(a) 33 min.", "(b) 30 min.", "(c) 35 min.", "(d) 25 min."],
+    a: 1,
+    e: "पहला पाइप = +5 मिनट, दूसरा = -6 मिनट<br>कुल कार्य = 30 इकाई<br>पहले की क्षमता = 6, दूसरे की क्षमता = -5<br>कुल क्षमता = 6 - 5 = 1<br>समय = 30 / 1 = 30 मिनट"
+  },
+  {
+    q: "Q16. एक पाइप किसी टंकी को 30 घंटे में भर सकता है। तली में रिसाव होने के कारण यह 50 घंटे में भरती है। पूरी तरह से भरी टंकी को खाली करने में रिसाव को कितना समय लगेगा?",
+    tag: "",
+    o: ["(a) 60 hours", "(b) 85 hours", "(c) 70 hours", "(d) 75 hours"],
+    a: 3,
+    e: "पाइप A = 30 घंटे<br>पाइप A + रिसाव (L) = 50 घंटे<br>कुल कार्य = 150 इकाई<br>A की क्षमता = 5<br>A + L की क्षमता = 3<br>L की क्षमता = 3 - 5 = -2<br>रिसाव द्वारा खाली करने का समय = 150 / 2 = 75 घंटे"
+  },
+  {
+    q: "Q17. एक पाइप एक टैंक ओवरहेड को 12 घंटे में भर सकता है। लेकिन तली में रिसाव के कारण टैंक 18 घंटे में भरता है। यदि टैंक भरा हुआ है, तो रिसाव के कारण इसे खाली होने में कितना समय लगेगा?",
+    tag: "",
+    o: ["(a) 3.6 hours", "(b) 63 hours", "(c) 7.2 hours", "(d) 36 hours"],
+    a: 3,
+    e: "पाइप A = 12 घंटे<br>A + लीक = 18 घंटे<br>कुल कार्य = 36 इकाई<br>A की क्षमता = 3, A + लीक की क्षमता = 2<br>लीक की क्षमता = 2 - 3 = -1<br>लीक अकेले खाली करेगा = 36 / 1 = 36 घंटे"
+  },
+  {
+  q: "Q18. एक नल एक टंकी को 5\\frac{1}{2} घंटे में भर सकता है। लेकिन रिसाव के कारण टंकी 8\\frac{1}{4} घंटे में भरती है। यदि केवल रिसाव खुला हो, तो वह टंकी का 30% भाग कितने समय में खाली करेगा?",
+  tag: "",
+  o: [
+    "A. 5/2",
+    "B. 99/20",
+    "C. 9/2",
+    "D. 17/2"
+  ],
+  a: 1,
+  e: "<b>विधि 1 (Short Trick):</b><br><br>नल = 1/(5\\frac{1}{2}) = 2/11<br>नल + रिसाव = 1/(8\\frac{1}{4}) = 4/33<br><br>Alligation से<br>2/11 &nbsp;&nbsp;&nbsp;&nbsp; 4/33<br>&nbsp;&nbsp;\\ &nbsp;&nbsp;&nbsp;&nbsp;/<br>&nbsp;&nbsp;33<br>&nbsp;/ &nbsp;&nbsp;&nbsp;&nbsp;\\\\<br>6 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4<br><br>⇒ नल : रिसाव = 6 : 4 = 3 : 2<br><br>यदि नल = 2/11 है,<br>तो रिसाव = (2/3) × 2/11 = 4/33 टंकी/घंटा।<br><br>30% = 3/10 टंकी<br>समय = (3/10) ÷ (4/33)<br>= 99/40 = 2\\frac{19}{40} घंटे<br><br><hr><br><b>विधि 2 (सामान्य विधि):</b><br><br>नल की चाल = 2/11 टंकी/घंटा<br>संयुक्त चाल = 4/33 टंकी/घंटा<br><br>रिसाव की चाल = 2/11 − 4/33<br>= 6/33 − 4/33<br>= 2/33 टंकी/घंटा<br><br>30% = 3/10 टंकी<br>समय = (3/10) ÷ (2/33)<br>= 99/20 = 4\\frac{19}{20} घंटे<br><br>अतः सही उत्तर विकल्प <b>B</b> है।"
+},
+  {
+    q: "Q19. एक टैंक में दो पाइप हैं, एक इसे 14 घंटे में पानी से भर सकता है और दूसरा इसे 8 घंटे में खाली कर सकता है। यदि दोनों पाइप एक साथ खोल दिए जाएँ, जबकि टैंक का 1/4 भाग पहले से ही पानी से भरा है, तो टैंक कितने घंटे में खाली हो जाएगा?",
+    tag: "",
+    o: ["(a) 6 hours", "(b) 5 hours", "(c) 3 hr 20 min", "(d) 4 hr 40 min"],
+    a: 3,
+    e: "भरने वाला पाइप = +14, खाली करने वाला = -8<br>कुल क्षमता = 56 इकाई<br>भरने वाले की क्षमता = 4, खाली करने वाले की = -7<br>संयुक्त क्षमता = 4 - 7 = -3 (टैंक खाली होगा)<br>टैंक में पहले से मौजूद पानी = 56 का 1/4 = 14 इकाई<br>खाली होने में लगा समय = 14 / 3 = 4 2/3 घंटे = 4 घंटे 40 मिनट"
+  },
+  {
+    q: "Q20. दो पाइप एक टंकी को क्रमशः 4 घंटे और 6 घंटे में भर सकते हैं और एक निकास पाइप इसे 3 घंटे में खाली कर सकता है। यदि तीनों पाइप खुले रखे जाएं, तो वह समय ज्ञात कीजिए जिसमें टंकी भर जाएगी.",
+    tag: "",
+    o: ["(a) 8 hours", "(b) 10 hours", "(c) 12 hours", "(d) 15 hours"],
+    a: 2,
+    e: "A = +4, B = +6, C = -3<br>कुल कार्य = 12 इकाई<br>A की क्षमता = 3, B की क्षमता = 2, C की क्षमता = -4<br>कुल क्षमता = 3 + 2 - 4 = 1<br>समय = 12 / 1 = 12 घंटे"
+  },
+  {
+    q: "Q21. पाइप A एक टंकी को 12 मिनट में भर सकता है; पाइप B इसे 18 मिनट में भर सकता है, जबकि पाइप C पूरी भरी हुई टंकी को 36 मिनट में खाली कर सकता है। यदि सभी पाइपों को एक साथ खोल दिया जाए, तो खाली टंकी को पूरी तरह भरने में कितना समय लगेगा?",
+    tag: "",
+    o: ["(a) 7 min. 30 sec.", "(b) 10 minutes", "(c) 9 minutes", "(d) 6 minutes"],
+    a: 2,
+    e: "A = 12, B = 18, C = -36<br>कुल क्षमता = 36 इकाई<br>A की क्षमता = 3, B की क्षमता = 2, C की क्षमता = -1<br>संयुक्त क्षमता = 3 + 2 - 1 = 4<br>समय = 36 / 4 = 9 मिनट"
+  },
+  {
+    q: "Q22. दो पाइप P और Q अलग-अलग एक टंकी को क्रमशः 40 मिनट और 60 मिनट में भर सकते हैं, और टंकी के तल में इसे खाली करने के लिए एक तीसरा पाइप है। यदि तीनों पाइप एक साथ खोल दिए जाएं, तो टंकी 30 मिनट में भर जाती है। ज्ञात कीजिए कि तीसरा पाइप अकेला टंकी को कितने समय में खाली कर सकता है.",
+    tag: "",
+    o: ["(a) 80 minutes", "(b) 100 minutes", "(c) 120 minutes", "(d) 150 minutes"],
+    a: 2,
+    e: "P = 40, Q = 60, P+Q+R = 30<br>कुल क्षमता = 120 इकाई<br>P की क्षमता = 3, Q की क्षमता = 2, P+Q+R की क्षमता = 4<br>R की क्षमता = 4 - (3 + 2) = -1<br>R अकेला खाली करेगा = 120 / 1 = 120 मिनट"
+  },
+  {
+    q: "Q23. पाइप X और Y एक टंकी को क्रमशः 20 मिनट और 25 मिनट में भर सकते हैं जबकि पाइप Z इसे 10 मिनट में खाली कर सकता है। पाइप X और Y को शुरुआत में एक साथ 5 मिनट के लिए खोला जाता है, फिर पाइप Z को भी खोल दिया जाता है; ज्ञात कीजिए कि कितने समय बाद टंकी पूरी तरह खाली हो जाएगी.",
+    tag: "",
+    o: ["(a) 30 min", "(b) 35 min", "(c) 40 min", "(d) 45 min"],
+    a: 3,
+    e: "X = +20, Y = +25, Z = -10<br>कुल क्षमता = 100 इकाई<br>X की क्षमता = 5, Y की क्षमता = 4, Z की क्षमता = -10<br>5 मिनट में X और Y द्वारा भरा गया पानी = (5 + 4) × 5 = 45 इकाई<br>अब Z के खुलने पर संयुक्त क्षमता = 5 + 4 - 10 = -1<br>टंकी खाली होने में समय = 45 / 1 = 45 मिनट"
+  },
+  {
+    q: "Q24. पाइप P और Q एक पानी की टंकी को क्रमशः 10 घंटे और 15 घंटे में पूरी तरह भर सकते हैं। एक पाइप R पानी से भरे उस टैंक को 12 घंटे में खाली कर सकता है। प्रारंभ में, टैंक खाली है और केवल पाइप P और Q, 6 a.m. पर खोले जाते हैं और पाइप R को भी 9 a.m. पर खोला जाता है। टैंक कितने बजे तक पूरी तरह भर जाएगा?",
+    tag: "",
+    o: ["(a) 1 p.m", "(b) 2 p.m", "(c) 11 p.m", "(d) 3 p.m"],
+    a: 3,
+    e: "P = +10, Q = +15, R = -12<br>कुल क्षमता = 60 इकाई<br>P की क्षमता = 6, Q की क्षमता = 4, R की क्षमता = -5<br>6 a.m. से 9 a.m. (3 घंटे) में P और Q द्वारा भरा कार्य = 3 × (6 + 4) = 30 इकाई<br>शेष कार्य = 60 - 30 = 30 इकाई<br>9 a.m. के बाद संयुक्त क्षमता = 6 + 4 - 5 = 5<br>शेष कार्य में लगा समय = 30 / 5 = 6 घंटे<br>9 a.m. + 6 घंटे = 3:00 p.m."
+  },
+  {
+  q: "Q25. पाइप A और B एक भरी हुई टंकी को क्रमशः 20 घंटे और 15 घंटे में खाली कर सकते हैं, जबकि पाइप C अकेला उसी टंकी को x घंटे में भर सकता है। तीनों पाइप एक साथ खोले गए और उन्होंने टंकी के 1/18 भाग को 40 मिनट में खाली कर दिया। x का मान ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. 30 घंटे",
+    "B. 20\\frac{1}{4} घंटे",
+    "C. 20\\frac{3}{4} घंटे",
+    "D. 22\\frac{3}{8} घंटे"
+  ],
+  a: 0,
+  e: "<b>विधि 1 (Short Trick):</b><br><br>A = 20 hr (−3), B = 15 hr (−4)<br>संयुक्त समय = 12 hr (−7)<br><br>अब A+B+C = 18×40 min = 12 hr ⇒ (+5)<br><br>−7 + C = +5 ⇒ C = +12<br><br>Alligation:<br>20 → 3<br>15 → 4<br>x → 5<br><br>⇒ x = 60/2 = 30 घंटे।<br><br><hr><br><b>विधि 2 (सामान्य विधि):</b><br><br>40 मिनट में 1/18 भाग खाली हुआ।<br>अतः संयुक्त चाल = 1/(18×40 min) = 1/12 टंकी/घंटा (खाली)।<br><br>−1/20 − 1/15 + 1/x = −1/12<br><br>⇒ 1/x = 1/20 + 1/15 − 1/12<br>= (3+4−5)/60 = 2/60 = 1/30<br><br>⇒ x = 30 घंटे।<br><br>अतः सही उत्तर विकल्प <b>A</b> है।"
+},
+  {
+    q: "Q26. पाइप P1 और P2 अकेले एक टंकी को क्रमशः 5 घंटे और 10 घंटे में भर सकते हैं। पाइप P3 अकेले उसी टंकी को 20 घंटे में खाली कर सकता है। सबसे पहले P1 और P2 दोनों को खोल दिया जाता है और 1 घंटे बाद पाइप P3 भी खोल दिया जाता है। टंकी को पूरी तरह भरने में कुल कितना समय (घंटों में) लगेगा?",
+    tag: "",
+    o: ["(a) 19/5", "(b) 14/5", "(c) 7/2", "(d) 11/2"],
+    a: 0,
+    e: "P1 = +5, P2 = +10, P3 = -20<br>कुल क्षमता = 20 इकाई<br>P1 क्षमता = 4, P2 क्षमता = 2, P3 क्षमता = -1<br>पहले 1 घंटे में P1 + P2 का कार्य = (4 + 2) × 1 = 6 इकाई<br>शेष कार्य = 20 - 6 = 14 इकाई<br>1 घंटे बाद संयुक्त क्षमता = 4 + 2 - 1 = 5<br>शेष कार्य का समय = 14/5 घंटे<br>कुल समय = 1 + 14/5 = 19/5 घंटे"
+  },
+  {
+    q: "Q27. दो पाइप X und Y एक टंकी को क्रमशः 10 घंटे और 15 घंटे में भर सकते हैं। पाइपों को एक साथ खोला गया, और यह पाया गया कि तल में रिसाव के कारण, टंकी को भरने में 2 घंटे अधिक लगे। ज्ञात कीजिए कि रिसाव अकेला टंकी का 50% कितने समय में खाली कर देगा.",
+    tag: "",
+    o: ["(a) 10 hours", "(b) 12 hours", "(c) 15 hours", "(d) 24 hours"],
+    a: 1,
+    e: "X = 10, Y = 15 => वास्तविक समय = 60 / (6 + 4) = 6 घंटे<br>रिसाव के कारण लगा समय = 6 + 2 = 8 घंटे<br>X + Y + रिसाव की क्षमता = 60 / 8 = 7.5<br>X + Y की क्षमता = 10 => रिसाव की क्षमता = 10 - 7.5 = 2.5<br>50% टैंक = 30 इकाई<br>रिसाव का समय = 30 / 2.5 = 12 घंटे"
+  },
+  {
+    q: "Q28. पाइप A एक टैंक को 12 घंटे में भर सकता है और पाइप B इसे भरने में 18 घंटे लेता है। दोनों पाइपों को एक साथ खोला गया और एक रिसाव देखा गया जिससे भरने का समय 48 मिनट बढ़ गया। ज्ञात कीजिए कि एक भरे हुए टैंक को रिसाव द्वारा खाली करने में कितने घंटे लगेंगे.",
+    tag: "",
+    o: ["(a) 60 hours", "(b) 68 hours", "(c) 72 hours", "(d) 64 hours"],
+    a: 2,
+    e: "A = 12, B = 18 => कुल कार्य = 36<br>बिना रिसाव समय = 36 / (3 + 2) = 7.2 घंटे = 7 घंटे 12 मिनट<br>नया समय = 7 घंटे 12 मिनट + 48 मिनट = 8 घंटे<br>A + B + लीक की क्षमता = 36 / 8 = 4.5<br>लीक की क्षमता = 5 - 4.5 = 0.5<br>खाली करने का समय = 36 / 0.5 = 72 घंटे"
+  },
+  {
+    q: "Q29. पाइप P एक टंकी को 15 घंटे में भर सकता है और pipe Q इसे भरने में 20 घंटे लेता है। एक खाली टंकी को भरने के लिए दोनों पाइपों को एक साथ खोला गया, लेकिन तल में एक रिसाव के कारण, टंकी को भरने में उम्मीद से 1 घंटा 12 मिनट अधिक समय लगा। ज्ञात कीजिए कि अकेले रिसाव द्वारा भरी हुई टंकी को खाली करने में कितना समय (घंटों में) लगेगा.",
+    tag: "",
+    o: ["(a) 48", "(b) 3420/49", "(c) 60", "(d) 45"],
+    a: 1,
+    e: "P = 15, Q = 20 => कुल कार्य = 60<br>अपेक्षित समय = 60 / 7 = 8 4/7 घंटे<br>अधिक समय = 1 घंटा 12 मिनट = 1 1/5 = 6/5 घंटे<br>वास्तविक समय = 60/7 + 6/5 = 342/35 घंटे<br>रिसाव की क्षमता = 7/60 - 35/342 = 49/3420<br>समय = 3420/49 घंटे"
+  },
+  {
+    q: "Q30. नल P और Q एक टंकी को क्रमशः 15 घंटे और 20 घंटे में भर सकते हैं। दोनों पाइपों को टंकी भरने के लिए खोला जाता है लेकिन जब टंकी 1/4 भर जाती है, तो टंकी के तल में एक रिसाव विकसित हो जाता है, जिससे दोनों पाइपों द्वारा आपूर्ति किए गए पानी का 1/4 भाग बाहर निकल जाता है। ज्ञात कीजिए कि टंकी कितने समय में भरेगी.",
+    tag: "",
+    o: ["(a) 8.5 hours", "(b) 9.5 hours", "(c) 10.7 hours", "(d) 12.1 hours"],
+    a: 2,
+    e: "P = 15, Q = 20 => कुल कार्य = 60, क्षमता = 4 + 3 = 7<br>1/4 भाग (15 इकाई) भरने में लगा समय = 15 / 7 घंटे<br>शेष 3/4 भाग (45 इकाई) के लिए प्रभावी क्षमता = 7 × (1 - 1/4) = 21/4<br>शेष भाग का समय = 45 / (21/4) = 180 / 21 = 60 / 7 घंटे<br>कुल समय = 15/7 + 60/7 = 75/7 ≈ 10.7 घंटे"
+  },
+  {
+  q: "Q31. दो पाइप A और B एक टंकी को क्रमशः 20 घंटे और 30 घंटे में भर सकते हैं। दोनों पाइप एक साथ खोले जाते हैं, लेकिन जब टंकी एक-तिहाई भर जाती है, तब एक रिसाव विकसित होता है जिससे दोनों पाइपों द्वारा भरे गए पानी का एक-चौथाई भाग बाहर निकल जाता है। टंकी को भरने में लगने वाला कुल समय (घंटों में) ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. 24 घंटे",
+    "B. 20\\frac{1}{4} घंटे",
+    "C. 14\\frac{2}{3} घंटे",
+    "D. 22\\frac{3}{8} घंटे"
+  ],
+  a: 2,
+  e: "<b>विधि 1 (Short Trick):</b><br><br>A = 20 hr, B = 30 hr<br>संयुक्त समय = 12 hr<br><br>पहला 1/3 भाग भरने का समय = 12/3 = 4 hr<br><br>शेष 2/3 भाग में रिसाव के कारण प्रभावी चाल = 3/4 × मूल चाल<br><br>अतः समय = (12 × 2/3) ÷ (3/4)<br>= 8 × 4/3<br>= 32/3 = 10\\frac{2}{3} hr<br><br>कुल समय = 4 + 10\\frac{2}{3}<br>= 14\\frac{2}{3} घंटे।<br><br><hr><br><b>विधि 2 (सामान्य विधि):</b><br><br>संयुक्त चाल = 1/20 + 1/30 = 1/12 टंकी/घंटा<br><br>1/3 टंकी भरने में समय = (1/3) ÷ (1/12) = 4 hr<br><br>रिसाव शुरू होने पर प्रभावी चाल = (3/4) × 1/12 = 1/16 टंकी/घंटा<br><br>शेष कार्य = 2/3 टंकी<br><br>समय = (2/3) ÷ (1/16)<br>= 32/3 = 10\\frac{2}{3} hr<br><br>कुल समय = 4 + 10\\frac{2}{3}<br>= 14\\frac{2}{3} घंटे।<br><br>अतः सही उत्तर विकल्प <b>C</b> है।"
+},
+{
+    q: "Q32. एक टंकी को दो पाइपों से अलग-अलग 8 मिनट और 10 मिनट में भरा जा सकता है। दोनों पाइपों को एक निश्चित समय के लिए एक साथ खोला जाता है, लेकिन किसी रुकावट के कारण, पहले वाले पाइप से केवल 5/8 पानी ही बहता है और दूसरे वाले पाइप से 3/5 भाग ही बह पाता है। हालाँकि, रुकावट को अचानक हटा दिया गया और टंकी उसी क्षण से 3 मिनट में भर गई। पूरा पानी भरने में कितना समय लगा?",
+    tag: "",
+    o: ["3\\frac{1}{16} minutes", "2\\frac{6}{17} minutes", "9\\frac{6}{7} minutes", "2\\frac{30}{37} minutes"],
+    a: 1,
+    e: "माना टंकी की कुल क्षमता = 40 यूनिट (8 और 10 का LCM)<br>पाइप A की सामान्य कार्यक्षमता = 40 / 8 = 5 यूनिट/मिनट<br>पाइप B की सामान्य कार्यक्षमता = 40 / 10 = 4 यूनिट/मिनट<br>रुकावट हटने के बाद, दोनों ने 3 मिनट काम किया:<br>3 मिनट में किया गया कार्य = 3 × (5 + 4) = 27 यूनिट<br>शेष कार्य जो रुकावट के दौरान हुआ = 40 - 27 = 13充 यूनिट<br>रुकावट के दौरान A की क्षमता = 5 × (5/8) = 25/8 यूनिट/मिनट<br>रुकावट के दौरान B की क्षमता = 4 × (3/5) = 12/5 यूनिट/मिनट<br>रुकावट के दौरान दोनों की कुल क्षमता = (25/8) + (12/5) = (125 + 96) / 40 = 221 / 40 यूनिट/मिनट<br>रुकावट का समय = शेष कार्य / क्षमता = 13 / (221 / 40) = (13 × 40) / 221 = 520 / 221 = 40 / 17 मिनट = 2\\frac{6}{17} मिनट।"
+  },
+  {
+  q: "Q33. दो इनलेट पाइप X और Y किसी जलाशय को क्रमशः 12 मिनट और 15 मिनट में अकेले भर सकते हैं। दोनों पाइपों को एक साथ खोला जाता है, लेकिन पाइपलाइन में आंशिक रुकावट होने के कारण पाइप X से पानी की नियमित मात्रा का केवल 2/5 भाग तथा पाइप Y से केवल 3/4 भाग ही बह पाता है। एक निश्चित समय के बाद रुकावट को पूरी तरह साफ कर दिया जाता है और उसी क्षण से जलाशय को पूरी तरह भरने में ठीक 8 मिनट का समय लगता है। ज्ञात कीजिए कि रुकावट ने कितने समय (मिनटों में) तक पूर्ण प्रवाह को बाधित किया था।",
+  tag: "",
+  o: [
+    "A. 3 मिनट",
+    "B. \\frac{5}{2} मिनट",
+    "C. \\frac{7}{2} मिनट",
+    "D. 4 मिनट"
+  ],
+  a: 0,
+  e: "<b>Short Trick:</b><br><br>12, 15 ⇒ LCM = 60<br><br>X = 5, Y = 4<br><br>रुकावट के समय दर = 5 × (2/5) + 4 × (3/4) = 2 + 3 = 5<br><br>सामान्य दर = 5 + 4 = 9<br><br>5T + 9(8 − T) = 60<br><br>5T + 72 − 9T = 60<br><br>72 − 60 = 4T<br><br>4T = 12<br><br>T = 3 मिनट<br><br>अतः सही उत्तर विकल्प <b>A</b> है।"
+},
+  {
+    q: "Q34. दो पाइप A और B एक tank को क्रमशः 48 मिनट और 66 मिनट में भर सकते हैं। यदि दोनों पाइप एक साथ खोले जाएं, तो कितने मिनट बाद पाइप B को बंद कर देना चाहिए ताकि टैंक 32 मिनट में भर जाए?",
+    tag: "",
+    o: ["18", "16", "22", "20"],
+    a: 2,
+    e: "माना कुल क्षमता = 528 यूनिट (48 और 66 का LCM)<br>A की क्षमता = 528 / 48 = 11 यूनिट/मिनट<br>B की क्षमता = 528 / 66 = 8 यूनिट/मिनट<br>टैंक को 32 मिनट में भरना है और A पूरे 32 मिनट चालू रहता है।<br>32 मिनट में A द्वारा किया गया कार्य = 32 × 11 = 352 यूनिट<br>B द्वारा किया जाने वाला शेष कार्य = 528 - 352 = 176 यूनिट<br>B को खुला रखने का समय = 176 / 8 = 22 मिनट।"
+  },
+  {
+    q: "Q35. पाइप A किसी टंकी को 16 मिनट में भर सकता है तथा पाइप B इसे 24 मिनट में खाली कर सकता है। यदि इन दोनों पाइप को एक साथ चालू किया गया है, तो B को कितने मिनट बाद बंद करना होगा ताकि टंकी 30 मिनट में भर जाए?",
+    tag: "",
+    o: ["21 min", "20 min", "18 min", "15 min"],
+    a: 0,
+    e: "माना कुल क्षमता = 48 यूनिट<br>A की क्षमता = +3, B की क्षमता = -2<br>टंकी 30 मिनट में भरती है, अतः A पूरे 30 मिनट काम करता है।<br>A द्वारा 30 मिनट में किया गया कार्य = 30 × 3 = 90 यूनिट<br>टंकी की क्षमता 48 यूनिट है, अतः B ने कुल 90 - 48 = 42 यूनिट पानी खाली किया।<br>B के कार्य करने का समय = 42 / 2 = 21 मिनट।"
+  }
+];
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
