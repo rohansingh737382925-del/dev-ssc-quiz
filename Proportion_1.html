@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. एक समानुपात में, पहला, दूसरा और चौथा पद क्रमशः 51, 68 और 108 हैं। तीसरा पद क्या है?",
+    tag: "",
+    o: ["84", "83", "82", "81"],
+    a: 3,
+    e: "माना तीसरा पद x है।<br>समानुपात के नियम से:<br>51 : 68 = x : 108<br>51/68 = x/108<br>3/4 = x/108<br>x = (3 × 108)/4<br>x = 3 × 27<br>x = 81"
+  },
+  {
+    q: "Q2. एक अनुपात में, पहला, दूसरा और चौथा पद क्रमशः 45, 60 और 120 हैं। तीसरा पद क्या है?",
+    tag: "",
+    o: ["85", "90", "95", "100"],
+    a: 1,
+    e: "माना तीसरा पद x है।<br>समानुपात के नियम से:<br>45 : 60 = x : 120<br>45/60 = x/120<br>3/4 = x/120<br>x = (3 × 120)/4<br>x = 3 × 30<br>x = 90"
+  },
+  {
+    q: "Q3. किसी अनुपात (proportion) में, पहले और चौथे पद का गुणनफल 70 है तथा दूसरे और तीसरे पद का गुणनफल है। 3.5y है। y के मान की गणना करें।",
+    tag: "",
+    o: ["3", "20", "7", "22"],
+    a: 1,
+    e: "समानुपात के नियम के अनुसार, पहले और चौथे पद का गुणनफल = दूसरे और तीसरे पद का गुणनफल<br>70 = 3.5y<br>y = 70/3.5<br>y = 700/35<br>y = 20"
+  },
+  {
+    q: "Q4. किसी अनुपात में, पहले और चौथे पद का गुणनफल 120 है तथा दूसरे और तीसरे पद का गुणनफल 5x है। x का मान ज्ञात करें",
+    tag: "",
+    o: ["24", "28", "25", "22"],
+    a: 0,
+    e: "समानुपात के नियम के अनुसार, पहले और चौथे पद का गुणनफल = दूसरे और तीसरे पद का गुणनफल<br>120 = 5x<br>x = 120/5<br>x = 24"
+  },
+  {
+    q: "Q5. यदि चार अलग-अलग धनात्मक संख्याएँ a, b, c और d दिए गए क्रम में समानुपात में हैं, तो निम्नलिखित में से कौन-सा विकल्प सही नहीं है?",
+    tag: "",
+    o: ["b, a, d and c are in proportion", "c, d, b and a are in proportion", "d, c, b and a are in proportion", "d, b, c and a are in proportion"],
+    a: 1,
+    e: "दिया गया है कि a, b, c, d समानुपात में हैं, इसलिए ad = bc है।<br>विकल्प (a) b, a, d, c के लिए: bc = ad (यह सही है)<br>विकल्प (b) c, d, b, a के लिए: ca = db (यह गलत है, क्योंकि ad = bc होना चाहिए)<br>विकल्प (c) d, c, b, a के लिए: da = cb या ad = bc (यह सही है)<br>विकल्प (d) d, b, c, a के लिए: da = bc या ad = bc (यह सही है)<br>अतः विकल्प (b) सही नहीं है।"
+  },
+  {
+    q: "Q6. यदि a, b, c और d continued proportion में हैं, तो (ma³+nb³-rc³): (mb³+nc³-rd³)= का अनुपात क्या होगा ?",
+    tag: "",
+    o: ["d:a", "b:c", "a:d", "c:b"],
+    a: 2,
+    e: "यदि a, b, c, d निरंतर समानुपात (continued proportion) में हैं, तो:<br>a/b = b/c = c/d = k<br>c = dk<br>b = ck = dk²<br>a = bk = dk³<br>अब, दिए गए व्यंजक में मान रखने पर:<br>(ma³ + nb³ - rc³) / (mb³ + nc³ - rd³)<br>= [m(dk³)³ + n(dk²)³ - r(dk)³] / [m(dk²)³ + n(dk)³ - rd³]<br>= [md³k⁹ + nd³k⁶ - rd³k³] / [md³k⁶ + nd³k³ - rd³]<br>= d³k³ (mk⁶ + nk³ - r) / d³ (mk⁶ + nk³ - r)<br>= k³<br>हम जानते हैं कि a/d = (dk³)/d = k³<br>अतः अनुपात a:d होगा।"
+  },
+  {
+    q: "Q7. चार अलग-अलग धनात्मक संख्याएँ, 'a', 'b', 'c' और 'd' दिए गए क्रम में समानुपात में हैं। 'b', 'a' से 35 अधिक है और 'd', 'c' से 60 अधिक है। 'a' और 'c' का गुणनफल 5376 है। 'a', 'b', 'c' और 'd' का योग ज्ञात करें।",
+    tag: "",
+    o: ["400", "398", "397", "399"],
+    a: 3,
+    e: "दिया गया है: b = a + 35 और d = c + 60<br>चूँकि a, b, c, d समानुपात में हैं, इसलिए a/b = c/d<br>a / (a + 35) = c / (c + 60)<br>a(c + 60) = c(a + 35)<br>ac + 60a = ac + 35c<br>60a = 35c => 12a = 7c => c = 12a/7<br>दिया है, ac = 5376<br>a × (12a/7) = 5376<br>12a² / 7 = 5376<br>a² = (5376 × 7) / 12 = 448 × 7 = 3136<br>a = √3136 = 56<br>c = (12 × 56) / 7 = 12 × 8 = 96<br>b = 56 + 35 = 91<br>d = 96 + 60 = 156<br>योग (a + b + c + d) = 56 + 91 + 96 + 156 = 399"
+  },
+  {
+    q: "Q8. तीन संख्याएँ 6, 12 और 24 का प्रथम अनुपात क्या होगा ?",
+    tag: "",
+    o: ["17", "3", "15", "22"],
+    a: 1,
+    e: "माना प्रथम समानुपाती x है।<br>x : 6 = 12 : 24<br>x/6 = 12/24<br>x/6 = 1/2<br>x = 6/2 = 3"
+  },
+  {
+    q: "Q9. तीन संख्याएँ 18, 36 and 144 का प्रथम अनुपात क्या होगा ?",
+    tag: "",
+    o: ["9.5", "6.5", "4.5", "2.5"],
+    a: 2,
+    e: "माना प्रथम समानुपाती x है।<br>x : 18 = 36 : 144<br>x/18 = 36/144<br>x/18 = 1/4<br>x = 18/4 = 4.5"
+  },
+  {
+    q: "Q10. तीन संख्याएँ 28, 4 और 5 का द्वितीय अनुपात क्या होगा ?",
+    tag: "",
+    o: ["39", "48", "35", "40"],
+    a: 2,
+    e: "माना द्वितीय समानुपाती x है।<br>28 : x = 4 : 5<br>28/x = 4/5<br>4x = 28 × 5<br>x = (28 × 5)/4<br>x = 7 × 5 = 35"
+  },
+  {
+    q: "Q11. तीन संख्याएँ 84, 7 और 11 का द्वितीय अनुपात क्या होगा ?",
+    tag: "",
+    o: ["121", "132", "77", "154"],
+    a: 1,
+    e: "माना द्वितीय समानुपाती x है।<br>84 : x = 7 : 11<br>84/x = 7/11<br>7x = 84 × 11<br>x = (84 × 11)/7<br>x = 12 × 11 = 132"
+  },
+  {
+    q: "Q12. तीन संख्याएँ 2, 3 और 15 का तृतीय अनुपात क्या होगा?",
+    tag: "",
+    o: ["10", "20", "30", "40"],
+    a: 0,
+    e: "यदि तीन संख्याएँ a, b और c दी गई हों और उनका तृतीय समानुपाती x हो, तो a : b = x : c होता है।<br>2 : 3 = x : 15<br>2/3 = x/15<br>3x = 30<br>x = 10"
+  },
+  {
+    q: "Q13. 9, 7, ? 14 का तृतीयानुपाती ज्ञात करें।",
+    tag: "",
+    o: ["18", "16", "24", "21"],
+    a: 0,
+    e: "तीन संख्याएँ 9, 7 और 14 के लिए तृतीय समानुपाती x मान लेते हैं।<br>9 : 7 = x : 14<br>9/7 = x/14<br>x = (9 × 14)/7<br>x = 9 × 2 = 18"
+  },
+  {
+    q: "Q14. 4, 9 और 16 का चतुर्थानुपाती ज्ञात करें।",
+    tag: "",
+    o: ["18", "27", "36", "16"],
+    a: 2,
+    e: "माना चतुर्थानुपाती x है।<br>4 : 9 = 16 : x<br>4/9 = 16/x<br>4x = 9 × 16<br>x = (9 × 16)/4<br>x = 9 × 4 = 36"
+  },
+  {
+    q: "Q15. 19, 23 और 38 का चतुर्थानुपाती ज्ञात कीजिए।",
+    tag: "",
+    o: ["46", "28", "42", "24"],
+    a: 0,
+    e: "माना चतुर्थानुपाती x है।<br>19 : 23 = 38 : x<br>19/23 = 38/x<br>19x = 23 × 38<br>x = (23 × 38)/19<br>x = 23 × 2 = 46"
+  },
+  {
+    q: "Q16. 1/3 , 1/4 और 1/5 का चौथा अनुपातिक ज्ञात कीजिए।",
+    tag: "",
+    o: ["3/20", "5/12", "5/21", "4/15"],
+    a: 0,
+    e: "माना चतुर्थानुपाती x है।<br>(1/3) : (1/4) = (1/5) : x<br>(1/3) / (1/4) = (1/5) / x<br>4/3 = 1/(5x)<br>20x = 3<br>x = 3/20"
+  },
+  {
+    q: "Q17. 1/72, 1/168, 1/150 का चतुर्थानुपाती क्या है?",
+    tag: "",
+    o: ["1/250", "1/275", "1/375", "1/350"],
+    a: 3,
+    e: "माना चतुर्थानुपाती x है।<br>(1/72) : (1/168) = (1/150) : x<br>(1/72) × 168 = (1/150) / x<br>168/72 = 1/(150x)<br>7/3 = 1/(150x)<br>7 × 150x = 3<br>1050x = 3<br>x = 3/1050 = 1/350"
+  },
+  {
+    q: "Q18. 8, 9, 15 के चौथे अनुपात और 12, 18, 20 के चौथे अनुपात के बीच अनुपात ज्ञात कीजिए।",
+    tag: "",
+    o: ["9:16", "5:7", "4:3", "3:4"],
+    a: 0,
+    e: "माना 8, 9, 15 का चतुर्थानुपाती x है।<br>8/9 = 15/x => x = (15 × 9)/8 = 135/8<br>माना 12, 18, 20 का चतुर्थानुपाती y है।<br>12/18 = 20/y => 2/3 = 20/y => y = 30<br>दोनों का अनुपात = x : y = (135/8) : 30 = 135 : 240<br>15 से विभाजित करने पर: 9 : 16"
+  },
+  {
+    q: "Q19. 4, a और 16a का चतुर्थानुपाती 81 है। a का मान क्या है?",
+    tag: "",
+    o: ["13/2", "9/2", "11/2", "5/2"],
+    a: 1,
+    e: "चतुर्थानुपाती सूत्र से:<br>4 : a = 16a : 81<br>4/a = 16a/81<br>16a² = 4 × 81<br>16a² = 324<br>a² = 324/16 = 81/4<br>a = 9/2"
+  },
+  {
+    q: "Q20. संख्याएँ x, (x+2) और 3x का चौथा समानुपाती 33 है। दूसरा समानुपाती ज्ञात कीजिए; x एक प्राकृतिक संख्या है।",
+    tag: "",
+    o: ["18", "11", "9", "27"],
+    a: 1,
+    e: "समानुपात के नियम से:<br>x : (x+2) = 3x : 33<br>x / (x+2) = 3x / 33<br>1 / (x+2) = 3 / 33<br>1 / (x+2) = 1 / 11<br>x + 2 = 11 => x = 9<br>दूसरा समानुपाती = x + 2 = 9 + 2 = 11"
+  },
+  {
+    q: "Q21. (a+b)²×(a³-b³), (a³+b³), (a²-b²) का चतुर्थ समानुपाती ज्ञात कीजिए।",
+    tag: "",
+    o: ["(a²-ab+b²)/(a+b)", "(a²-ab+b²)/(a²+ab+b²)", "(a²+ab+b²)/(a-b)", "(a²+ab+b²)/(a²-b²)"],
+    a: 1,
+    e: "माना चतुर्थ समानुपाती x है।<br>[(a+b)²(a³-b³)] / (a³+b³) = (a²-b²) / x<br>x = [(a³+b³)(a²-b²)] / [(a+b)²(a³-b³)]<br>सूत्रों का प्रसार करने पर:<br>x = [(a+b)(a²-ab+b²)(a-b)(a+b)] / [(a+b)²(a-b)(a²+ab+b²)]<br>x = [(a+b)²(a-b)(a²-ab+b²)] / [(a+b)²(a-b)(a²+ab+b²)]<br>उभयनिष्ठ पदों को काटने पर:<br>x = (a²-ab+b²) / (a²+ab+b²)"
+  },
+  {
+    q: "Q22. 12³⁵, 3¹² और 4¹² का चतुर्थ समानुपाती ज्ञात कीजिए।",
+    tag: "",
+    o: ["3²⁴", "12⁻²³", "4²⁴", "12⁻¹¹"],
+    a: 1,
+    e: "माना चतुर्थ समानुपाती x है।<br>12³⁵ : 3¹² = 4¹² : x<br>12³⁵ / 3¹² = 4¹² / x<br>x = (3¹² × 4¹²) / 12³⁵<br>x = (12¹²) / 12³⁵<br>x = 12¹²⁻³⁵ = 12⁻²³"
+  },
+  {
+    q: "Q23. 3√5, 5√8 और 3√10 का चौथा अनुपात क्या है?",
+    tag: "",
+    o: ["10√5", "40√2", "30", "20"],
+    a: 3,
+    e: "माना चौथा अनुपात x है।<br>3√5 : 5√8 = 3√10 : x<br>3√5 / 5√8 = 3√10 / x<br>x = (5√8 × 3√10) / 3√5<br>x = (5 × 2√2 × 3√10) / 3√5<br>x = (30√20) / 3√5 = 10 × √(20/5) = 10 × √4 = 10 × 2 = 20"
+  },
+  {
+    q: "Q24. 2 घंटा 30 मिनट, 1 घंटा 45 मिनट और 6 घंटा 15 मिनट का चतुर्थानुपाती ज्ञात करें।",
+    tag: "",
+    o: ["4 hours 22 minutes", "4 hours 15 minutes", "3 hours 45 minutes", "4 hours 22 minutes 30 second"],
+    a: 3,
+    e: "सभी को मिनट में बदलने पर:<br>2 घंटा 30 मिनट = 150 मिनट<br>1 घंटा 45 मिनट = 105 मिनट<br>6 घंटा 15 मिनट = 375 मिनट<br>माना चतुर्थानुपाती x है।<br>150 : 105 = 375 : x<br>150/105 = 375/x<br>10/7 = 375/x<br>x = (375 × 7)/10 = 2625/10 = 262.5 मिनट<br>262.5 मिनट = 262 मिनट 30 सेकंड = 4 घंटा 22 मिनट 30 सेकंड"
+  },
+  {
+    q: "Q25. दो संख्याएँ 3 और 5 का प्रथम अनुपात क्या होगा ?",
+    tag: "",
+    o: ["1.6", "1.8", "1.2", "1.4"],
+    a: 1,
+    e: "दो संख्याओं a और b का प्रथम समानुपाती = a²/b<br>यहाँ a = 3, b = 5<br>प्रथम अनुपात = 3²/5 = 9/5 = 1.8"
+  },
+  {
+    q: "Q26. दो संख्याएँ 25 और 30 का प्रथम अनुपात क्या होगा ?",
+    tag: "",
+    o: ["20.83", "12.8", "15.83", "18.4"],
+    a: 0,
+    e: "दो संख्याओं a और b का प्रथम समानुपाती = a²/b<br>यहाँ a = 25, b = 30<br>प्रथम अनुपात = 25²/30 = 625/30 = 20.83"
+  },
+  {
+    q: "Q27. 2 और 32 का मध्यानुपाती ....... है।",
+    tag: "",
+    o: ["16", "8", "12", "6"],
+    a: 1,
+    e: "दो संख्याओं a और b का मध्यानुपाती = √(ab)<br>मध्यानुपाती = √(2 × 32) = √64 = 8"
+  },
+  {
+    q: "Q28. 4 और 16 के बीच मध्य समानुपाती ज्ञात करें।",
+    tag: "",
+    o: ["8", "6", "12", "10"],
+    a: 0,
+    e: "मध्य समानुपाती = √(4 × 16) = √64 = 8"
+  },
+  {
+    q: "Q29. 12.96 और 0.16 का मध्यानुपाती ज्ञात करें।",
+    tag: "",
+    o: ["1.44", "96", "44", "69"],
+    a: 0,
+    e: "मध्यानुपाती = √(12.96 × 0.16) = 3.6 × 0.4 = 1.44"
+  },
+  {
+    q: "Q30. 0.03 और 0.0003 का मध्यानुपाती कितना है?",
+    tag: "",
+    o: ["0.0013", "0.003", "0.0003", "0.033"],
+    a: 1,
+    e: "मध्यानुपाती = √(0.03 × 0.0003) = √0.000009 = 0.003"
+  },
+  {
+    q: "Q31. 8a² और 18/a⁴ का मध्यानुपाती क्या है, जहाँ a एक धनात्मक संख्या है?",
+    tag: "",
+    o: ["a²/12", "12a", "12a²", "12/a"],
+    a: 3,
+    e: "मध्यानुपाती = √[8a² × (18/a⁴)]<br>= √[144 / a²]<br>= 12/a"
+  },
+  {
+    q: "Q32. 45x⁴ और 5y² का माध्य आनुपातिक क्या है?",
+    tag: "",
+    o: ["5x²y", "15x²y", "25x⁴y", "45x²y²"],
+    a: 1,
+    e: "माध्य आनुपातिक = √(45x⁴ × 5y²) = √(225x⁴y²) = 15x²y"
+  },
+  {
+    q: "Q33. यदि A, 24 और 6 का माध्य अनुपात है। B, 81 और 9 का माध्य अनुपात है। 3A + B का मान ज्ञात कीजिए।",
+    tag: "",
+    o: ["33", "32", "63", "55"],
+    a: 2,
+    e: "A = √(24 × 6) = √144 = 12<br>B = √(81 × 9) = 9 × 3 = 27<br>3A + B = 3(12) + 27 = 36 + 27 = 63"
+  },
+  {
+    q: "Q34. यदि p और q के बीच का मध्यानुपाती 12 है, तो क्रमशः p और q से संभावित मान क्या हैं?",
+    tag: "",
+    o: ["3, 38", "3, 28", "24, 6", "24, 16"],
+    a: 2,
+    e: "दिया है, √(pq) = 12 => pq = 144<br>विकल्पों की जाँच करने पर:<br>(a) 3 × 38 = 114 ≠ 144<br>(b) 3 × 28 = 84 ≠ 144<br>(c) 24 × 6 = 144 (यह सही है)<br>(d) 24 × 16 = 384 ≠ 144"
+  },
+  {
+    q: "Q35. 1.21 और 0.09 के मध्यानुपाती तथा 0.16 और 0.36 के मध्यानुपाती का अनुपात क्या है?",
+    tag: "",
+    o: ["11:8", "13:8", "13:12", "11:13"],
+    a: 0,
+    e: "पहला मध्यानुपाती = √(1.21 × 0.09) = 1.1 × 0.3 = 0.33<br>दूसरा मध्यानुपाती = √(0.16 × 0.36) = 0.4 × 0.6 = 0.24<br>अनुपात = 0.33 : 0.24 = 33 : 24 = 11 : 8"
+  },
+  {
+    q: "Q36. 4a² और x का मध्यानुपाती 1/(5a) है, जहाँ a धनात्मक संख्या है, तो x का मान होगा ?",
+    tag: "",
+    o: ["1/(100a⁴)", "1/(100a²)", "1/(25a²)", "1/(25a⁴)"],
+    a: 0,
+    e: "√(4a² × x) = 1/(5a)<br>दोनों ओर वर्ग करने पर:<br>4a² × x = 1/(25a²)<br>x = 1 / (25a² × 4a²)<br>x = 1 / (100a⁴)"
+  },
+  {
+    q: "Q37. यदि x और 272 के बीच मध्यानपात 68 है, तो x का मान कितना होगा?",
+    tag: "",
+    o: ["17", "19", "16", "15"],
+    a: 0,
+    e: "√(x × 272) = 68<br>वर्ग करने पर:<br>x × 272 = 68 × 68<br>x = (68 × 68) / 272<br>x = 68 / 4 = 17"
+  },
+  {
+    q: "Q38. यदि A और 112 का माध्यानुपाती 28 है, तो A का मान ज्ञात कीजिए।",
+    tag: "",
+    o: ["5", "4", "7", "6"],
+    a: 2,
+    e: "√(A × 112) = 28<br>वर्ग करने पर:<br>A × 112 = 28 × 28<br>A = (28 × 28) / 112<br>A = 28 / 4 = 7"
+  },
+  {
+    q: "Q39. (18+8√2) और (15-2√2) के बीच मध्यानुपाती है:",
+    tag: "",
+    o: ["√(238+36√2)", "√(238+120√2)", "√(238+84√2)", "√(238+110√2)"],
+    a: 2,
+    e: "मध्यानुपाती = √[(18 + 8√2)(15 - 2√2)]<br>= √[18(15) - 18(2√2) + 8√2(15) - 8√2(2√2)]<br>= √[270 - 36√2 + 120√2 - 32]<br>= √[238 + 84√2]"
+  },
+  {
+    q: "Q40. (18+10√7) और (18-4√7) का माध्यानुपात ज्ञात कीजिए।",
+    tag: "",
+    o: ["√(44+108√7)", "√(4+56√7)", "√(44+56√7)", "√(10+56√7)"],
+    a: 0,
+    e: "मध्यानुपाती = √[(18 + 10√7)(18 - 4√7)]<br>= √[18(18) - 18(4√7) + 10√7(18) - 10√7(4√7)]<br>= √[324 - 72√7 + 180√7 - 280]<br>= √[44 + 108√7]"
+  }
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
