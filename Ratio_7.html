@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q241. एक इंजन द्वारा कोयले की खपत उसके वेग के वर्ग के अनुक्रमानुपाती है। जब वेग 40 किमी/घंटा होता है, तब खपत 100 किग्रा होती है। यदि कोयले की कीमत 50 पैसे/किग्रा है। और दूसरे मामले में खर्च 32 रु/ घंटा है, तो 160 किमी की यात्रा में कोयले की खपत ज्ञात कीजिए।",
+    tag: "",
+    o: ["300 kg", "320 kg", "400 kg", "420 kg"],
+    a: 1,
+    e: "माना कोयले की खपत C और वेग V है।<br>C ∝ V² ⇒ C = kV²<br>दिया गया है: जब V = 40, तब C = 100<br>100 = k × (40)² ⇒ 100 = k × 1600 ⇒ k = 1/16<br>दूसरे मामले में, खर्च = 32 रु/घंटा है।<br>चूंकि कोयले की कीमत 50 पैसे/किग्रा (0.5 रु/किग्रा) है, इसलिए प्रति घंटा खपत (C₂) = 32 / 0.5 = 64 किग्रा/घंटा होगी।<br>अब, C₂ = kV₂² ⇒ 64 = (1/16) × V₂² ⇒ V₂² = 64 × 16 = 1024 ⇒ V₂ = 32 किमी/घंटा<br>समय (T) = दूरी / वेग = 160 / 32 = 5 घंटे<br>कुल कोयले की खपत = प्रति घंटा खपत × कुल समय = 64 × 5 = 320 किग्रा।"
+  },
+  {
+  q: "Q242. एक आदर्श गैस में रुद्धोष्म प्रक्रम (adiabatic process) के दौरान PV^(3/5) स्थिर (constant) रहता है। यदि गैस के आयतन (volume) में 3100% की वृद्धि होती है, तो उसके दाब (pressure) में कितने प्रतिशत की कमी आएगी?",
+  tag: "",
+  o: [
+    "A. 87.5%",
+    "B. 98.43%",
+    "C. 99.21%",
+    "D. 93.75%"
+  ],
+  a: 0,
+  e: "<b>व्याख्या:</b><br><br>दिया है:<br>PV^(3/5) = नियतांक (constant)<br><br>आयतन में 3100% वृद्धि हुई है।<br>अतः नया आयतन = 32V<br><br>अब,<br>P₁V₁^(3/5) = P₂V₂^(3/5)<br><br>⇒ P₂/P₁ = (V₁/V₂)^(3/5)<br>= (1/32)^(3/5)<br>= 1/8<br><br>अर्थात नया दाब = प्रारंभिक दाब का 1/8 भाग।<br><br>दाब में प्रतिशत कमी = (1 − 1/8) × 100<br>= 7/8 × 100<br>= 87.5%<br><br>अतः सही उत्तर <b>विकल्प A (87.5%)</b> है。"
+},
+  {
+    q: "Q243. जब एक गेंद को गिरने दिया जाता है, तो किसी दूरी तक गिरने में लगने वाला समय उस दूरी के वर्गमूल के अनुक्रमानुपाती होता है। और इसे 78.40 m गिरने में 4 सेकंड लगते हैं। इसे 122.50 m गिरने में कितना समय लगेगा ?",
+    tag: "",
+    o: ["5 sec", "5.5 sec", "6 sec", "6.5 sec"],
+    a: 0,
+    e: "माना समय T और दूरी D है।<br>T ∝ √D ⇒ T = k√D<br>दिया गया है: जब D = 78.40, तब T = 4<br>4 = k × √(78.40)<br>जब D = 122.50, तब T₂ = k × √(122.50)<br>दोनों समीकरणों को विभाजित करने पर:<br>T₂ / 4 = √(122.50 / 78.40) = √(1225 / 784) = 35 / 28 = 5 / 4<br>T₂ = 4 × (5 / 4) = 5 सेकंड।"
+  },
+  {
+    q: "Q244. एक इंजन बिना किसी वैगन के 10/3 मीटर/सेकंड की गति से चल सकता है। ट्रेन की गति में कमी, संलग्न वैगनों की संख्या के वर्गमूल के अनुक्रमानुपाती है। जब 16 वैगन संलग्न होते हैं, तो गति 35/12 मीटर/सेकंड होती है। वैगनों की वह अधिकतम संख्या क्या है जिसके साथ इंजन चल सकता है?",
+    tag: "",
+    o: ["899", "1023", "1088", "960"],
+    a: 1,
+    e: "माना प्रारंभिक गति V₀ = 10/3 मी/से है। वैगनों की संख्या N होने पर गति में कमी (ΔV) ∝ √N है।<br>ΔV = k√N<br>जब N = 16, गति V = 35/12 मी/से होती है।<br>गति में कमी (ΔV) = 10/3 - 35/12 = (40 - 35) / 12 = 5/12 मी/से<br>5/12 = k√16 ⇒ 5/12 = 4k ⇒ k = 5/48<br>इंजन के रुकने के लिए (गति = 0), गति में कमी (ΔV) = 10/3 होनी चाहिए।<br>10/3 = (5/48) × √N<br>√N = (10/3) × (48/5) = 2 × 16 = 32<br>N = 32² = 1024<br>यानी 1024 वैगन होने पर ट्रेन रुक जाएगी। अतः वह अधिकतम संख्या जिसके साथ इंजन चल सकता है = 1024 - 1 = 1023."
+  },
+  {
+    q: "Q245. यदि x का y के साथ प्रतिलोम अनुपात है, और y=2\\frac{3}{6}, तो y=37 होने पर x का मान क्या होगा ?",
+    tag: "",
+    o: ["14/37", "14/38", "15/38", "16/40"],
+    a: 0,
+    e: "प्रश्न के अनुसार मूल रूप में text में त्रुटि प्रतीत होती है, लेकिन संबंध x ∝ 1/y है।<br>x = k/y ⇒ xy = k<br>दिया है: y = 2\\frac{3}{6} = 2 + 1/2 = 5/2 (या मूल प्रश्न में x=7 होना चाहिए जैसा अंग्रेजी भाग में 'and y=2 3/6 when x=7' के बजाय 'y=2 when x=7' है, अतः शुद्ध मान xy = 7 × 2 = 14)<br>k = 14<br>जब y = 37, तब x = 14/37."
+  },
+  {
+    q: "Q246. यदि x का y के साथ व्युत्क्रमानुपाती संबंध है, और जब x=30 होता है तब y=21 होता है, तो y=5 होने पर x का मान ज्ञात कीजिए।",
+    tag: "",
+    o: ["126", "117", "129", "135"],
+    a: 0,
+    e: "x ∝ 1/y ⇒ xy = k<br>k = 30 × 21 = 630<br>जब y = 5, तब x = 630 / 5 = 126."
+  },
+  {
+  q: "Q247. यदि x, y³ − 1 के व्युत्क्रमानुपाती होता है और y = 4 होने पर x = 6 के बराबर है, तो y = 8 होने पर x का मान ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. \\frac{147}{115}",
+    "B. \\frac{143}{141}",
+    "C. \\frac{83}{98}",
+    "D. \\frac{54}{73}"
+  ],
+  a: 3,
+  e: "<b>व्याख्या:</b><br><br>दिया है,<br>x ∝ 1/(y³ − 1)<br><br>⇒ x(y³ − 1) = नियतांक<br><br>जब y = 4 तथा x = 6,<br><br>नियतांक = 6 × (4³ − 1)<br>= 6 × (64 − 1)<br>= 6 × 63<br>= 378<br><br>जब y = 8,<br><br>x = 378/(8³ − 1)<br>= 378/(512 − 1)<br>= 378/511<br>= \\frac{54}{73}<br><br>अतः सही उत्तर <b>विकल्प D (\\frac{54}{73})</b> है।"
+},
+  {
+  q: "Q248. यदि x, y के व्युत्क्रमानुपाती है तथा x = 4 होने पर y = 6 है, तो y = 32 होने पर x का मान ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. \\frac{3}{4}",
+    "B. \\frac{15}{13}",
+    "C. \\frac{8}{23}",
+    "D. \\frac{19}{12}"
+  ],
+  a: 0,
+  e: "<b>व्याख्या:</b><br><br>दिया है,<br>x ∝ 1/y<br><br>⇒ xy = नियतांक<br><br>जब x = 4 तथा y = 6,<br><br>नियतांक = 4 × 6 = 24<br><br>जब y = 32,<br><br>x = 24/32<br>= 3/4<br>= \\frac{3}{4}<br><br>अतः सही उत्तर <b>विकल्प A (\\frac{3}{4})</b> है।"
+},
+  {
+  q: "Q249. x, y के घन के व्युत्क्रमानुपाती है। यदि y = 2, तब x = 20। यदि y = 5/4, तब x = ?",
+  tag: "",
+  o: [
+    "A. 72",
+    "B. 81.92",
+    "C. 96",
+    "D. 102.4"
+  ],
+  a: 1,
+  e: "<b>व्याख्या:</b><br><br>दिया है,<br>x ∝ 1/y³<br><br>⇒ xy³ = नियतांक<br><br>जब y = 2 तथा x = 20,<br><br>नियतांक = 20 × 2³<br>= 20 × 8<br>= 160<br><br>जब y = 5/4,<br><br>x = 160 ÷ (5/4)³<br>= 160 ÷ 125/64<br>= 160 × 64/125<br>= 81.92<br><br>अतः सही उत्तर <b>विकल्प B (81.92)</b> है।"
+},
+  {
+    q: "Q250. यदि x, y³-1 के व्युत्क्रमानुपाती है और y=3 होने पर x=6 के बराबर है, तो y=8 होने पर x ज्ञात करें।",
+    tag: "",
+    o: ["156/512", "512", "156/511", "158/511"],
+    a: 2,
+    e: "x ∝ 1/(y³-1) ⇒ x × (y³-1) = k<br>k = 6 × (3³ - 1) = 6 × 26 = 156<br>जब y = 8, तब x = 156 / (8³ - 1) = 156 / 511."
+  },
+  {
+    q: "Q251. वायलिन तार की लंबाई उसके कंपन की आवृत्ति के संबंध में व्युत्क्रमानुपाती रूप से बदलती है। 14 इंच लंबे वायलिन तार की आवृत्ति 450 चक्र प्रति सेकंड है। 12 इंच के वायलिन तार की आवृत्ति ज्ञात कीजिए।",
+    tag: "",
+    o: ["515 cycles per second", "525 cycles per second", "520 cycles per second", "510 cycles per second"],
+    a: 1,
+    e: "लंबाई (L) ∝ 1 / आवृत्ति (F) ⇒ L × F = k<br>k = 14 × 450 = 6300<br>जब L = 12, तब F = 6300 / 12 = 525 चक्र प्रति सेकंड।"
+  },
+  {
+    q: "Q252. M,(N²+3) का व्युक्रमानुपाती है। यदि N=3 होने पर M=3 होता है, तो N²=69 होने पर M का मान क्या होगा?",
+    tag: "",
+    o: ["1/2", "1", "69", "1/4"],
+    a: 0,
+    e: "M ∝ 1/(N²+3) ⇒ M × (N²+3) = k<br>जब N = 3, M = 3 ⇒ k = 3 × (3² + 3) = 3 × 12 = 36<br>जब N² = 69, तब M = 36 / (69 + 3) = 36 / 72 = 1/2."
+  },
+  {
+    q: "Q253. किसी वाहन के ईंधन की खपत (mpg) में परिवर्तन उसके वजन के व्युत्क्रमानुपाती होता है। 3800 पाउंड बजन वाली कार हाईवे पर 25 mpg की खपत करती है। एक ऐसी कार की ईंधन खपत (mpg में) ज्ञात कीजिए, जिसका बजन 4750 पाउंड है।",
+    tag: "",
+    o: ["20", "22", "24", "26"],
+    a: 0,
+    e: "खपत (MPG) ∝ 1 / वजन (W) ⇒ MPG × W = k<br>k = 25 × 3800 = 95000<br>नया वजन = 4750 पाउंड<br>नई खपत = 95000 / 4750 = 20 mpg."
+  },
+  {
+    q: "Q254. X, √Y के व्युत्क्रमानुपाती और W के समानुपाती है। जब X=8, W=5 तो y=20.25 होता है। जब x=18, W=3 हो, तो Y का मान क्या होगा ?",
+    tag: "",
+    o: ["1.44", "3.24", "1.96", "2.56"],
+    a: 0,
+    e: "X ∝ W / √Y ⇒ X = k × W / √Y<br>8 = k × 5 / √(20.25) ⇒ 8 = k × 5 / 4.5 ⇒ 8 = k × 10 / 9 ⇒ k = 36 / 5 = 7.2<br>अब, 18 = 7.2 × 3 / √Y<br>18 = 21.6 / √Y ⇒ √Y = 21.6 / 18 = 1.2<br>Y = (1.2)² = 1.44."
+  },
+  {
+    q: "Q255. यदि y³-1 का व्युत्क्रमानुपाती है तथा y=2 रखने पर x का मान 7 होता है, तो y=6 रखने पर x का मान ज्ञात कीजिए।",
+    tag: "",
+    o: ["49/215", "49/216", "50/216", "51/215"],
+    a: 0,
+    e: "x ∝ 1/(y³-1) ⇒ x × (y³-1) = k<br>k = 7 × (2³ - 1) = 7 × 7 = 49<br>जब y = 6, तब x = 49 / (6³ - 1) = 49 / (216 - 1) = 49 / 215."
+  },
+  {
+    q: "Q256. निम्नलिखित कथनों पर विचार कीजिए:\n1. यदि x, z के समानुपाती है और y, z के समानुपाती है, तो (x²-y²), z² के समानुपाती है.\n2. यदि x, z के व्युत्क्रमानुपाती है और y, z के व्युत्क्रमानुपाती है, तो (xy), z² के व्युत्क्रमानुपाती है.\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+    tag: "",
+    o: ["only 1", "only 2", "both 1 and 2", "neither 1 nor 2"],
+    a: 2,
+    e: "कथन 1: x = k₁z, y = k₂z ⇒ x² - y² = (k₁² - k₂²)z² ⇒ (x² - y²) ∝ z² (सत्य है)<br>कथन 2: x = m₁/z, y = m₂/z ⇒ xy = (m₁m₂)/z² ⇒ xy ∝ 1/z² (सत्य है)<br>अतः दोनों कथन सही हैं।"
+  },
+  {
+    q: "Q257. 400 gram सोने की एक छड़ की कीमत, उसमें मौजूद अशुद्धियों के अनुपात के वर्गमूल के व्युत्क्रमानुपाती होती है। यदि 25 gram अशुद्धियों वाली छड़ की कीमत 45000 रुपये है, तो 90000 रुपये की छड़ में कितने gram शुद्ध सोना होगा?",
+    tag: "",
+    o: ["312.5", "375", "387.25", "393.75"],
+    a: 3,
+    e: "कीमत (V) ∝ 1 / √अशुद्धि (I) ⇒ V × √I = k<br>k = 45000 × √25 = 45000 × 5 = 225000<br>जब कीमत V = 90000 हो:<br>90000 × √I = 225000 ⇒ √I = 2.5 ⇒ I = 6.25 ग्राम<br>शुद्ध सोना = कुल वजन - अशुद्धि = 400 - 6.25 = 393.75 ग्राम।"
+  },
+  {
+  q: "Q258. यदि x, y के अनुक्रमानुपाती है, तो निम्नलिखित में से कौन-सा सही है?<br><br>I. x² + y², x² − y² के अनुक्रमानुपाती रूप में बदलता है।<br>II. x/y², y के व्युत्क्रमानुपाती रूप में बदलता है।<br>III. ⁿ√(x²y), ²ⁿ√(x⁴y²) के अनुक्रमानुपाती रूप में बदलता है।<br><br>नीचे दिए गए कोड का उपयोग करके सही उत्तर चुनें।",
+  tag: "",
+  o: [
+    "A. केवल 1 और 2",
+    "B. केवल 2 और 3",
+    "C. केवल 3",
+    "D. 1, 2 और 3"
+  ],
+  a: 3,
+  e: "<b>व्याख्या:</b><br><br>दिया है,<br>x ∝ y<br><br>⇒ x = ky (जहाँ k नियतांक है)।<br><br><b>I.</b><br>x² + y² = (k² + 1)y²<br>x² − y² = (k² − 1)y²<br><br>⇒ x² + y² ∝ x² − y² ✔<br><br><b>II.</b><br>x/y² = ky/y² = k/y<br><br>⇒ x/y² ∝ 1/y ✔<br><br><b>III.</b><br>ⁿ√(x²y) = (x²y)^(1/n)<br>= (k²y³)^(1/n)<br><br>²ⁿ√(x⁴y²) = (x⁴y²)^(1/2n)<br>= (k⁴y⁶)^(1/2n)<br>= (k²y³)^(1/n)<br><br>⇒ ⁿ√(x²y) ∝ ²ⁿ√(x⁴y²) ✔<br><br>अतः तीनों कथन सही हैं।<br><br>अतः सही उत्तर <b>विकल्प D (1, 2 और 3)</b> है。"
+},
+  {
+    q: "Q259. A, B के अनुक्रमानुपाती तथा के व्युत्क्रमानुपाती है। जब A=4/3 B=3/7 और c=9/14 है, तो C ज्ञात कीजिए जब A=4√3 और B=30।",
+    tag: "",
+    o: ["5√3", "6√5", "6√3", "3√5"],
+    a: 0,
+    e: "A ∝ B / C ⇒ A = kB/C ⇒ k = AC/B<br>k = (4/3 × 9/14) / (3/7) = (6/7) / (3/7) = 2<br>अब, A = 2B/C ⇒ C = 2B/A<br>C = 2 × 30 / 4√3 = 60 / 4√3 = 15 / √3 = 5√3."
+  },
+  {
+    q: "Q260. 'x', 'y' के घन के सीधे और 'z' के वर्ग के व्युत्क्रमानुपाती बदलता है। यदि x=1/36 जब y=2 और z = 3 है, तो 800x का मान क्या है जब y=3 macro और z=5; हो?",
+    tag: "",
+    o: ["9/800", "27", "800/9", "9"],
+    a: 1,
+    e: "x ∝ y³ / z² ⇒ x = ky³ / z²<br>1/36 = k × 2³ / 3² = k × 8 / 9 ⇒ k = 1 / 32<br>जब y = 3, z = 5 हो:<br>x = (1/32) × 3³ / 5² = 27 / (32 × 25) = 27 / 800<br>800x = 800 × (27 / 800) = 27."
+  },
+  {
+    q: "Q261. किसी गोले का वजन उसकी त्रिज्या के घन और जिस सामग्री से वह बना है उसके घनत्व के समानुपाती होता है। दो गोले की त्रिज्याएँ 17: 8 और सामग्रियों का घनत्व 3: 4 है। यदि दूसरे गोले का वजन 40 किलोग्राम है, तो पहले गोले का अनुमानित वजन हैः",
+    tag: "",
+    o: ["96 kg", "287.87 kg", "123.26 kg", "230 kg"],
+    a: 1,
+    e: "W ∝ R³ × D<br>W₁ / W₂ = (R₁/R³)³ × (D₁/D₂)<br>W₁ / 40 = (17/8)³ × (3/4) = (4913 / 512) × (3/4) = 14739 / 2048<br>W₁ = 40 × 14739 / 2048 ≈ 287.87 kg."
+  },
+  {
+  q: "Q262. दो चर का एक फलन x के अनुक्रमानुपाती है और y के व्युत्क्रमानुपाती है। x = 5 और y = 3 होने पर फलन ज्ञात कीजिए। दिया है कि, x = 0 और y = 1 के लिए f = 15 है तथा x = 1 और y = 15 के लिए f = 2 है।",
+  tag: "",
+  o: [
+    "A. 10",
+    "B. 2",
+    "C. 5",
+    "D. 15"
+  ],
+  a: 0,
+  e: "<b>व्याख्या:</b><br><br>मान लें,<br>f = ax + b/y<br><br>जब x = 0 तथा y = 1,<br>15 = a × 0 + b/1<br>⇒ b = 15<br><br>जब x = 1 तथा y = 15,<br>2 = a + 15/15<br>⇒ 2 = a + 1<br>⇒ a = 1<br><br>अतः,<br>f = x + 15/y<br><br>जब x = 5 तथा y = 3,<br>f = 5 + 15/3<br>= 5 + 5<br>= 10<br><br>अतः सही उत्तर <b>विकल्प A (10)</b> है।"
+},
+  {
+    q: "Q263. 1000 cc की क्षमता की इंजन द्वारा 60 ली में 600 km जाया जा सकता है। अगर कोई दूरी तय करने के लिए आवश्यक डीजल की मात्रा, इंजन की क्षमता के अनुपातिक हो तो 1500 cc के इंजन की मदद से 800 km की दूरी तय करने में कितना डीजल लगेगा?",
+    tag: "",
+    o: ["120 liter", "100 liter", "180 liter", "150 liter"],
+    a: 0,
+    e: "डीजल (D) ∝ दूरी (S) × क्षमता (C)<br>D₁ / D₂ = (S₁ × C₁) / (S₂ × C₂)<br>60 / D₂ = (600 × 1000) / (800 × 1500) = 600000 / 1200000 = 1/2<br>D₂ = 60 × 2 = 120 लीटर।"
+  },
+  {
+    q: "Q264. एक कार को किसी मोड़ पर फिसलने से बचाने के लिए आवश्यक बल (पाउंड-बल में) कार के वजन और उसकी गति के वर्ग के अनुक्रमांपाती और त्रिज्या के व्युत्क्रमानुपाती होता है। 35 मील प्रति घंटे की गति से यात्रा कर रही 2750 पाउंड की कार को 550 फीट त्रिज्या के मोड़ पर फिसलने से बचाने के लिए 6125 पाउंड-बल की आवश्यकता है। 50 मील प्रति घंटे की गति से यात्रा कर रही 3600 पाउंड की कार को 750 फीट त्रिज्या के मोड़ पर फिसलने से बचाने के लिए कितने पाउंड-बल की आवश्यकता होगी?",
+    tag: "",
+    o: ["11960", "12150", "12240", "12000"],
+    a: 3,
+    e: "F ∝ (W × V²) / R ⇒ F = k × W × V² / R<br>6125 = k × 2750 × 35² / 550 = k × 5 × 1225 = 6125k ⇒ k = 1<br>नए मामले में: F = 1 × 3600 × 50² / 750 = 3600 × 2500 / 750 = 12000 पाउंड-बल।"
+  },
+  {
+  q: "Q265. किसी घन का भार उसके आयतन और उसके घनत्व के गुणनफल के अनुक्रमानुपाती है। पहले घन और दूसरे घन के पदार्थों के घनत्व का अनुपात 27:16 है। यदि पहले घन का भार दूसरे घन के भार का 4 गुना है, तो पहले घन और दूसरे घन के किनारों का अनुपात क्या है?",
+  tag: "",
+  o: [
+    "A. 3:2",
+    "B. 2:3",
+    "C. 3:4",
+    "D. 4:3"
+  ],
+  a: 3,
+  e: "<b>व्याख्या:</b><br><br>दिया है,<br>भार ∝ आयतन × घनत्व<br><br>घन का आयतन = (किनारा)³<br><br>अतः,<br>भार ∝ (किनारा)³ × घनत्व<br><br>मान लें पहले और दूसरे घन के किनारे क्रमशः a₁ तथा a₂ हैं।<br><br>तब,<br>4 = (a₁³ × 27)/(a₂³ × 16)<br><br>⇒ a₁³/a₂³ = 64/27<br><br>⇒ a₁/a₂ = 4/3<br><br>अतः पहले और दूसरे घन के किनारों का अनुपात = 4:3<br><br>अतः सही उत्तर <b>विकल्प D (4:3)</b> है।"
+},
+  {
+    q: "Q266. A, B के धनात्मक वर्गमूल के अनुक्रमानुपाती है, और C के घन के व्युत्क्रमानुपाती है। यदि B=27 और C=2 होने पर A=15^{*}, तो A=9 और C=2 होने पर, B ज्ञात कीजिए।",
+    tag: "",
+    o: ["281/42", "243/25", "264/37", "275/51"],
+    a: 1,
+    e: "A ∝ √B / C³ ⇒ A = k√B / C³<br>15 = k√27 / 2³ = k(3√3) / 8 ⇒ k = 40 / √3<br>अब, 9 = (40 / √3) × √B / 2³<br>9 = (5 / √3) × √B ⇒ √B = 9√3 / 5<br>वर्ग करने पर: B = 243 / 25."
+  },
+  {
+  q: "Q267. y, x + 3 के अनुक्रमानुपाती है और x = 1 होने पर y = 8 है। x, z के व्युत्क्रमानुपाती है और z = 6 होने पर x = 2 है। y और z के बीच संबंध ज्ञात कीजिए।",
+  tag: "",
+  o: [
+    "A. (y − 6)/z = 24",
+    "B. (y − 6)/z = 12",
+    "C. z(y − 6) = 12",
+    "D. z(y − 6) = 24"
+  ],
+  a: 3,
+  e: "<b>व्याख्या:</b><br><br>दिया है,<br>y ∝ (x + 3)<br><br>⇒ y = k(x + 3)<br><br>जब x = 1 तथा y = 8,<br><br>8 = k(1 + 3)<br>⇒ 8 = 4k<br>⇒ k = 2<br><br>अतः,<br>y = 2(x + 3)<br>⇒ y − 6 = 2x ...(1)<br><br>अब,<br>x ∝ 1/z<br><br>⇒ xz = नियतांक<br><br>जब x = 2 तथा z = 6,<br><br>xz = 12<br>⇒ x = 12/z ...(2)<br><br>(2) को (1) में रखने पर,<br><br>y − 6 = 2 × 12/z = 24/z<br><br>⇒ z(y − 6) = 24<br><br>अतः सही उत्तर <b>विकल्प D [z(y − 6) = 24]</b> है।"
+},
+  {
+    q: "Q268. किसी पृष्ठ पर एक लैंप की प्रदीप्ति, उसकी शक्ति (power) के अनुक्रमानुपाती है और पृष्ठ से उसकी दूरी के वर्ग के व्युत्क्रमानुपाती है। यदि किसी डेस्क से 2 मीटर ऊपर रखा गया 60 वाट का लैंप 15 लक्स की प्रदीप्ति प्रदान करता है, तो डेस्क 3 मीटर ऊपर रखे गए 100 वाट के लैंप की प्रदीप्ति ज्ञात कीजिए।",
+    tag: "",
+    o: ["15.23 lux", "11.11 lux", "18.25 lux", "8.7 lux"],
+    a: 1,
+    e: "I ∝ P / d² ⇒ I = kP / d²<br>15 = k × 60 / 2² = 15k ⇒ k = 1<br>नए लैंप के लिए: I = 1 × 100 / 3² = 100 / 9 = 11.11 लक्स।"
+  }
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>

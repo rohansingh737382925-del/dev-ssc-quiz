@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+<h2>DREAM TO DESTINY</h2>
+<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box">
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls">
+<div class="controls">
+<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
+<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:42px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
+border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
+box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
+<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
+<span id="timeTaken"></span>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+{q:"Q201. एक कंपनी में, स्नातक कर्मचारियों और परास्नातक कर्मचारियों की संख्या 1:4 के अनुपात में थी। दस और लोग कंपनी में शामिल हो गए। कुछ कर्मचारियों ने स्नातक की डिग्री हासिल की और परा स्नातक की संख्या 6 से कम हो गई, जिससे स्नातकों और परा स्नातकों का अनुपात 1:3 हो गया। प्रारंभ में कंपनी में कर्मचारियों की कुल संख्या ज्ञात कीजिये।", tag:"", o:["(a) 270", "(b) 264", "(c) 280", "(d) 260"], a:0, e:"मान लीजिए प्रारंभ में स्नातक (G) और परास्नातक (UG) कर्मचारियों की संख्या क्रमशः 1x और 4x थी।<br>प्रारंभ में कुल कर्मचारी = 1x + 4x = 5x<br>10 नए कर्मचारी शामिल हुए, तो कुल कर्मचारियों की संख्या = 5x + 10 हो गई।<br>परास्नातक कर्मचारियों की संख्या 6 से कम हो गई, इसलिए नई परास्नातक संख्या = 4x - 6<br>नए स्नातक कर्मचारियों की संख्या = कुल कर्मचारी - नई परास्नातक संख्या = (5x + 10) - (4x - 6) = x + 16<br>अब, नया अनुपात (G : UG) = 1:3 है:<br>(x + 16) / (4x - 6) = 1/3<br>3(x + 16) = 4x - 6<br>3x + 48 = 4x - 6<br>x = 54<br>प्रारंभ में कर्मचारियों की कुल संख्या = 5x = 5 × 54 = 270"},
+{q:"Q202. दो शहरों के बीच प्रथम और द्वितीय श्रेणी के ट्रेन किराए का अनुपात 5:2 है और दोनों शहरों के बीच प्रथम और द्वितीय श्रेणी से यात्रा करने वाले यात्रियों की संख्या का अनुपात 1:40 है। यदि किसी विशेष दिन, दोनों शहरों के बीच यात्रा करने वाले यात्रियों से 3,400 रुपये वसूले जाते हैं, तो द्वितीय श्रेणी के यात्रियों से वसूली गई राशि है:", tag:"", o:["(a) Rs. 3,200", "(b) Rs. 2,000", "(c) Rs. 2,400", "(d) Rs. 1,800"], a:0, e:"प्रथम और द्वितीय श्रेणी के किराए का अनुपात = 5 : 2<br>यात्रियों की संख्या का अनुपात = 1 : 40<br>कुल वसूली का अनुपात = (5 × 1) : (2 × 40) = 5 : 80 = 1 : 16<br>कुल अनुपात के भागों का योग = 1 + 16 = 17 भाग<br>17 भाग = 3400 रुपये<br>1 भाग = 200 रुपये<br>द्वितीय श्रेणी के यात्रियों से वसूली गई राशि = 16 भाग = 16 × 200 = 3,200 रुपये"},
+{q:"Q203. दो स्टेशनों के बीच पहली, दूसरी और तीसरी श्रेणी का रेलवे किराया 10:7:4 के अनुपात में था। पहली और दूसरी श्रेणी का किराया बाद में क्रमशः 1/5 और 1/7 कम कर दिया गया। यदि एक वर्ष के दौरान पहली, दूसरी और तीसरी श्रेणी के यात्रियों के बीच का अनुपात 8:10:25 था और टिकटों की बिक्री से एकत्रित कुल राशि 2,240 रु. है, तो प्रथम श्रेणी के यात्रियों से कितनी राशि वसूली गई थी ?", tag:"", o:["(a) Rs. 540", "(b) Rs. 640", "(c) Rs. 480", "(d) Rs. 720"], a:1, e:"पुराना किराया अनुपात = 10 : 7 : 4<br>पहली श्रेणी के किराए में कमी = 10 का 1/5 = 2, नया किराया = 10 - 2 = 8<br>दूसरी श्रेणी के किराए में कमी = 7 का 1/7 = 1, नया किराया = 7 - 1 = 6<br>तीसरी श्रेणी का किराया समान रहता है = 4<br>नया किराया अनुपात = 8 : 6 : 4<br>यात्रियों का अनुपात = 8 : 10 : 25<br>एकत्रित राशि का अनुपात = (8 × 8) : (6 × 10) : (4 × 25) = 64 : 60 : 100<br>अनुपात का कुल योग = 64 + 60 + 100 = 224 भाग<br>224 भाग = 2240 रुपये<br>1 भाग = 10 रुपये<br>प्रथम श्रेणी के यात्रियों से वसूली गई राशि = 64 भाग = 64 × 10 = 640 रुपये"},
+{q:"Q204. तीन मित्र A, B und C ने ₹ 5525 को आपस में इस प्रकार बाँटा कि यदि A,B और C को प्राप्त राशि में से क्रमशः ₹50, ₹100 और ₹ 75 घटा दिए जाएँ, तो उन्हें प्राप्त राशि का अनुपात 11:18:24 होगा। C को प्रारंभ में कितनी राशि प्राप्त हुई?", tag:"", o:["(a) 1150", "(b) 2475", "(c) 1900", "(d) 2325"], a:1, e:"कुल घटाई गई राशि = 50 + 100 + 75 = 225 रुपये<br>शेष बची राशि = 5525 - 225 = 5300 रुपये<br>शेष राशि का अनुपात = 11 : 18 : 24<br>अनुपाती योग = 11 + 18 + 24 = 53 भाग<br>53 भाग = 5300 रुपये<br>1 भाग = 100 रुपये<br>C का शेष भाग = 24 भाग = 24 × 100 = 2400 रुपये<br>C को प्रारंभ में प्राप्त राशि = 2400 + 75 = 2475 रुपये"},
+{q:"Q205. X ने नींबू के जूस की 4 बोतलें खरीदीं और Y ने संतरे के जूस की एक बोतल खरीदी। संतरे के जूस की एक बोतल की कीमत नींबू के जूस की एक बोतल कीमत की दुगुनी है। Z ने कुछ भी नहीं खरीदा पर अपने हिस्से के पेय के लिए 50 रुपये दिए जिसे उन्होंने एक साथ मिला लिया और कीमत को आपस में बराबर-बराबर बाँट लिया। यदि Z के हिस्से से उसके 50 रुपये पूरे हो गये, तो संतरे के जूस की एक बोतल की कीमत क्या है?", tag:"", o:["(a) Rs. 75", "(b) Rs. 50", "(c) Rs. 46", "(d) Rs. 30"], a:1, e:"मान लीजिए नींबू के जूस की 1 बोतल की कीमत = L<br>संतरे के जूस की 1 बोतल की कीमत = 2L<br>X द्वारा खर्च की गई राशि (4 नींबू बोतलें) = 4L<br>Y द्वारा खर्च की गई राशि (1 संतरा बोतल) = 2L<br>कुल मूल्य = 4L + 2L = 6L<br>चूंकि तीनों ने इसे बराबर बांटा, प्रत्येक का हिस्सा = 6L / 3 = 2L<br>Z ने अपने हिस्से के लिए 50 रुपये दिए, इसलिए:<br>2L = 50 रुपये<br>संतरे के जूस की एक बोतल की कीमत = 2L = 50 रुपये"},
+{q:"Q206. 1:2 तथा 3 : 5 का मिश्र अनुपात ज्ञात कीजिए।", tag:"", o:["(a) 3:10", "(b) 3:5", "(c) 10:3", "(d) 5:3"], a:0, e:"मिश्र अनुपात (Compound Ratio) = (1 × 3) : (2 × 5) = 3:10"},
+{q:"Q207. 1:2, 3:5 और 5:9 का मिश्र अनुपात ज्ञात कीजिए।", tag:"", o:["(a) 1:6", "(b) 1:5", "(c) 1:3", "(d) 1:18"], a:0, e:"मिश्र अनुपात = (1 × 3 × 5) : (2 × 5 × 9) = 15 : 90 = 1:6"},
+{q:"Q208. 0.45 : 0.55 तथा (1/9) : (4/5) का मिश्र अनुपात ज्ञात कीजिए।", tag:"", o:["(a) 5:41", "(b) 5:44", "(c) 44:5", "(d) 41:5"], a:1, e:"पहला अनुपात = 0.45 / 0.55 = 45 / 55 = 9/11<br>दूसरा अनुपात = (1/9) / (4/5) = 5/36<br>मिश्र अनुपात = (9/11) × (5/36) = 5 / (11 × 4) = 5/44 = 5:44"},
+{q:"Q209. 45: 75, 3 : 5, 51: 68 और 256 : 81 का मिश्र अनुपात क्या होगा ?", tag:"", o:["(a) 75/32", "(b) 45/75", "(c) 128/75", "(d) 64/75"], a:3, e:"दिए गए अनुपातों को सरल करने पर:<br>45/75 = 3/5<br>3/5 = 3/5<br>51/68 = 3/4<br>256/81 = 256/81<br>मिश्र अनुपात = (3/5) × (3/5) × (3/4) × (256/81)<br>मिश्र अनुपात = (27 × 256) / (100 × 81) = 256 / (100 × 3) = 64/75"},
+{q:"Q210. 14 : 17 का वर्गानुपात ज्ञात कीजिए।", tag:"", o:["(a) 196: 289", "(b) 169: 256", "(c) 197: 729", "(d) 576: 729"], a:0, e:"वर्गानुपात (Duplicate Ratio) = 14² : 17² = 196 : 289"},
+{q:"Q211. 0.04 : 0.005 का वर्गानुपात ज्ञात कीजिए।", tag:"", o:["(a) 1:64", "(b) 64:1", "(c) 16:25", "(d) 25:16"], a:1, e:"अनुपात को सरल करने पर = 0.04 / 0.005 = 40 / 5 = 8 : 1<br>वर्गानुपात = 8² : 1² = 64 : 1"},
+{q:"Q212. 16 : 25 का वर्गमूलानुपात ज्ञात कीजिए।", tag:"", o:["(a) 4:5", "(b) 5:4", "(c) 256: 625", "(d) 625: 256"], a:0, e:"वर्गमूलानुपात (Sub-duplicate Ratio) = √16 : √25 = 4 : 5"},
+{q:"Q213. 1/0.225 : 1/0.256 का वर्गमूलानुपात ज्ञात कीजिए।", tag:"", o:["(a) 16:15", "(b) 15:16", "(c) 225: 256", "(d) 256: 225"], a:0, e:"दिया गया अनुपात = 1/0.225 : 1/0.256 = 0.256 : 0.225 = 256 : 225<br>वर्गमूलानुपात = √256 : √225 = 16 : 15"},
+{q:"Q214. 3 : 5 का घनानुपात ज्ञात कीजिए।", tag:"", o:["(a) 27: 125", "(b) 9:25", "(c) 30: 125", "(d) 125:27"], a:0, e:"घनानुपात (Triplicate Ratio) = 3³ : 5³ = 27 : 125"},
+{q:"Q215. 1/0.49 : 1/0.343 का घनानुपात ज्ञात कीजिए।", tag:"", o:["(a) 7:10", "(b) 10:7", "(c) 343: 1000", "(d) 1000: 343"], a:2, e:"सरल अनुपात = 1/0.49 : 1/0.343 = 0.343 : 0.49 = 343 : 490 = 7 : 10<br>घनानुपात = 7³ : 10³ = 343 : 1000"},
+{q:"Q216. 512 : 729 का घनमूलानुपात ज्ञात कीजिए।", tag:"", o:["(a) 8:9", "(b) 8:7", "(c) 7:8", "(d) 7:9"], a:0, e:"घनमूलानुपात (Sub-triplicate Ratio) = ∛512 : ∛729 = 8 : 9"},
+{q:"Q217. 1/0.343 : 1/0.512 का घनमूलानुपात ज्ञात कीजिए।", tag:"", o:["(a) 7:8", "(b) 8:7", "(c) 6:7", "(d) 7:6"], a:1, e:"सरल अनुपात = 1/0.343 : 1/0.512 = 0.512 : 0.343 = 512 : 343<br>घनमूलानुपात = ∛512 : ∛343 = 8 : 7"},
+{q:"Q218. 4:9, 3:4 का वर्गानुपात, 2:3 का घनानुपात तथा 9:7 का मिश्र अनुपात क्या है?", tag:"", o:["(a) 2:21", "(b) 2:5", "(c) 7:5", "(d) 7:4"], a:0, e:"अनुपात इस प्रकार हैं:<br>पहला अनुपात = 4/9<br>3:4 का वर्गानुपात = 9/16<br>2:3 का घनानुपात = 8/27<br>चौथा अनुपात = 9/7<br>मिश्र अनुपात = (4/9) × (9/16) × (8/27) × (9/7) = (4 × 9 × 8 × 9) / (9 × 16 × 27 × 7) = 2/21"},
+{q:"Q219. 3:4 और a : 25 के वर्गमूलानुपात का मिश्र अनुपात 9 : 20 है। a का मान ज्ञात कीजिए।", tag:"", o:["(a) 16", "(b) 9", "(c) 12", "(d) 19"], a:1, e:"प्रश्न के अनुसार:<br>(3/4) × √(a/25) = 9/20<br>√(a/25) = (9/20) × (4/3)<br>√(a/25) = 3/5<br>दोनों ओर वर्ग करने पर:<br>a/25 = 9/25<br>a = 9"},
+{q:"Q220. 5 : 8 का प्रतिलोम अनुपात ज्ञात कीजिए।", tag:"", o:["(a) 8:5", "(b) 16:25", "(c) 64:25", "(d) 25:64"], a:0, e:"प्रतिलोम अनुपात (Inverse Ratio) = 1/5 : 1/8 = 8 : 5"},
+{q:"Q221. (1/64) : (1/512) का प्रतिलोम अनुपात ज्ञात कीजिए।", tag:"", o:["(a) 8:1", "(b) 1:8", "(c) 64:1", "(d) 1:64"], a:1, e:"दी गई संख्याओं का अनुपात = (1/64) : (1/512)<br>इसे सरल करने पर: (1/64) × 512 = 8 : 1<br>प्रतिलोम अनुपात (Inverse ratio) = 1 : 8 "},
+{q:"Q222. यदि 2.5 : 10.5 :: 8: x, तो x का मान ज्ञात कीजिए।", tag:"", o:["(a) 33.6", "(b) 31.2", "(c) 41.6", "(d) 45.1"], a:0, e:"समानुपात के नियम से:<br>2.5 / 10.5 = 8 / x<br>x = (8 × 10.5) / 2.5<br>x = 84 / 2.5 = 33.6"},
+{q:"Q223. यदि √5 : √42 :: √7 : x, तो x का मान क्या है?", tag:"", o:["(a) (7/5)√42", "(b) (6/5)√42", "(c) (7/5)√30", "(d) (5/7)√30"], a:2, e:"समानुपात के नियम से:<br>√5 / √42 = √7 / x<br>x = (√42 × √7) / √5<br>x = (√6 × √7 × √7) / √5 = 7√6 / √5<br>अंश और हर में √5 से गुणा करने पर:<br>x = 7√30 / 5 = (7/5)√30"},
+{q:"Q224. यदि 2³ : 8⁵.⁰⁶ :: 8⁻⁴.⁰⁶ : x, तो x का मान ज्ञात कीजिए।", tag:"", o:["(a) 1/2³", "(b) 1", "(c) 2/3", "(d) 0"], a:1, e:"2³ = 8¹<br>समानुपात से: 8¹ / 8⁵.⁰⁶ = 8⁻⁴.⁰⁶ / x<br>x = (8⁵.⁰⁶ × 8⁻⁴.⁰⁶) / 8¹<br>x = 8^(5.06 - 4.06) / 8¹<br>x = 8¹ / 8¹ = 1"},
+{q:"Q225. यदि 6 : 42 :: 7.6 : x और 3 : 6 :: 6 : y है, तो x और y का अनुपात ज्ञात कीजिए।", tag:"", o:["(a) 133:30", "(b) 135:32", "(c) 134:28", "(d) 137:40"], a:0, e:"पहले भाग से: 6 / 42 = 7.6 / x => 1 / 7 = 7.6 / x => x = 7.6 × 7 = 53.2<br>दूसरे भाग से: 3 / 6 = 6 / y => 1 / 2 = 6 / y => y = 12<br>x और y का अनुपात = 53.2 : 12 = 532 : 120 = 133 : 30"},
+{q:"Q226. किसी वस्तु पर लगने वाला बल उसके द्रव्यमान के अनुक्रमानुपाती होता है। यदि 2 kg द्रव्यमान वाली वस्तु को गतिमान करने के लिए 10 N बल की आवश्यकता होती है, तो 5 kg द्रव्यमान वाली वस्तु को गतिमान करने के लिए आवश्यक बल कितना होगा (न्यूटन में)?", tag:"", o:["(a) 25", "(b) 30", "(c) 20", "(d) 15"], a:0, e:"बल (F) ∝ द्रव्यमान (m) => F = k × m<br>10 = k × 2 => k = 5<br>अब, m = 5 kg के लिए: F = 5 × 5 = 25 N"},
+{q:"Q227. किसी शहर में स्कूलों की संख्या सीधे तौर पर शहर की जनसंख्या के सीधे आनुपातिक है। 2020 में यहाँ 125 school थे और शहर की आबादी 1,80,000 थी. 2023 में, city में स्कूलों की संख्या 180 है। 2020 से 2023 तक शहर की जनसंख्या में कितने प्रतिशत वृद्धि हुई है?", tag:"", o:["(a) 44%", "(b) 42%", "(c) 45%", "(d) 46%"], a:0, e:"स्कूलों की संख्या ∝ जनसंख्या<br>चूँकि स्कूलों की संख्या 125 से बढ़कर 180 हो गई है, जनसंख्या में भी उसी अनुपात में वृद्धि होगी।<br>स्कूलों में वृद्धि प्रतिशत = ((180 - 125) / 125) × 100 = (55 / 125) × 100 = 44%<br>इसलिए जनसंख्या में भी 44% की वृद्धि होगी।"},
+{q:"Q228. एक वस्तु के पतंग की ऊंचाई समय के वर्ग के अनुक्रमानुपाती है। वस्तु 4 सेकंड में 80 सेमी नीचे गिरती है, तो 8 सेकंड में वस्तु कितनी ऊंचाई (सेमी में) से गिरेगी?", tag:"", o:["(a) 420", "(b) 320", "(c) 480", "(d) 360"], a:1, e:"ऊंचाई (h) ∝ t² => h = k × t²<br>80 = k × 4² => 80 = k × 16 => k = 5<br>8 सेकंड में तय की गई ऊंचाई: h = 5 × 8² = 5 × 64 = 320 सेमी"},
+{q:"Q229. किसी वस्तु की गिरती ऊंचाई समय के घन के समानुपाती होती है। एक वस्तु 4 सेकण्ड में 192 सेमी गिरती है, तो 7 सेकण्ड में वस्तु कितनी ऊँचाई (सेमी में) से गिरेगी?", tag:"", o:["(a) 1059", "(b) 1079", "(c) 1029", "(d) 1009"], a:2, e:"ऊंचाई (h) ∝ t³ => h = k × t³<br>192 = k × 4³ => 192 = k × 64 => k = 3<br>7 सेकंड में तय की गई ऊंचाई: h = 3 × 7³ = 3 × 343 = 1029 सेमी"},
+{q:"Q230. किसी विद्युत उपकरण की बिजली खपत, अनुप्रयुक्त वोल्टता के वर्ग के अनुक्रमानुपाती है। यदि उपकरण 120 वोल्ट वोल्टता होने पर 150 वाट की खपत करता है, तो 240 वोल्ट पर यह कितनी बिजली खपत करेगा (वाट में)?", tag:"", o:["(a) 550", "(b) 650", "(c) 500", "(d) 600"], a:3, e:"खपत (P) ∝ V²<br>P₁ / P₂ = (V₁ / V₂)²<br>150 / P₂ = (120 / 240)² = (1 / 2)² = 1 / 4<br>P₂ = 150 × 4 = 600 वाट"},
+{q:"Q231. एक वृक्ष की आयु उसके तने में मौजूद छल्लों की संख्या पर निर्भर करती है। इस वृक्ष का मूल्य उसकी आयु के समानुपाती होता है। यदि 40 छल्लों और 50 वर्ष की आयु वाले वृक्ष का मूल्य ₹50,000 है, तो 30 छल्लों वाले वृक्ष की आयु ........ वर्ष और इसका मूल्य ₹........ है।", tag:"", o:["(a) 37.5, 57500", "(b) 37.5, 37500", "(c) 57.5, 57500", "(d) 57.5, 37500"], a:1, e:"आयु ∝ छल्लों की संख्या<br>50 वर्ष = k × 40 => k = 5/4<br>30 छल्लों वाले वृक्ष की आयु = (5/4) × 30 = 37.5 वर्ष<br>मूल्य ∝ आयु<br>50,000 = c × 50 => c = 1000<br>37.5 वर्ष की आयु वाले वृक्ष का मूल्य = 1000 × 37.5 = ₹37,500"},
+{q:"Q232. यदि a ∝ b, b ∝ 1/c और c ∝ d³, तो a oars d के बीच क्या संबंध है?", tag:"", o:["(a) a ∝ √d", "(b) a ∝ d", "(c) a ∝ 1/d", "(d) a ∝ d²"], a:2, e:"a ∝ b और b ∝ 1/c => a ∝ 1/c<br>दिया है c ∝ d<br>इसलिए, a ∝ 1/d"},
+{q:"Q233. एक वृक्ष की ऊँचाई उसकी आयु के वर्गमूल के अनुक्रमानुपाती है। जब वृक्ष की आयु 324 वर्ष है, तब उसकी ऊँचाई 19 फीट है। 81 वर्ष की आयु में वृक्ष की ऊँचाई (फीट में) क्या होगी ?", tag:"", o:["(a) 9.01", "(b) 8.39", "(c) 9.5", "(d) 9.14"], a:2, e:"ऊंचाई (H) ∝ √A => H₁ / H₂ = √(A₁ / A₂)<br>19 / H₂ = √(324 / 81) = √4 = 2<br>H₂ = 19 / 2 = 9.5 फीट"},
+{q:"Q234. A, (B + 18) के अनुक्रमानुपाती है और B = 36 होने पर, A = 108 होता है। A का मान ज्ञात कीजिए जब B = 68 हो।", tag:"", o:["(a) 75", "(b) 86", "(c) 127", "(d) 172"], a:3, e:"A ∝ (B + 18) => A = k(B + 18)<br>108 = k(36 + 18) => 108 = k × 54 => k = 2<br>जब B = 68 हो: A = 2 × (68 + 18) = 2 × 86 = 172"},
+{q:"Q235. X, A² के अनुक्रमानुपाती है और A, Y के व्युत्क्रमानुपाती है। यदि Y के 20 होने पर X 39 है, तो Y के 8 होने पर X ज्ञात कीजिए।", tag:"", o:["(a) 243.125", "(b) 243.75", "(c) 208", "(d) 250.5"], a:1, e:"X ∝ A² और A ∝ 1/Y => X ∝ 1/Y²<br>X₁ / X₂ = (Y₂ / Y₁)²<br>39 / X₂ = (8 / 20)² = (2 / 5)² = 4 / 25<br>X₂ = (39 × 25) / 4 = 975 / 4 = 243.75"},
+{q:"Q236. A सीधे B के धनात्मक वर्गमूल के समानुपाती (अनुक्रमानुपाती) है, और C के घन के व्युत्क्रमानुपाती होता है। यदि A = 20 है जब B = 16 और C = 3 है, तो B का मान ज्ञात कीजिए जब A = 15 और C = 3 है।", tag:"", o:["(a) 4", "(b) 6", "(c) 9", "(d) 12"], a:2, e:"A ∝ √B / C³<br>चूँकि दोनों स्थितियों में C का मान समान (C = 3) है, इसलिए C का प्रभाव निरस्त हो जाएगा।<br>A ∝ √B => A₁ / A₂ = √(B₁ / B₂)<br>20 / 15 = √(16 / B₂)<br>4 / 3 = 4 / √B₂ => √B₂ = 3 => B₂ = 9"},
+{q:"Q237. R सीधे S के रूप में बदलता है और T के विपरीत होता है। जब R = 2/3 , T = 5/7 और S = 4/21 है तो S का पता लगाएं जब R = 3/4 और T = 1/9 ?", tag:"", o:["(a) 1/15", "(b) 1/30", "(c) 7/10", "(d) 3/5"], a:1, e:"R ∝ S / T => R = k × S / T<br>2/3 = k × (4/21) / (5/7) = k × (4/21) × (7/5) = k × 4/15<br>k = (2/3) × (15/4) = 5/2<br>अब, 3/4 = (5/2) × S / (1/9) = (5/2) × 9S = 45S / 2<br>S = (3/4) × (2/45) = 1/30"},
+{
+  q: "Q238. यदि P², R के रूप में बदलता है और Q², R के रूप में बदलता है, (P ≠ Q)। तो निम्नलिखित में से कौन-सा सही है?<br><br>I. P² + Q², R के अनुसार बदलता है।<br>II. PQ, R के अनुसार बदलता है।<br>III. P² − Q², R के अनुसार बदलता है।",
+  tag: "",
+  o: [
+    "A. केवल I और II",
+    "B. केवल II और III",
+    "C. केवल I और III",
+    "D. I, II और III"
+  ],
+  a: 3,
+  e: "<b>व्याख्या:</b><br><br>दिया है:<br>P² ∝ R तथा Q² ∝ R<br><br>मान लें,<br>P² = aR तथा Q² = bR<br><br>जहाँ a तथा b नियतांक हैं।<br><br>I. P² + Q² = aR + bR = (a + b)R ∝ R ✔<br><br>II. P²Q² = abR²<br>⇒ (PQ)² = abR²<br>⇒ PQ = √ab · R ∝ R ✔<br><br>III. P² − Q² = aR − bR = (a − b)R ∝ R ✔<br><br>अतः तीनों कथन सही हैं।<br><br>अतः सही उत्तर <b>विकल्प D (I, II और III)</b> है。"
+},
+{q:"Q239. X, A² के अनुक्रमानुपाती है और A, Y के व्युत्क्रमानुपाती है। यदि X, 97 है जब Y, 6 है, तो X ज्ञात कीजिए जब Y, 2 है।", tag:"", o:["(a) 873", "(b) 871", "(c) 872", "(d) 875"], a:0, e:"X ∝ A² और A ∝ 1/Y => X ∝ 1/Y²<br>X₁ / X₂ = (Y₂ / Y₁)²<br>97 / X₂ = (2 / 6)² = (1 / 3)² = 1 / 9<br>X₂ = 97 × 9 = 873"},
+{q:"Q240. एक सोने की छड़ (Gold Bar) को चार बराबर भागों में तोड़ दिया गया। सोने की छड़ का मूल्य उसके भार (Weight) के घन (Cube) के समानुपाती है। यदि सोने की छड़ को तोड़ने के बाद कोई लाभ (Profit) या हानि (Loss) होती है, तो टूटने के बाद होने वाली लाभ या हानि का प्रतिशत (%) ज्ञात कीजिए।", tag:"", o:["(a) 80%", "(b) 88%", "(c) 93.75%", "(d) 98%"], a:2, e:"माना कुल भार = 4 इकाई, तो प्रारंभिक मूल्य = 4³ = 64<br>चार बराबर भागों का भार = 1, 1, 1, 1 इकाई<br>टूटने के बाद कुल मूल्य = 1³ + 1³ + 1³ + 1³ = 4<br>हानि = 64 - 4 = 60<br>हानि प्रतिशत = (60 / 64) × 100 = 93.75%"}
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+const startTime = Date.now();
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+const endTime=Date.now();
+const totalSeconds=Math.floor((endTime-startTime)/1000);
+const minutes=Math.floor(totalSeconds/60);
+const seconds=totalSeconds%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+}
+function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
+function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
+function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+ setInterval(upd,150);
+});
+})();
+</script>
+</body>
+</html>
