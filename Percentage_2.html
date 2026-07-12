@@ -6,7 +6,7 @@
 <title>DREAM TO DESTINY - PYQ़</title>
 <style>
 body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
-.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
 h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
 .question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
 .options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
@@ -69,40 +69,202 @@ background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:bur
 to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
 }
 
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
 </style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
 </head>
 <body>
+<div id="pauseFade"></div>
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
 <div class="container" style="position:relative;">
-<h2>DREAM TO DESTINY</h2>
-<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
-<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
 <input id="jumpNo" type="number" placeholder="Question No"
 style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 <button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
 </div>
-<div id="quiz-box">
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
 <div id="q-text" class="question"></div>
 <div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
 <div id="options" class="options"></div>
 <div id="feedback"></div>
 </div>
-<div id="controls">
+<div id="controls" style="position:relative;z-index:10001;">
 <div class="controls">
-<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
-<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
-<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
 </div>
 </div>
 
-<div id="score-card" style="display:none;padding:20px;">
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
 <div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
-<div style="font-size:42px;">🏆</div>
+<div style="font-size:34px;">🏆</div>
 <h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
 <div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
 <div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
 <div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
 <div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
 <div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
@@ -112,16 +274,18 @@ style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 </div>
 
 
-<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
-border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
-box-shadow:0 2px 8px rgba(25,118,210,.12);">
-<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
-<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
-<span id="timeTaken"></span>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
 </div>
 </div>
 
-<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
 </div>
 </div>
 </div>
@@ -132,7 +296,7 @@ const data = [
   {q: "Q52. एक निश्चत दूरी को तय करने में लगने वाले समय को 25% कम करने के लिए एक धावक को अपनी चाल में कितने प्रतिशत की वृद्धि करनी चाहिए?", tag: "SSC CHSL 11/07/2024 (Shift-01)", o: ["33\\frac{1}{3}\\%", "37\\frac{1}{3}\\%", "41%", "31%"], a: 0, e: "समय में कमी = 25% = 1/4। यदि समय 4 से 3 हो गया, तो चाल 3 से 4 होनी चाहिए। वृद्धि = (1/3) × 100 = 33\\frac{1}{3}\\%。"},
   {q: "Q53. यदि A का वेतन B से 16% अधिक है, तो B का वेतन A से कितने प्रतिशत (दो दशमलव स्थानों तक) कम है?", tag: "", o: ["13.79%", "13.62%", "15.05%", "12.72%"], a: 0, e: "माना B का वेतन 100, तो A का 116। कमी = [(116-100)/116] × 100 = (16/116) × 100 = 13.79%。"},
   {q: "Q54. जनशक्ति में हुई कमी के कारण, एक कंपनी में उत्पादन में 35% की कमी आती है। मूल उत्पादन को बहाल करने के लिए काम के घंटों को कितना प्रतिशत तक बढ़ाया जाना चाहिए?", tag: "SSC CPO 11/11/2022 (Shift-01)", o: ["58.35%", "55.83%", "53.85%", "55.38%"], a: 2, e: "उत्पादन = जनशक्ति × घंटे। 35% कमी का अर्थ है 100 से 65। वापस 100 पर लाने के लिए वृद्धि = (35/65) × 100 = 53.85%。"},
-  {q: "Q55. यदि वस्तु के मूल्य में पूर्व में 25% की कटौती की गई है, तो वस्तु के नए मूल्य को उसके पूर्व मूल्य में वापस लाने के लिए कितने प्रतिशत तक की वृद्धि की जानी चाहिए?", tag: "SSC CHSL 25/05/2022 (Shift-01)", o: ["34\\frac{1}{4}\\%", "33\\frac{1}{3}\\%", "33%", "34%"], a: 1, e: "25% कटौती = 1/4 (4 से 3)। वृद्धि = (1/3) × 100 = 33\\frac{1}{3}\\%। (नोट: प्रश्न के विकल्प में 33\\frac{1}{3}\\% दिया है, जो कि सही उत्तर है)。"},
+  {q: "Q55. यदि वस्तु के मूल्य में पूर्व में 25% की कटौती की गई है, तो वस्तु के नए मूल्य को उसके पूर्व मूल्य में वापस लाने के लिए कितने प्रतिशत तक की वृद्धि की जानी चाहिए?", tag: "SSC CHSL 25/05/2022 (Shift-01)", o: ["34\\frac{1}{4}\\%", "33\\frac{1}{3}\\%", "33%", "34%"], a: 3, e: "25% कटौती = 1/4 (4 से 3)। वृद्धि = (1/3) × 100 = 33\\frac{1}{3}\\%। (नोट: प्रश्न के विकल्प में 33\\frac{1}{3}\\% दिया है, जो कि सही उत्तर है)。"},
   {q: "Q56. यदि किसी उत्पाद की कीमत में 25% की वृद्धि होती है, तो व्यय को समान रखने के लिए खपत में कितने प्रतिशत की कमी की जानी चाहिए?", tag: "SSC CHSL 28/11/2025 (Shift-01)", o: ["10%", "15%", "21%", "20%"], a: 3, e: "कीमत 100 से 125। खपत में कमी = (25/125) × 100 = 20%。"},
   {q: "Q57. चावल की कीमत में 30% की वृद्धि हो गई है। यदि कोई परिवार चाहता है कि उसका कुल खर्च पहले जैसा ही रहे, तो उसे अपने चावल के उपभोग को कितने प्रतिशत कम करना चाहिए?", tag: "RRB NTPC 23/06/2025 (Shift-02)", o: ["22.1%", "25.1%", "23.1%", "24.1%"], a: 2, e: "खपत में कमी = [r / (100+r)] × 100 = [30 / 130] × 100 = 23.07% ≈ 23.1%。"},
   {q: "Q58. यदि किसी वर्ग की भुजा में 10% की वृद्धि की जाती है तो उसके परिमाप और विकर्ण में % वृद्धि ज्ञात कीजिए", tag: "", o: ["10%, 10%", "10%, 21%", "20%, 21%", "20%, 20%"], a: 0, e: "परिमाप और विकर्ण भुजा पर रैखिक रूप से निर्भर करते हैं, इसलिए उनमें वही प्रतिशत परिवर्तन होगा जो भुजा में होगा。"},
@@ -179,7 +343,6 @@ const data = [
   {q: "Q99. एक महिला श्रमिक की मजदूरी दर में प्रति घंटे 12\\frac{1}{2}\\% की वृद्धि होती है लेकिन प्रति सप्ताह काम किए गए घंटो की संख्या में 10% की गिरावट होती है। यदि 40 घंटे के एक सप्ताह के लिए उसकी मूल साप्ताहिक मजदूरी 38,400 रुपये है, तो उसके कुल साप्ताहिक वेतन में प्रतिशत वृद्धि हैः", tag: "SSC PHASE IX 2022", o: ["1.25%", "2%", "2.25%", "1.15%"], a: 0, e: "+12.5 - 10 - (12.5 × 10 / 100) = 2.5 - 1.25 = 1.25% वृद्धि。"},
   {q: "Q100. बसीर के कार्य के दैनिक घंटे 15% बढ़ गए और उसकी मजदूरी में प्रति घंटे 20% की वृद्धि हुई। उसकी दैनिक आय में कितने प्रतिशत की वृद्धि हुई?", tag: "", o: ["40", "38", "35", "36"], a: 1, e: "15 + 20 + (15 × 20 / 100) = 35 + 3 = 38%。"}
 ];
-
 
 
 
@@ -239,7 +402,62 @@ return txt;
 }
 
 
-const startTime = Date.now();
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
+   ids.forEach(id=>{
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
 let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
 let currentStreak=0,maxStreak=0;
 let answered = new Array(data.length).fill(false);
@@ -257,6 +475,7 @@ data[currentQ].o.forEach((opt, idx) => {
 let btn = document.createElement("button");
 btn.innerHTML = formatContent(opt);
 btn.onclick = () => {
+if(isPaused) return;
 let btns = oBox.getElementsByTagName("button");
 for(let b of btns) b.disabled = true;
 if(idx === data[currentQ].a) {
@@ -340,6 +559,10 @@ function celebrate(msg,sub){
  setTimeout(()=>p.classList.remove('show'),1500);
 }
 function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
 document.getElementById('quiz-box').style.display='none';
 document.getElementById('controls').style.display='none';
 document.getElementById('jumpBox').style.display='none';
@@ -362,13 +585,16 @@ document.getElementById('wrong').innerText=wrong;
 document.getElementById('attempted').innerText=attempted;
 document.getElementById('unattempted').innerText=unattempted;
 document.getElementById('accuracy').innerText=accuracy;
-const endTime=Date.now();
-const totalSeconds=Math.floor((endTime-startTime)/1000);
-const minutes=Math.floor(totalSeconds/60);
-const seconds=totalSeconds%60;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
 document.getElementById('timeTaken').innerText=
 `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
 document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
 const overallPercent=(Math.max(0,finalScore)/data.length)*100;
 let badge='NEEDS PRACTICE',bg='#c62828';
 if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
@@ -378,13 +604,24 @@ else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
 const pb=document.getElementById('perfBadge');
 pb.innerText=badge;pb.style.background=bg;
 document.getElementById('score-card').style.display='block';
+document.querySelector('.custom-header-panel').style.display='none';
 }
-function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
-function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
-function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
 showQ();
 
 function goToQuestion(qNo){
+  if(isPaused) return;
   qNo = parseInt(qNo,10);
   if(!Number.isFinite(qNo)) return;
   if(qNo<1 || qNo>data.length){
@@ -393,8 +630,26 @@ function goToQuestion(qNo){
   }
   currentQ=qNo-1;
   showQ();
+  resetQuestionTimer();
   var j=document.getElementById('jumpNo'); if(j) j.value='';
 }
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
 </script>
 
 <script>
@@ -411,9 +666,14 @@ function upd(){
 }
 document.addEventListener('DOMContentLoaded',function(){
  upd();
- setInterval(upd,150);
 });
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
 })();
 </script>
+
 </body>
 </html>
