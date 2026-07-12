@@ -6,7 +6,7 @@
 <title>DREAM TO DESTINY - PYQ़</title>
 <style>
 body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
-.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
 h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
 .question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
 .options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
@@ -88,8 +88,8 @@ z-index:9999;
 background:#fff;
 border-radius:22px;
 padding:30px 24px;
-width:min(380px,86%);transform:scale(.9);transform-origin:center;
-min-height:280px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
 text-align:center;
 display:flex;
 flex-direction:column;
@@ -123,17 +123,112 @@ box-shadow:0 14px 28px rgba(0,0,0,.22);
 }
 
 </style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
 </head>
 <body>
 <div id="pauseFade"></div>
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
 <div class="container" style="position:relative;">
-<h2>DREAM TO DESTINY</h2>
-<div id="qBadge" style="position:absolute;top:18px;left:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
-<div id="qTimer" style="position:absolute;top:42px;left:14px;width:78px;text-align:center;background:#E8F5E9;color:#222;border:1px solid #81C784;border-radius:8px;padding:4px 4px;font:600 12px sans-serif;z-index:1000;">⚡ 00:00</div>
-<div id="liveTimer" style="position:absolute;top:10px;right:14px;width:78px;text-align:center;background:#fff3cd;border:1px solid #f0ad4e;border-radius:8px;padding:4px 4px;font:600 12px sans-serif;z-index:1000;">⏱️ 00:00</div>
-<button id="pauseBtn" type="button" style="position:absolute;top:42px;right:14px;width:90px;padding:4px 6px;border:none;border-radius:8px;background:#ff9800;color:#fff;font-size:12px;cursor:pointer;z-index:10001;">⏸️ Pause</button>
-<div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
 <input id="jumpNo" type="number" placeholder="Question No"
 style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 <button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
@@ -268,7 +363,7 @@ const data = [
     e: "1 वर्ष पहले अनुपात (B:A) = 2 : 1 (अंतर 1)<br>9 वर्ष बाद अनुपात = 4 : 3 (अंतर 1)<br>अनुपात में वृद्धि = 2 इकाई = 10 वर्ष => 1 इकाई = 5 वर्ष<br>1 वर्ष पहले: B = 10 वर्ष, A = 5 वर्ष<br>वर्तमान आयु: B = 11 वर्ष, A = 6 वर्ष<br>योग = 11 + 6 = 17 वर्ष"
   },
   {
-    q: "Q11. चार वर्ष पूर्व, रवि की आयु, काव्या की आयु की चार गुनी थी। अब से सात वर्ष बाद, रवि की आयु, काव्या की आयु की तीन गुनी होगी। उनकी वर्तमान आयु का योग ज्ञात कीजिए।",
+    q: "Q11. चार वर्ष पूर्व, रवि की आयु, काव्या की आयु की चार गुनी थी। अब से सात वर्ष बाद, रवि की आयु, काव्या की आयु की three गुनी होगी। उनकी वर्तमान आयु का योग ज्ञात कीजिए।",
     tag: "",
     o: ["118 years", "122 years", "117 years", "115 years"],
     a: 0,
@@ -406,7 +501,7 @@ return txt;
 
 
 let elapsed=0,timerRunning=true,isPaused=false;
-const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent='⏱️ '+m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
 
 let qElapsed=0;
 let questionTimes=new Array(data.length).fill(0);
@@ -417,13 +512,14 @@ setInterval(()=>{if(timerRunning){
  const s=String(qElapsed%60).padStart(2,'0');
  const qt=document.getElementById('qTimer');
  if(qt){
-   qt.textContent=(qElapsed<=30?'⚡ ':(qElapsed<=60?'⏳ ':'⌛ '))+m+':'+s;
-   if(qElapsed<=30){qt.style.background='#E8F5E9';qt.style.color='#222';qt.style.borderColor='#81C784';}
-   else if(qElapsed<=60){qt.style.background='#FFF3E0';qt.style.color='#222';qt.style.borderColor='#FFB74D';}
-   else{qt.style.background='#FFEBEE';qt.style.color='#222';qt.style.borderColor='#EF9A9A';}
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
  }
 }},1000);
-function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=(qElapsed<=30?'⚡ ':(qElapsed<=60?'⏳ ':'⌛ '))+m+':'+s;if(qElapsed<=30){qt.style.background='#E8F5E9';qt.style.borderColor='#81C784';}else if(qElapsed<=60){qt.style.background='#FFF3E0';qt.style.borderColor='#FFB74D';}else{qt.style.background='#FFEBEE';qt.style.borderColor='#EF9A9A';}qt.style.color='#222';}}
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
 
 window.addEventListener('load',()=>{
  const b=document.getElementById('pauseBtn');
@@ -432,21 +528,21 @@ window.addEventListener('load',()=>{
    e.preventDefault();
    timerRunning=!timerRunning;
    isPaused=!timerRunning;
-   this.textContent=timerRunning?'⏸️ Pause':'▶️ Resume';
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
    const fade=document.getElementById('pauseFade');
    if(fade){ fade.classList.toggle('show', !timerRunning); }
-   const ids=['backBtn','nextBtn','jumpBox','liveTimer'];
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
    ids.forEach(id=>{
-      const el=document.getElementById(id);
-      if(el) el.style.opacity=timerRunning?'1':'0.45';
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
    });
    const pm=document.getElementById('pauseModal');
    if(pm) pm.classList.toggle('show',isPaused);
-   ['liveTimer','pauseBtn','submitKeep','backBtn','nextBtn','jumpBox'].forEach(id=>{
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){
         el.style.opacity=isPaused?'0.45':'1';
-        if(id!=='liveTimer') el.style.pointerEvents=isPaused?'none':'auto';
+        el.style.pointerEvents=isPaused?'none':'auto';
       }
    });
    ['backBtn','nextBtn','jumpNo'].forEach(id=>{
@@ -605,9 +701,7 @@ else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
 const pb=document.getElementById('perfBadge');
 pb.innerText=badge;pb.style.background=bg;
 document.getElementById('score-card').style.display='block';
-document.getElementById('liveTimer').style.display='none';
-document.getElementById('qTimer').style.display='none';
-document.getElementById('pauseBtn').style.display='none';
+document.querySelector('.custom-header-panel').style.display='none';
 }
 function nextQ() {
  if(isPaused) return;
