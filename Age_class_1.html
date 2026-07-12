@@ -69,40 +69,107 @@ background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:bur
 to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
 }
 
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(380px,86%);transform:scale(.9);transform-origin:center;
+min-height:280px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
 </style>
 </head>
 <body>
+<div id="pauseFade"></div>
 <div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
 <div class="container" style="position:relative;">
 <h2>DREAM TO DESTINY</h2>
-<div id="qBadge" style="position:absolute;top:18px;right:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="qBadge" style="position:absolute;top:18px;left:18px;background:#fff;border:1px solid #1976d2;border-radius:16px;padding:3px 9px;font:600 12px sans-serif;color:#1976d2;">Q 1/1</div>
+<div id="qTimer" style="position:absolute;top:42px;left:14px;width:78px;text-align:center;background:#E8F5E9;color:#222;border:1px solid #81C784;border-radius:8px;padding:4px 4px;font:600 12px sans-serif;z-index:1000;">⚡ 00:00</div>
+<div id="liveTimer" style="position:absolute;top:10px;right:14px;width:78px;text-align:center;background:#fff3cd;border:1px solid #f0ad4e;border-radius:8px;padding:4px 4px;font:600 12px sans-serif;z-index:1000;">⏱️ 00:00</div>
+<button id="pauseBtn" type="button" style="position:absolute;top:42px;right:14px;width:90px;padding:4px 6px;border:none;border-radius:8px;background:#ff9800;color:#fff;font-size:12px;cursor:pointer;z-index:10001;">⏸️ Pause</button>
 <div id="jumpBox" style="display:flex;gap:8px;margin:10px 0 15px;">
 <input id="jumpNo" type="number" placeholder="Question No"
 style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 <button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
 </div>
-<div id="quiz-box">
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
 <div id="q-text" class="question"></div>
 <div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
 <div id="options" class="options"></div>
 <div id="feedback"></div>
 </div>
-<div id="controls">
+<div id="controls" style="position:relative;z-index:10001;">
 <div class="controls">
-<button class="nav-btn" onclick="prevQ()">⬅ पिछला</button>
-<button class="nav-btn" style="background:#388e3c;" onclick="confirmSubmit()">✅ Submit Test</button>
-<button class="nav-btn" onclick="nextQ()">अगला ➡</button>
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
 </div>
 </div>
 
-<div id="score-card" style="display:none;padding:20px;">
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
 <div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
-<div style="font-size:42px;">🏆</div>
+<div style="font-size:34px;">🏆</div>
 <h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
 <div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
 <div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
 <div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
 <div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
 <div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
@@ -112,16 +179,18 @@ style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
 </div>
 
 
-<div style="margin:18px auto 18px;max-width:220px;background:#e3f2fd;
-border:1px solid #90caf9;border-radius:14px;padding:10px 14px;text-align:center;
-box-shadow:0 2px 8px rgba(25,118,210,.12);">
-<div style="font-size:12px;font-weight:700;color:#1976d2;letter-spacing:.5px;">⏱️ TIME TAKEN</div>
-<div style="font-size:28px;font-weight:800;color:#222;margin-top:4px;">
-<span id="timeTaken"></span>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
 </div>
 </div>
 
-<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">दोबारा शुरू करें</button>
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
 </div>
 </div>
 </div>
@@ -280,6 +349,7 @@ const data = [
 
 
 
+
 function formatContent(txt){
  if(txt==null) return "";
  txt=String(txt);
@@ -334,7 +404,61 @@ return txt;
 }
 
 
-const startTime = Date.now();
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent='⏱️ '+m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=(qElapsed<=30?'⚡ ':(qElapsed<=60?'⏳ ':'⌛ '))+m+':'+s;
+   if(qElapsed<=30){qt.style.background='#E8F5E9';qt.style.color='#222';qt.style.borderColor='#81C784';}
+   else if(qElapsed<=60){qt.style.background='#FFF3E0';qt.style.color='#222';qt.style.borderColor='#FFB74D';}
+   else{qt.style.background='#FFEBEE';qt.style.color='#222';qt.style.borderColor='#EF9A9A';}
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=(qElapsed<=30?'⚡ ':(qElapsed<=60?'⏳ ':'⌛ '))+m+':'+s;if(qElapsed<=30){qt.style.background='#E8F5E9';qt.style.borderColor='#81C784';}else if(qElapsed<=60){qt.style.background='#FFF3E0';qt.style.borderColor='#FFB74D';}else{qt.style.background='#FFEBEE';qt.style.borderColor='#EF9A9A';}qt.style.color='#222';}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.textContent=timerRunning?'⏸️ Pause':'▶️ Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','liveTimer'];
+   ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['liveTimer','pauseBtn','submitKeep','backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        if(id!=='liveTimer') el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
 let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
 let currentStreak=0,maxStreak=0;
 let answered = new Array(data.length).fill(false);
@@ -352,6 +476,7 @@ data[currentQ].o.forEach((opt, idx) => {
 let btn = document.createElement("button");
 btn.innerHTML = formatContent(opt);
 btn.onclick = () => {
+if(isPaused) return;
 let btns = oBox.getElementsByTagName("button");
 for(let b of btns) b.disabled = true;
 if(idx === data[currentQ].a) {
@@ -435,6 +560,10 @@ function celebrate(msg,sub){
  setTimeout(()=>p.classList.remove('show'),1500);
 }
 function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
 document.getElementById('quiz-box').style.display='none';
 document.getElementById('controls').style.display='none';
 document.getElementById('jumpBox').style.display='none';
@@ -457,13 +586,16 @@ document.getElementById('wrong').innerText=wrong;
 document.getElementById('attempted').innerText=attempted;
 document.getElementById('unattempted').innerText=unattempted;
 document.getElementById('accuracy').innerText=accuracy;
-const endTime=Date.now();
-const totalSeconds=Math.floor((endTime-startTime)/1000);
-const minutes=Math.floor(totalSeconds/60);
-const seconds=totalSeconds%60;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
 document.getElementById('timeTaken').innerText=
 `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
 document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
 const overallPercent=(Math.max(0,finalScore)/data.length)*100;
 let badge='NEEDS PRACTICE',bg='#c62828';
 if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
@@ -473,13 +605,26 @@ else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
 const pb=document.getElementById('perfBadge');
 pb.innerText=badge;pb.style.background=bg;
 document.getElementById('score-card').style.display='block';
+document.getElementById('liveTimer').style.display='none';
+document.getElementById('qTimer').style.display='none';
+document.getElementById('pauseBtn').style.display='none';
 }
-function nextQ() { if(currentQ < data.length - 1) { currentQ++; showQ(); } }
-function prevQ() { if(currentQ > 0) { currentQ--; showQ(); } }
-function confirmSubmit(){ if(confirm('क्या आप टेस्ट सबमिट करना चाहते हैं?')) showScore(); }
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
 showQ();
 
 function goToQuestion(qNo){
+  if(isPaused) return;
   qNo = parseInt(qNo,10);
   if(!Number.isFinite(qNo)) return;
   if(qNo<1 || qNo>data.length){
@@ -488,8 +633,26 @@ function goToQuestion(qNo){
   }
   currentQ=qNo-1;
   showQ();
+  resetQuestionTimer();
   var j=document.getElementById('jumpNo'); if(j) j.value='';
 }
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
 </script>
 
 <script>
@@ -506,9 +669,21 @@ function upd(){
 }
 document.addEventListener('DOMContentLoaded',function(){
  upd();
- setInterval(upd,150);
 });
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
 })();
 </script>
+
+<script>
+window.addEventListener('beforeunload', function (e) {
+  e.preventDefault();
+  e.returnValue = '';
+});
+</script>
+
 </body>
 </html>
