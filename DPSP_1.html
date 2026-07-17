@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
+</style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
+</head>
+<body>
+<div id="pauseFade"></div>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls" style="position:relative;z-index:10001;">
+<div class="controls">
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:34px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. भारतीय संविधान के किस भाग में राज्य के नीति निर्देशक सिद्धांतों का उल्लेख किया गया है?",
+    tag: "",
+    o: [
+      "A. भाग II",
+      "B. भाग IV",
+      "C. भाग V",
+      "D. भाग III"
+    ],
+    a: 1,
+    e: "भारतीय संविधान के भाग IV में अनुच्छेद 36 से 51 तक राज्य के नीति निर्देशक सिद्धांतों (Directive Principles of State Policy) का उल्लेख किया गया है।"
+  },
+  {
+    q: "Q2. राज्य के नीति निर्देशक सिद्धांतों की मुख्य विशेषता क्या है?",
+    tag: "",
+    o: [
+      "A. ये न्यायालयों द्वारा कानूनी रूप से लागू किए जा सकते हैं।",
+      "B. ये गैर-न्यायसंगत (Non-justiciable) हैं।",
+      "C. ये नागरिकों के लिए मौलिक कर्तव्य हैं।",
+      "D. ये केवल केंद्र सरकार पर लागू होते हैं।"
+    ],
+    a: 1,
+    e: "राज्य के नीति निर्देशक सिद्धांत गैर-न्यायसंगत हैं, जिसका अर्थ है कि इन्हें न्यायालयों द्वारा कानूनी रूप से लागू नहीं कराया जा सकता है।"
+  },
+  {
+    q: "Q3. भारतीय संविधान में राज्य के नीति निर्देशक सिद्धांतों की अवधारणा किस देश के संविधान से ली गई है?",
+    tag: "",
+    o: [
+      "A. आयरलैंड",
+      "B. अमेरिका",
+      "C. ऑस्ट्रेलिया",
+      "D. कनाडा"
+    ],
+    a: 0,
+    e: "भारतीय संविधान में राज्य के नीति निर्देशक सिद्धांतों की अवधारणा आयरिश (Ireland) संविधान से ली गई है।"
+  },
+  {
+    q: "Q4. भारत सरकार अधिनियम 1935 में निहित 'अनुदेशों के साधन' (Instruments of Instructions) किसके समान हैं?",
+    tag: "",
+    o: [
+      "A. मौलिक अधिकार",
+      "B. मौलिक कर्तव्य",
+      "C. राज्य के नीति निर्देशक सिद्धांत",
+      "D. प्रस्तावना"
+    ],
+    a: 2,
+    e: "राज्य के नीति निर्देशक सिद्धांत भारत सरकार अधिनियम 1935 में निहित अनुदेशों के साधन के समान हैं।"
+  },
+  {
+    q: "Q5. राज्य के नीति निर्देशक सिद्धांतों को \"संविधान की अनूठी विशेषता\" किसने कहा था?",
+    tag: "",
+    o: [
+      "A. के.सी. व्हीयर",
+      "B. बी.एन. राव",
+      "C. बी.आर. अंबेडकर",
+      "D. के.टी. शाह"
+    ],
+    a: 2,
+    e: "डॉ. बी.आर. अंबेडकर ने राज्य के नीति निर्देशक सिद्धांतों को संविधान की अनूठी विशेषता बताया है।"
+  },
+  {
+    q: "Q6. नीति निर्देशक सिद्धांतों के संबंध में \"लक्ष्य और आकांक्षाओं का घोषणापत्र\" कथन किसका है?",
+    tag: "",
+    o: [
+      "A. के.सी. व्हीयर",
+      "B. के.टी. शाह",
+      "C. बी.एन. राव",
+      "D. जवाहरलाल नेहरू"
+    ],
+    a: 0,
+    e: "के.सी. व्हीयर ने राज्य के नीति निर्देशक सिद्धांतों को संविधान के \"लक्ष्य और आकांक्षाओं का घोषणापत्र\" कहा है।"
+  },
+  {
+    q: "Q7. \"बैंक द्वारा अपनी सुविधानुसार भुगतान योग्य चेक\" – नीति निर्देशक सिद्धांतों के बारे में यह टिप्पणी किसने की थी?",
+    tag: "",
+    o: [
+      "A. बी.आर. अंबेडकर",
+      "B. के.टी. शाह",
+      "C. बी.एन. राव",
+      "D. के.सी. व्हीयर"
+    ],
+    a: 1,
+    e: "के.टी. शाह ने राज्य के नीति निर्देशक सिद्धांतों की तुलना एक ऐसे चेक से की थी जो बैंक द्वारा अपनी सुविधानुसार भुगतान योग्य होता है।"
+  },
+  {
+    q: "Q8. राज्य के नीति निर्देशक सिद्धांतों के अंतर्गत 'राज्य की परिभाषा' किस अनुच्छेद में दी गई है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 36",
+      "B. अनुच्छेद 37",
+      "C. अनुच्छेद 38",
+      "D. अनुच्छेद 39"
+    ],
+    a: 0,
+    e: "अनुच्छेद 36 के तहत भाग IV में प्रयुक्त शब्द \"राज्य\" को परिभाषित किया गया है, और यहाँ राज्य का अर्थ मौलिक अधिकारों के अंतर्गत अनुच्छेद 12 के समान ही है।"
+  },
+  {
+    q: "Q9. संविधान का कौन सा अनुच्छेद यह निर्दिष्ट करता है कि नीति निर्देशक सिद्धांत देश के शासन के लिए मौलिक हैं और कानून बनाते समय इन्हें लागू करना राज्य का कर्तव्य है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 36",
+      "B. अनुच्छेद 38",
+      "C. अनुच्छेद 39",
+      "D. अनुच्छेद 37"
+    ],
+    a: 3,
+    e: "अनुच्छेद 37 के अनुसार, इस भाग में वर्णित सिद्धांत गैर-न्यायसंगत हैं, लेकिन ये देश के शासन के लिए मौलिक हैं और कानून तथा नीतियां बनाते समय इन सिद्धांतों को लागू करना राज्य का कर्तव्य है।"
+  },
+  {
+    q: "Q10. किस संविधान संशोधन अधिनियम द्वारा अनुच्छेद 38 में यह जोड़ा गया कि राज्य आय, स्थिति, सुविधाओं और अवसरों में असमानताओं को कम करने का प्रयास करेगा?",
+    tag: "",
+    o: [
+      "A. 42वां संशोधन, 1976",
+      "B. 44वां संशोधन, 1978",
+      "C. 86वां संशोधन, 2002",
+      "D. 97वां संशोधन, 2011"
+    ],
+    a: 1,
+    e: "44वें संविधान संशोधन अधिनियम, 1978 द्वारा अनुच्छेद 38 में यह प्रावधान जोड़ा गया कि राज्य को आय, स्थिति, सुविधाओं और अवसरों में असमानताओं को कम करना चाहिए।"
+  },
+  {
+    q: "Q11. समान न्याय और निःशुल्क कानूनी सहायता का प्रावधान किस अनुच्छेद में किया गया है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 39",
+      "B. अनुच्छेद 38",
+      "C. अनुच्छेद 39A",
+      "D. अनुच्छेद 40"
+    ],
+    a: 2,
+    e: "अनुच्छेद 39A कमजोर वर्गों हेतु समान न्याय और निःशुल्क कानूनी सहायता का प्रावधान करता है, जिसे 42वें संविधान संशोधन अधिनियम, 1976 द्वारा जोड़ा गया था।"
+  },
+  {
+    q: "Q12. ग्राम पंचायतों का गठन और उन्हें आवश्यक शक्तियां प्रदान करने का प्रावधान किस अनुच्छेद में वर्णित है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 40",
+      "B. अनुच्छेद 41",
+      "C. अनुच्छेद 42",
+      "D. अनुच्छेद 43"
+    ],
+    a: 0,
+    e: "अनुच्छेद 40 के तहत राज्य ग्राम पंचायतों का गठन करने और उन्हें स्वायत्त शासन की इकाइयों के रूप में कार्य करने योग्य बनाने के लिए शक्तियां प्रदान करने का कदम उठाएगा।"
+  },
+  {
+    q: "Q13. काम, शिक्षा और सार्वजनिक सहायता पाने का अधिकार संविधान के किस अनुच्छेद के अंतर्गत आता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 42",
+      "B. अनुच्छेद 41",
+      "C. अनुच्छेद 43",
+      "D. अनुच्छेद 44"
+    ],
+    a: 1,
+    e: "अनुच्छेद 41 के अंतर्गत कुछ दशाओं में काम, शिक्षा और सार्वजनिक सहायता पाने का अधिकार सुनिश्चित करने का प्रावधान है।"
+  },
+  {
+    q: "Q14. न्यायोचित और मानवीय कार्य स्थितियां तथा मातृत्व राहत (Maternity Relief) का प्रावधान किस अनुच्छेद में है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 41",
+      "B. अनुच्छेद 43",
+      "C. अनुच्छेद 42",
+      "D. अनुच्छेद 43A"
+    ],
+    a: 2,
+    e: "अनुच्छेद 42 के तहत राज्य काम की न्यायोचित और मानवीय परिस्थितियां सुनिश्चित करने तथा मातृत्व राहत प्रदान करने का प्रावधान करेगा।"
+  },
+  {
+    q: "Q15. उद्योगों के प्रबंधन में श्रमिकों की भागीदारी सुनिश्चित करने के लिए 42वें संविधान संशोधन 1976 द्वारा कौन सा अनुच्छेद जोड़ा गया?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 43A",
+      "B. अनुच्छेद 43B",
+      "C. अनुच्छेद 43",
+      "D. अनुच्छेद 48A"
+    ],
+    a: 0,
+    e: "अनुच्छेद 43A को 42वें संविधान संशोधन अधिनियम, 1976 द्वारा जोड़ा गया, जो उद्योगों के प्रबंधन में श्रमिकों की भागीदारी सुनिश्चित करने से संबंधित है।"
+  },
+  {
+    q: "Q16. सहकारी समितियों (Cooperative Societies) के गठन, लोकतांत्रिक प्रबंधन और व्यावसायिक नियंत्रण को बढ़ावा देने के लिए किस अनुच्छेद को जोड़ा गया था?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 43A",
+      "B. अनुच्छेद 43B",
+      "C. अनुच्छेद 48A",
+      "D. अनुच्छेद 45"
+    ],
+    a: 1,
+    e: "97वें संविधान संशोधन अधिनियम, 2011 द्वारा अनुच्छेद 43B जोड़ा गया, जो सहकारी समितियों के गठन और उनके लोकतांत्रिक प्रबंधन को बढ़ावा देने से संबंधित है।"
+  },
+  {
+    q: "Q17. भारत के पूरे क्षेत्र में नागरिकों के लिए एक समान नागरिक संहिता (Uniform Civil Code) सुरक्षित करने का निर्देश कौन सा अनुच्छेद देता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 43",
+      "B. अनुच्छेद 45",
+      "C. अनुच्छेद 44",
+      "D. अनुच्छेद 46"
+    ],
+    a: 2,
+    e: "अनुच्छेद 44 के तहत राज्य भारत के समस्त राज्य क्षेत्र में नागरिकों के लिए एक समान नागरिक संहिता सुनिश्चित करने का प्रयास करेगा।"
+  },
+  {
+    q: "Q18. 86वें संविधान संशोधन अधिनियम, 2002 द्वारा किस अनुच्छेद की विषय-वस्तु को बदलकर प्रारंभिक बाल्यावस्था देखभाल और शिक्षा (Early Childhood Care and Education) का प्रावधान किया गया?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 45",
+      "B. अनुच्छेद 46",
+      "C. अनुच्छेद 47",
+      "D. अनुच्छेद 48"
+    ],
+    a: 0,
+    e: "86वें संविधान संशोधन अधिनियम, 2002 द्वारा अनुच्छेद 45 की विषय-वस्तु को बदला गया, जिसके तहत अब राज्य छह वर्ष से कम आयु के बच्चों के लिए प्रारंभिक बाल्यावस्था देखभाल और शिक्षा प्रदान करने का प्रयास करेगा।"
+  },
+  {
+    q: "Q19. अनुसूचित जातियों (SC), अनुसूचित जनजातियों (ST) और अन्य कमजोर वर्गों के शैक्षिक and आर्थिक हितों को बढ़ावा देने का प्रावधान किस अनुच्छेद में है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 45",
+      "B. अनुच्छेद 47",
+      "C. अनुच्छेद 48",
+      "D. अनुच्छेद 46"
+    ],
+    a: 3,
+    e: "अनुच्छेद 46 के अंतर्गत राज्य समाज के कमजोर वर्गों, विशेष रूप से अनुसूचित जातियों और अनुसूचित जनजातियों के शैक्षिक और आर्थिक हितों को विशेष सावधानी से बढ़ावा देगा।"
+  },
+  {
+    q: "Q20. पोषण स्तर, जीवन स्तर को ऊपर उठाने और सार्वजनिक स्वास्थ्य (Public Health) में सुधार करने का कर्तव्य किस अनुच्छेद में निर्दिष्ट है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 47",
+      "B. अनुच्छेद 48",
+      "C. अनुच्छेद 49",
+      "D. अनुच्छेद 50"
+    ],
+    a: 0,
+    e: "अनुच्छेद 47 के तहत राज्य लोगों के पोषण स्तर और जीवन स्तर को ऊंचा करने तथा सार्वजनिक स्वास्थ्य के सुधार को अपने प्राथमिक कर्तव्यों में मानेगा।"
+  },
+  {
+    q: "Q21. गायों, बछड़ों और अन्य दुधारू पशुओं के वध पर रोक लगाने तथा कृषि और पशुपालन को वैज्ञानिक प्रणालियों से संगठित करने का प्रावधान किस अनुच्छेद में है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 47",
+      "B. अनुच्छेद 48A",
+      "C. अनुच्छेद 48",
+      "D. अनुच्छेद 49"
+    ],
+    a: 2,
+    e: "अनुच्छेद 48 के तहत कृषि और पशुपालन का संगठन करने तथा गायों, बछड़ों और अन्य दुधारू व मवेशी पशुओं के वध पर रोक लगाने का निर्देश दिया गया है।"
+  },
+  {
+    q: "Q22. पर्यावरण के संरक्षण, संवर्धन और वन तथा वन्य जीवों की रक्षा से संबंधित अनुच्छेद 48A को किस संशोधन द्वारा जोड़ा गया था?",
+    tag: "",
+    o: [
+      "A. 44वां संशोधन, 1978",
+      "B. 42वां संशोधन, 1976",
+      "C. 86वां संशोधन, 2002",
+      "D. 97वां संशोधन, 2011"
+    ],
+    a: 1,
+    e: "42वें संविधान संशोधन अधिनियम, 1976 द्वारा अनुच्छेद 48A जोड़ा गया, जो पर्यावरण के संरक्षण, सुधार तथा वन और वन्य जीवों की रक्षा से संबंधित है।"
+  },
+  {
+    q: "Q23. राष्ट्रीय महत्व के स्मारकों, स्थानों और वस्तुओं के संरक्षण का प्रावधान किस अनुच्छेद में किया गया है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 48",
+      "B. अनुच्छेद 50",
+      "C. अनुच्छेद 49",
+      "D. अनुच्छेद 51"
+    ],
+    a: 2,
+    e: "अनुच्छेद 49 के तहत राष्ट्रीय महत्व के घोषित किए गए कलात्मक या ऐतिहासिक अभिरुचि वाले प्रत्येक स्मारक, स्थान या वस्तु का संरक्षण करना राज्य की बाध्यता होगी।"
+  },
+  {
+    q: "Q24. राज्य की लोक सेवाओं में न्यायपालिका को कार्यपालिका से अलग (Separation of Judiciary from Executive) करने का निर्देश कौन सा अनुच्छेद देता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 50",
+      "B. अनुच्छेद 51",
+      "C. अनुच्छेद 49",
+      "D. अनुच्छेद 48A"
+    ],
+    a: 0,
+    e: "अनुच्छेद 50 के अंतर्गत राज्य की लोक सेवाओं में न्यायपालिका को कार्यपालिका से पृथक करने के लिए राज्य कदम उठाएगा।"
+  },
+  {
+    q: "Q25. अंतर्राष्ट्रीय शांति और सुरक्षा को बढ़ावा देने से संबंधित प्रावधान संविधान के किस अनुच्छेद में वर्णित है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 49",
+      "B. अनुच्छेद 50",
+      "C. अनुच्छेद 45",
+      "D. अनुच्छेद 51"
+    ],
+    a: 3,
+    e: "अनुच्छेद 51 के तहत राज्य अंतर्राष्ट्रीय शांति और सुरक्षा को बढ़ावा देने, राष्ट्रों के बीच न्यायसंगत संबंधों को बनाए रखने और अंतर्राष्ट्रीय विवादों को मध्यस्थता द्वारा निपटाने का प्रयास करेगा।"
+  },
+  {
+    q: "Q26. नीति निर्देशक सिद्धांतों के वर्गीकरण के अंतर्गत निम्नलिखित में से कौन से अनुच्छेद 'गांधीवादी' (Gandhian) सिद्धांतों के तहत आते हैं?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 38, 39, 39A",
+      "B. अनुच्छेद 40, 43, 43B, 46, 47, 48",
+      "C. अनुच्छेद 44, 45, 48A, 49",
+      "D. अनुच्छेद 50, 51"
+    ],
+    a: 1,
+    e: "राज्य के नीति निर्देशक सिद्धांतों का वर्गीकरण वैचारिक आधार पर समाजवादी, गांधीवादी और उदारवादी रूपों में किया जाता है, जिसमें अनुच्छेद 40, 43, 43B, 46, 47 और 48 गांधीवादी विचारधारा पर आधारित हैं।"
+  },
+  {
+    q: "Q27. नीति निर्देशक सिद्धांतों के वर्गीकरण के संदर्भ में कौन सा कथन पूरी तरह सत्य है?",
+    tag: "",
+    o: [
+      "A. यह वर्गीकरण संविधान की अनुसूची 7 में दिया गया है।",
+      "B. यह वर्गीकरण मूल संविधान के भाग IV में ही स्पष्ट रूप से किया गया है।",
+      "C. राज्य के नीति निर्देशक सिद्धांतों का समाजवादी, गांधीवादी और उदारवादी के रूप में वर्गीकरण संविधान में उल्लेखित नहीं है।",
+      "D. यह वर्गीकरण केवल आपातकाल के दौरान लागू होता है।"
+    ],
+    a: 2,
+    e: "राज्य के नीति निर्देशक सिद्धांतों का समाजवादी, गांधीवादी और उदारवादी के रूप में वर्गीकरण वैचारिक आधार पर किया जाता है, इसका संविधान में कोई प्रत्यक्ष उल्लेख नहीं है।"
+  },
+  {
+    q: "Q28. निम्नलिखित में से कौन सा अनुच्छेद 'उदारवादी' (Liberal-Intellectual) सिद्धांतों की श्रेणी में वर्गीकृत किया गया है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 41",
+      "B. अनुच्छेद 42",
+      "C. अनुच्छेद 43A",
+      "D. अनुच्छेद 45"
+    ],
+    a: 3,
+    e: "उदारवादी सिद्धांतों के वर्गीकरण के अंतर्गत अनुच्छेद 44, 45, 48A, 49, 50 और 51 को शामिल किया गया है।"
+  },
+  {
+    q: "Q29. 42वें संविधान संशोधन अधिनियम 1976 द्वारा बच्चों के स्वस्थ विकास के लिए अवसरों को सुरक्षित करने हेतु अनुच्छेद 39 में कौन सा खंड जोड़ा गया था?",
+    tag: "",
+    o: [
+      "A. 39(f)",
+      "B. 39(a)",
+      "C. 39(c)",
+      "D. 39(d)"
+    ],
+    a: 0,
+    e: "42वें संविधान संशोधन अधिनियम, 1976 द्वारा अनुच्छेद 39 के तहत खंड (f) जोड़ा गया, जो बच्चों के गरिमामय वातावरण में स्वस्थ विकास के अवसर सुनिश्चित करने से संबंधित है।"
+  },
+  {
+    q: "Q30. नीति निर्देशक सिद्धांतों के वैचारिक वर्गीकरण के अनुसार, 'समाजवादी सिद्धांतों' का मुख्य लक्ष्य क्या होता है?",
+    tag: "",
+    o: [
+      "A. पूर्णतः धार्मिक राज्य की स्थापना करना",
+      "B. विकेंद्रीकृत शासन and आत्मनिर्भरता को बढ़ावा देना",
+      "C. सामाजिक और आर्थिक कल्याण का लक्ष्य रखना, जो समानता और कल्याणकारी राज्य पर ध्यान केंद्रित करे",
+      "D. व्यक्तिगत स्वतंत्रता को प्रतिबंधित करना"
+    ],
+    a: 2,
+    e: "समाजवादी सिद्धांत सामाजिक और आर्थिक कल्याण का लक्ष्य रखते हैं, और समानता तथा कल्याणकारी राज्य की स्थापना पर ध्यान केंद्रित करते हैं।"
+  }
+];
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
+   ids.forEach(id=>{
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+if(isPaused) return;
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+document.querySelector('.custom-header-panel').style.display='none';
+}
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  if(isPaused) return;
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  resetQuestionTimer();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+});
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
+})();
+</script>
+
+</body>
+</html>

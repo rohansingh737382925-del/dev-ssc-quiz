@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
+</style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
+</head>
+<body>
+<div id="pauseFade"></div>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls" style="position:relative;z-index:10001;">
+<div class="controls">
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:34px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. 44वें संविधान संशोधन (1978) द्वारा राज्य के नीति निर्देशक सिद्धांतों के अंतर्गत किस अनुच्छेद को जोड़ा गया था?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 38",
+      "B. अनुच्छेद 45",
+      "C. अनुच्छेद 43B",
+      "D. अनुच्छेद 39(b)"
+    ],
+    a: 0,
+    e: "44वें संविधान संशोधन (1978) द्वारा अनुच्छेद 38 को जोड़ा गया, जिसका उद्देश्य असमानता को कम करना है।"
+  },
+  {
+    q: "Q2. वर्ष 2002 में हुए 86वें संविधान संशोधन द्वारा किस विषय को शामिल किया गया था?",
+    tag: "",
+    o: [
+      "A. सहकारी समितियाँ",
+      "B. असमानता को कम करना",
+      "C. प्रारंभिक बाल्यावस्था देखभाल",
+      "D. पर्यावरण की रक्षा"
+    ],
+    a: 2,
+    e: "86वें संविधान संशोधन (2002) द्वारा अनुच्छेद 45 के अंतर्गत प्रारंभिक बाल्यावस्था देखभाल को जोड़ा गया था।"
+  },
+  {
+    q: "Q3. भारतीय संविधान में 97वें संविधान संशोधन (2011) द्वारा कौन सा अनुच्छेद जोड़ा गया?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 38",
+      "B. अनुच्छेद 43B",
+      "C. अनुच्छेद 51A",
+      "D. अनुच्छेद 45"
+    ],
+    a: 1,
+    e: "97वें संविधान संशोधन (2011) द्वारा नीति निर्देशक सिद्धांतों में अनुच्छेद 43B जोड़ा गया, जो सहकारी समितियों से संबंधित है।"
+  },
+  {
+    q: "Q4. चंपकम दोराईराजन केस (1951) में उच्चतम न्यायालय ने क्या फैसला सुनाया था?",
+    tag: "",
+    o: [
+      "A. मौलिक अधिकारों में संशोधन नहीं किया जा सकता",
+      "B. नीति निर्देशक सिद्धांत मौलिक अधिकारों पर प्रभावी होंगे",
+      "C. मौलिक अधिकार, राज्य के नीति निर्देशक तत्वों पर प्रभावी होंगे",
+      "D. संसद मौलिक अधिकारों को रद्द कर सकती है"
+    ],
+    a: 2,
+    e: "चंपकम दोराईराजन केस (1951) में सुप्रीम कोर्ट ने फैसला सुनाया कि मौलिक अधिकार, राज्य के नीति निर्देशक तत्वों पर प्रभावी होंगे और मौलिक अधिकार में संशोधन किया जा सकता है।"
+  },
+  {
+    q: "Q5. किस मामले में संसद ने जवाब के रूप में 24वां संशोधन पारित किया, जिसने संसद को मूल अधिकारों में संशोधन करने का अधिकार दिया?",
+    tag: "",
+    o: [
+      "A. चंपकम दोराईराजन केस",
+      "B. मिनर्वा मिल केस",
+      "C. गोलकनाथ मामला",
+      "D. केशवानंद भारती केस"
+    ],
+    a: 2,
+    e: "गोलकनाथ मामला (1967) के जवाब में संसद ने 24वां संशोधन पारित किया, जिसने संसद को मूल अधिकारों में संशोधन करने का अधिकार दिया था।"
+  },
+  {
+    q: "Q6. गोलकनाथ मामले के फैसले में न्यायालय ने संसद को किस अधिकार से वंचित करने की बात कही थी?",
+    tag: "",
+    o: [
+      "A. आपातकाल लगाने का अधिकार",
+      "B. मौलिक अधिकार को रद्द या संशोधित करने का अधिकार",
+      "C. राज्यों की सीमा बदलने का अधिकार",
+      "D. नए टैक्स लगाने का अधिकार"
+    ],
+    a: 1,
+    e: "गोलकनाथ मामला (1967) में न्यायालय ने यह व्यवस्था दी थी कि संसद मौलिक अधिकार को रद्द या संशोधित नहीं कर सकती है।"
+  },
+  {
+    q: "Q7. केशवानंद भारती केस (1973) में कितने न्यायाधीशों की पीठ ने फैसला सुनाया था?",
+    tag: "",
+    o: [
+      "A. 9 न्यायाधीशों की",
+      "B. 11 न्यायाधीशों की",
+      "C. 13 न्यायाधीशों की",
+      "D. 7 न्यायाधीशों की"
+    ],
+    a: 2,
+    e: "केशवानंद भारती केस (1973) में 13 न्यायाधीशों की पीठ ने अपना ऐतिहासिक फैसला सुनाया था।"
+  },
+  {
+    q: "Q8. केशवानंद भारती केस (1973) के अनुसार संसद किसमें संशोधन कर सकती है, लेकिन उसके मूल ढांचे में छेड़छाड़ नहीं कर सकती?",
+    tag: "",
+    o: [
+      "A. केवल नीति निर्देशक सिद्धांतों में",
+      "B. मौलिक अधिकारों में",
+      "C. केवल नागरिकता के प्रावधानों में",
+      "D. केवल प्रस्तावना में"
+    ],
+    a: 1,
+    e: "इस मामले में न्यायालय ने सुनाया कि संसद मौलिक अधिकारों में संशोधन कर सकती है, लेकिन संविधान के मूल ढांचे में छेड़छाड़ नहीं कर सकती।"
+  },
+  {
+    q: "Q9. भारतीय संविधान के किस मामले में यह तय हुआ कि भारतीय संविधान मौलिक अधिकार और राज्य के नीति निर्देशक तत्व के बीच संतुलन की आधारशिला पर आधारित है?",
+    tag: "",
+    o: [
+      "A. मिनर्वा मिल केस (1980)",
+      "B. चंपकम दोराईराजन केस (1951)",
+      "C. गोलकनाथ मामला (1967)",
+      "D. केशवानंद भारती केस (1973)"
+    ],
+    a: 0,
+    e: "मिनर्वा मिल केस (1980) में यह स्पष्ट किया गया कि भारतीय संविधान मौलिक अधिकार और राज्य के नीति निर्देशक तत्व के बीच संतुलन की आधारशिला पर आधारित है।"
+  },
+  {
+    q: "Q10. निम्नलिखित में से कौन सा एक लक्षण मौलिक अधिकारों का है?",
+    tag: "",
+    o: [
+      "A. सकारात्मक दायित्व",
+      "B. गैर-न्यायसंगत",
+      "C. नकारात्मक दायित्व",
+      "D. कानूनी प्रतिबंधों का अभाव"
+    ],
+    a: 2,
+    e: "मौलिक अधिकार नकारात्मक दायित्व की प्रकृति के होते हैं और ये न्यायसंगत होते हैं, जबकि नीति निर्देशक सिद्धांत सकारात्मक और गैर-न्यायसंगत होते हैं।"
+  },
+  {
+    q: "Q11. भारतीय संविधान में मौलिक कर्तव्यों को किस देश के संविधान से लिया गया है?",
+    tag: "",
+    o: [
+      "A. संयुक्त राज्य अमेरिका",
+      "B. सोवियत संघ",
+      "C. ऑस्ट्रेलिया",
+      "D. आयरलैंड"
+    ],
+    a: 1,
+    e: "भारतीय संविधान में मौलिक कर्तव्यों को सोवियत संघ (USSR) से लिया गया है।"
+  },
+  {
+    q: "Q12. मौलिक कर्तव्यों के संदर्भ में कौन सा कथन सही है?",
+    tag: "",
+    o: [
+      "A. ये कानूनी रूप से लागू करने योग्य और न्यायसंगत हैं",
+      "B. ये केवल भारतीय नागरिकों पर लागू होते हैं, विदेशियों पर नहीं",
+      "C. ये मूल रूप से संविधान का हिस्सा थे",
+      "D. ये भारतीय नागरिकों और विदेशियों दोनों पर लागू होते हैं"
+    ],
+    a: 1,
+    e: "मौलिक कर्तव्य वैधानिक और गैर-प्रवर्तनीय हैं, मूल रूप से संविधान का हिस्सा नहीं थे और ये केवल भारतीय नागरिकों पर लागू होते हैं, विदेशियों पर नहीं।"
+  },
+  {
+    q: "Q13. भारतीय संविधान में किस संशोधन के माध्यम से प्रारंभिक 10 मौलिक कर्तव्य जोड़े गए थे?",
+    tag: "",
+    o: [
+      "A. 44वें संविधान संशोधन अधिनियम द्वारा",
+      "B. 86वें संविधान संशोधन अधिनियम द्वारा",
+      "C. 42वें संविधान संशोधन अधिनियम (1976) द्वारा",
+      "D. 24वें संविधान संशोधन अधिनियम द्वारा"
+    ],
+    a: 2,
+    e: "42वें संविधान संशोधन अधिनियम (1976) के माध्यम से संविधान में प्रारंभिक 10 मौलिक कर्तव्य जोड़े गए थे।"
+  },
+  {
+    q: "Q14. वर्तमान में भारतीय संविधान में कुल कितने मौलिक कर्तव्य हैं?",
+    tag: "",
+    o: [
+      "A. 10",
+      "B. 11",
+      "C. 12",
+      "D. 8"
+    ],
+    a: 1,
+    e: "संविधान में प्रारंभ में 10 मौलिक कर्तव्य जोड़े गए थे, लेकिन वर्तमान में कुल 11 मौलिक कर्तव्य हैं।"
+  },
+  {
+    q: "Q15. किस समिति ने 1976 में मौलिक कर्तव्यों का प्रस्ताव रखा था, जिसकी सिफारिश पर 42वें संशोधन द्वारा इन्हें जोड़ा गया?",
+    tag: "",
+    o: [
+      "A. वर्मा समिति",
+      "B. बलवंत राय मेहता समिति",
+      "C. स्वर्ण सिंह समिति",
+      "D. सरकारिया आयोग"
+    ],
+    a: 2,
+    e: "स्वर्ण सिंह समिति ने 1976 में मौलिक कर्तव्यों का प्रस्ताव रखा था। इस समिति की सिफारिश पर 42वें संविधान संशोधन द्वारा भाग IVA में 10 मौलिक कर्तव्य जोड़े गए थे।"
+  },
+  {
+    q: "Q16. स्वर्ण सिंह समिति ने कुल कितने मौलिक कर्तव्य जोड़े जाने का सुझाव दिया था?",
+    tag: "",
+    o: [
+      "A. 10 कर्तव्य",
+      "B. 8 कर्तव्य",
+      "C. 11 कर्तव्य",
+      "D. 6 कर्तव्य"
+    ],
+    a: 1,
+    e: "स्वर्ण सिंह समिति ने संविधान में कुल 8 मौलिक कर्तव्यों को शामिल करने का प्रस्ताव या सुझाव दिया था।"
+  },
+  {
+    q: "Q17. भारतीय संविधान में 11वां मौलिक कर्तव्य (अनुच्छेद 51A(k)) किस संविधान संशोधन के माध्यम से जोड़ा गया था?",
+    tag: "",
+    o: [
+      "A. 86वें संविधान संशोधन अधिनियम, 2002 द्वारा",
+      "B. 97वें संविधान संशोधन अधिनियम, 2011 द्वारा",
+      "C. 44वें संविधान संशोधन अधिनियम, 1978 द्वारा",
+      "D. 42वें संविधान संशोधन अधिनियम, 1976 द्वारा"
+    ],
+    a: 0,
+    e: "11वां मौलिक कर्तव्य (अनुच्छेद 51A(k)) बाद में 86वें संविधान संशोधन अधिनियम, 2002 के माध्यम से जोड़ा गया था।"
+  },
+  {
+    q: "Q18. स्वर्ण सिंह समिति द्वारा सुझाए गए कर्तव्यों में से सरकार द्वारा कितने कर्तव्यों को स्वीकार किया गया था?",
+    tag: "",
+    o: [
+      "A. 8 कर्तव्य",
+      "B. 3 कर्तव्य",
+      "C. 5 कर्तव्य",
+      "D. 10 कर्तव्य"
+    ],
+    a: 2,
+    e: "स्वर्ण सिंह समिति द्वारा दिए गए सुझावों में से 5 कर्तव्य स्वीकार किए गए थे और 3 कर्तव्य अस्वीकृत किए गए थे।"
+  },
+  {
+    q: "Q19. स्वर्ण सिंह समिति के किस अस्वीकृत सुझाव में नागरिकों पर जुर्माना लगाने की बात कही गई थी?",
+    tag: "",
+    o: [
+      "A. करों का भुगतान करने का कर्तव्य",
+      "B. कर्तव्यों का पालन न करने पर दंड लगाना",
+      "C. न्यायालय में कानूनी चुनौती पर प्रतिबंध",
+      "D. देश की रक्षा करने का कर्तव्य"
+    ],
+    a: 1,
+    e: "स्वर्ण सिंह समिति ने कर्तव्यों का पालन न करने पर दंड या जुर्माना लगाने का सुझाव दिया था, जिसे अस्वीकृत कर दिया गया था।"
+  },
+  {
+    q: "Q20. निम्नलिखित में से कौन सा एक सुझाव स्वर्ण सिंह समिति द्वारा दिया गया था परंतु उसे अस्वीकृत कर दिया गया था?",
+    tag: "",
+    o: [
+      "A. देश की रक्षा करना और आह्वान किए जाने पर राष्ट्र की सेवा करना",
+      "B. संविधान का पालन करना और उसके आदर्शों का आदर करना",
+      "C. करों (Taxes) का भुगतान करने का कर्तव्य",
+      "D. सार्वजनिक संपत्ति की सुरक्षा करना और हिंसा का परित्याग करना"
+    ],
+    a: 2,
+    e: "करों का भुगतान करने का कर्तव्य स्वर्ण सिंह समिति का एक अस्वीकृत सुझाव था, जिसे संविधान में शामिल नहीं किया गया।"
+  },
+  {
+    q: "Q21. भारतीय संविधान का कौन सा अनुच्छेद विशेष रूप से मूल कर्तव्यों से संबंधित है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 38",
+      "B. अनुच्छेद 43B",
+      "C. अनुच्छेद 45",
+      "D. अनुच्छेद 51A"
+    ],
+    a: 3,
+    e: "भारतीय संविधान के भाग IVA के अंतर्गत अनुच्छेद 51A में मूल कर्तव्यों का प्रावधान किया गया है।"
+  },
+  {
+    q: "Q22. अनुच्छेद 51A (a) के अनुसार भारत के प्रत्येक नागरिक का यह कर्तव्य होगा कि वह किसका आदर करे?",
+    tag: "",
+    o: [
+      "A. केवल राष्ट्रीय ध्वज का",
+      "B. केवल राष्ट्रगान का",
+      "C. संविधान, उसके आदर्शों, संस्थाओं, राष्ट्रीय ध्वज एवं राष्ट्रगान का",
+      "D. केवल वैज्ञानिक दृष्टिकोण का"
+    ],
+    a: 2,
+    e: "अनुच्छेद 51A (a) के अनुसार प्रत्येक नागरिक का कर्तव्य है कि वह संविधान का पालन करे तथा उसके आदर्शों, संस्थाओं, राष्ट्रीय ध्वज एवं राष्ट्रगान का आदर करे।"
+  },
+  {
+    q: "Q23. स्वतंत्रता के लिए हमारे राष्ट्रीय आंदोलन को प्रेरित करने वाले उच्च आदर्शों को संजोए रखने और उनका पालन करने का प्रावधान किस अनुच्छेद में है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (b)",
+      "B. अनुच्छेद 51A (c)",
+      "C. अनुच्छेद 51A (d)",
+      "D. अनुच्छेद 51A (e)"
+    ],
+    a: 0,
+    e: "स्वतंत्रता के लिए हमारे राष्ट्रीय आंदोलन को प्रेरित करने वाले महान आदर्शों को संजोए रखने और उनका पालन करने का कर्तव्य अनुच्छेद 51A (b) में वर्णित है।"
+  },
+  {
+    q: "Q24. भारत की संप्रभुता, एकता और अखंडता को बनाए रखना और उसकी रक्षा करना प्रत्येक नागरिक का कर्तव्य है। यह संविधान के किस उपबंध में शामिल है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (a)",
+      "B. अनुच्छेद 51A (c)",
+      "C. अनुच्छेद 51A (g)",
+      "D. अनुच्छेद 51A (i)"
+    ],
+    a: 1,
+    e: "भारत की संप्रभुता, एकता और अखंडता को बनाए रखना और उसकी रक्षा करना अनुच्छेद 51A (c) के तहत एक मूल कर्तव्य है।"
+  },
+  {
+    q: "Q25. देश की रक्षा करना और आह्वान किए जाने पर राष्ट्र की सेवा करना, किस अनुच्छेद के अंतर्गत नागरिकों का मूल कर्तव्य है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (b)",
+      "B. अनुच्छेद 51A (f)",
+      "C. अनुच्छेद 51A (d)",
+      "D. अनुच्छेद 51A (h)"
+    ],
+    a: 2,
+    e: "अनुच्छेद 51A (d) के अनुसार भारत के प्रत्येक नागरिक का यह कर्तव्य होगा कि वह देश की रक्षा करे और आह्वान किए जाने पर राष्ट्र की सेवा करे।"
+  },
+  {
+    q: "Q26. भारत के सभी लोगों में समरसता और समान भ्रातृत्व की भावना का निर्माण करना तथा महिलाओं के सम्मान के विरुद्ध प्रथाओं का त्याग करना किस अनुच्छेद में वर्णित है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (e)",
+      "B. अनुच्छेद 51A (f)",
+      "C. अनुच्छेद 51A (g)",
+      "D. अनुच्छेद 51A (h)"
+    ],
+    a: 0,
+    e: "धार्मिक, भाषाई और क्षेत्रीय या अनुभागीय विविधताओं से ऊपर उठकर समरसता और समान भाईचारे की भावना को बढ़ावा देना तथा महिलाओं के गौरव के अपमानजनक प्रथाओं का त्याग करना अनुच्छेद 51A (e) में शामिल है।"
+  },
+  {
+    q: "Q27. हमारी सामासिक संस्कृति (Composite Culture) की समृद्ध विरासत को महत्व देने और उसे संरक्षित करने का कर्तव्य किस अनुच्छेद के अंतर्गत आता है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (d)",
+      "B. अनुच्छेद 51A (f)",
+      "C. अनुच्छेद 51A (e)",
+      "D. अनुच्छेद 51A (i)"
+    ],
+    a: 1,
+    e: "हमारी समग्र या सामासिक संस्कृति की समृद्ध विरासत को महत्व देना और संरक्षित करना अनुच्छेद 51A (f) के तहत नागरिकों का मूल कर्तव्य है।"
+  },
+  {
+    q: "Q28. वनों, झीलों, नदियों और वन्य जीवन सहित प्राकृतिक पर्यावरण की रक्षा और सुधार करना तथा प्राणिमात्र के प्रति दयाभाव रखना किस अनुच्छेद के तहत अनिवार्य है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (g)",
+      "B. अनुच्छेद 51A (h)",
+      "C. अनुच्छेद 51A (i)",
+      "D. अनुच्छेद 51A (j)"
+    ],
+    a: 0,
+    e: "★ वर्तमान में 26.25% या 1/3 जैसे सामान्य भिन्न सादे पाठ में रहेंगे।<br>वन्य जीवों, वनों, झीलों और नदियों सहित प्राकृतिक पर्यावरण की रक्षा, संवर्धन तथा प्राणिमात्र के प्रति दया भाव रखना अनुच्छेद 51A (g) में वर्णित है।"
+  },
+  {
+    q: "Q29. वैज्ञानिक दृष्टिकोण, मानववाद और ज्ञानार्जन तथा सुधार की भावना का विकास करना भारतीय नागरिकों का क्या है?",
+    tag: "",
+    o: [
+      "A. मौलिक अधिकार",
+      "B. राज्य का नीति निर्देशक तत्व",
+      "C. कानूनी अधिकार",
+      "D. मूल कर्तव्य"
+    ],
+    a: 3,
+    e: "वैज्ञानिक दृष्टिकोण, मानववाद तथा अन्वेषण और सुधार की भावना का विकास करना अनुच्छेद 51A (h) के तहत एक मूल कर्तव्य है।"
+  },
+  {
+    q: "Q30. सार्वजनिक संपत्ति की सुरक्षा करना और हिंसा का परित्याग करना संविधान के किस विशिष्ट उपबंध में शामिल है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (g)",
+      "B. अनुच्छेद 51A (i)",
+      "C. अनुच्छेद 51A (j)",
+      "D. अनुच्छेद 51A (k)"
+    ],
+    a: 1,
+    e: "सार्वजनिक संपत्ति की सुरक्षा करना तथा हिंसा का परित्याग करना अनुच्छेद 51A (i) के अंतर्गत नागरिकों का मूल कर्तव्य है।"
+  },
+  {
+    q: "Q31. व्यक्तिगत और सामूहिक गतिविधियों के सभी क्षेत्रों में उत्कृष्टता की दिशा में प्रयास करने का कर्तव्य किस अनुच्छेद में दिया गया है ताकि राष्ट्र निरंतर उच्च स्तर की उपलब्धि प्राप्त कर सके?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (h)",
+      "B. अनुच्छेद 51A (i)",
+      "C. अनुच्छेद 51A (j)",
+      "D. अनुच्छेद 51A (k)"
+    ],
+    a: 2,
+    e: "व्यक्तिगत और सामूहिक गतिविधियों के सभी क्षेत्रों में उत्कृष्टता की दिशा में प्रयास करने का कर्तव्य अनुच्छेद 51A (j) के अंतर्गत आता है।"
+  },
+  {
+    q: "Q32. माता-पिता या अभिभावक का यह कर्तव्य होगा कि वे अपने बच्चे या प्रतिपाल्य को छह से चौदह वर्ष की आयु के बीच शिक्षा के अवसर प्रदान करें, यह प्रावधान किस उपखंड में है?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 51A (f)",
+      "B. अनुच्छेद 51A (g)",
+      "C. अनुच्छेद 51A (j)",
+      "D. अनुच्छेद 51A (k)"
+    ],
+    a: 3,
+    e: "माता-पिता या अभिभावक द्वारा 6 से 14 वर्ष की आयु के बच्चों को शिक्षा के अवसर प्रदान करने का कर्तव्य अनुच्छेद 51A (k) के अंतर्गत जोड़ा गया है।"
+  },
+  {
+    q: "Q33. राज्य के नीति निर्देशक सिद्धांतों और मौलिक अधिकारों के बीच टकराव के संदर्भ में, किस वर्ष के एक मामले में न्यायालय ने 25वें संशोधन की धारा 31(C) को चुनौती देने पर विचार किया था?",
+    tag: "",
+    o: [
+      "A. 1951",
+      "B. 1967",
+      "C. 1973",
+      "D. 1980"
+    ],
+    a: 2,
+    e: "केशवानंद भारती केस (1973) में 25वें संशोधन का दूसरा प्रावधान जो कानूनों की न्यायिक समीक्षा को प्रतिबंधित करता था, उसे असंवैधानिक घोषित किया गया था।"
+  },
+  {
+    q: "Q34. 25वें संशोधन द्वारा जोड़े गए अनुच्छेद 31(C) के खंड (ii) के अनुसार, नीति निर्देशक तत्वों को लागू करने वाले कानून को कहाँ चुनौती नहीं दी जा सकती थी?",
+    tag: "",
+    o: [
+      "A. संसद में",
+      "B. न्यायालय में",
+      "C. राष्ट्रपति के समक्ष",
+      "D. किसी भी राज्य की विधानसभा में"
+    ],
+    a: 1,
+    e: "अनुच्छेद 31(C) के खंड (ii) के अनुसार, नीति निर्देशक तत्वों को लागू करने वाले कानूनों को न्यायालय में सवाल नहीं उठाया जा सकता था, जिसे बाद में असंवैधानिक घोषित किया गया।"
+  },
+  {
+    q: "Q35. किस अनुच्छेद के तहत बनाए गए कानूनों को अनुच्छेद 14 और 19 के उल्लंघन के आधार पर शून्य घोषित नहीं किया जा सकता था, जैसा कि 25वें संशोधन में प्रावधान था?",
+    tag: "",
+    o: [
+      "A. अनुच्छेद 39(b) और 39(c)",
+      "B. अनुच्छेद 38 और 45",
+      "C. अनुच्छेद 43B और 48",
+      "D. अनुच्छेद 36 और 37"
+    ],
+    a: 0,
+    e: "25वें संशोधन द्वारा जोड़े गए प्रावधान के तहत अनुच्छेद 39(b) और 39(c) के नीति निर्देशक तत्वों को लागू करने वाले कानूनों को अनुच्छेद 14 और 19 के उल्लंघन के आधार पर शून्य घोषित नहीं किया जा सकता था।"
+  },
+  {
+    q: "Q36. नीति निर्देशक सिद्धांतों के क्रियान्वयन के लिए राज्य का दायित्व किस प्रकार का होता है?",
+    tag: "",
+    o: [
+      "A. नकारात्मक दायित्व",
+      "B. राजनैतिक प्रतिबंध",
+      "C. सकारात्मक दायित्व",
+      "D. कानूनी रूप से प्रवर्तनीय दायित्व"
+    ],
+    a: 2,
+    e: "नीति निर्देशक सिद्धांतों का दायित्व सकारात्मक होता है और यह सामाजिक/आर्थिक कल्याण को बढ़ावा देने पर केंद्रित होता है।"
+  },
+  {
+    q: "Q37. मौलिक अधिकार किस प्रकार के कल्याण और अधिकारों पर मुख्य रूप से ध्यान केंद्रित करते हैं?",
+    tag: "",
+    o: [
+      "A. सामूहिक कल्याण पर",
+      "B. सामाजिक और आर्थिक कल्याण पर",
+      "C. नैतिक और राजनैतिक सिद्धांतों पर",
+      "D. राजनैतिक लोकतंत्र और व्यक्तिगत कल्याण पर"
+    ],
+    a: 3,
+    e: "मौलिक अधिकार राजनैतिक लोकतंत्र पर ध्यान केंद्रित करते हैं और कानूनी प्रतिबंधों द्वारा संरक्षित व्यक्तिगत कल्याण तथा अधिकारों के प्रति उन्मुख होते हैं।"
+  },
+  {
+    q: "Q38. राज्य के नीति निर्देशक सिद्धांतों को लागू करने के लिए किसकी आवश्यकता होती है?",
+    tag: "",
+    o: [
+      "A. स्वचालित रूप से प्रवर्तनीय होने की",
+      "B. केवल न्यायालय के आदेश की",
+      "C. विधायी अधिनियमन की",
+      "D. केवल जन आंदोलन की"
+    ],
+    a: 2,
+    e: "राज्य के नीति निर्देशक सिद्धांत स्वतः लागू नहीं होते हैं, बल्कि इनके क्रियान्वयन के लिए विधायी अधिनियमन (कानून बनाने) की आवश्यकता होती है।"
+  },
+  {
+    q: "Q39. यदि कोई कानून मौलिक अधिकारों का उल्लंघन करता है, तो न्यायालय के पास क्या शक्ति होती है?",
+    tag: "",
+    o: [
+      "A. वह उस कानून को अमान्य कर सकता है",
+      "B. वह केवल संसद को सलाह दे सकता है",
+      "C. वह कानून में स्वयं संशोधन कर सकता है",
+      "D. वह उस पर विचार करने से इनकार कर सकता है"
+    ],
+    a: 0,
+    e: "न्यायालय मौलिक अधिकारों का उल्लंघन करने वाले कानूनों को अमान्य घोषित कर सकता है, जबकि नीति निर्देशक तत्वों का उल्लंघन करने वाले कानूनों को इसके आधार पर अमान्य नहीं किया जा सकता।"
+  }
+];
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
+   ids.forEach(id=>{
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+if(isPaused) return;
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+document.querySelector('.custom-header-panel').style.display='none';
+}
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  if(isPaused) return;
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  resetQuestionTimer();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+});
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
+})();
+</script>
+
+</body>
+</html>
