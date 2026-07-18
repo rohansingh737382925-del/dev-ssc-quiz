@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
+</style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
+</head>
+<body>
+<div id="pauseFade"></div>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls" style="position:relative;z-index:10001;">
+<div class="controls">
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:34px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. दो साझेदार दीपा और जिया क्रमशः 50,000 और ₹40,000 का निवेश करके एक व्यवसाय शुरु करते हैं। वर्ष के अंत में उनके लाभ का अनुपात क्या होगा?",
+    tag: "",
+    o: [
+      "(a) 5:4",
+      "(b) 3:6",
+      "(c) 4:5",
+      "(d) 6:3"
+    ],
+    a: 0,
+    e: "दीपा और जिया के निवेश का अनुपात = 50000 : 40000 = 5 : 4<br>समय समान होने के कारण लाभ का अनुपात = निवेश का अनुपात = 5 : 4"
+  },
+  {
+    q: "Q2. राजू और संजू ने ₹ 36000 और ₹ 63000 का निवेश करके एक व्यवसाय शुरु किया। ₹ 5500 के वार्षिक लाभ में से प्रत्येक का हिस्सा ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 2000,3500",
+      "(b) 2500,3500",
+      "(c) 3500,2500",
+      "(d) None of these"
+    ],
+    a: 0,
+    e: "राजू और संजू के निवेश का अनुपात = 36000 : 63000 = 4 : 7<br>कुल लाभ का अनुपात = 4 + 7 = 11 यूनिट<br>11 यूनिट = ₹ 5500<br>1 यूनिट = ₹ 500<br>राजू का हिस्सा = 4 × 500 = ₹ 2000<br>संजू का हिस्सा = 7 × 500 = ₹ 3500"
+  },
+  {
+    q: "Q3. A और B संयुक्त रूप से एक व्यवसाय शुरु करते हैं। A द्वारा किया गया निवेश B द्वारा किए गए निवेश के सात गुना के बराबर है। 2,75,000 रुपये के वार्षिक लाभ में से A का हिस्सा (रुपये में) ज्ञात कीजिए।",
+    tag: "",
+    o: [
+      "(a) 2,41,225",
+      "(b) 2,40,625",
+      "(c) 2,42,365",
+      "(d) 2,45,625"
+    ],
+    a: 1,
+    e: "माना B का निवेश = 1, तो A का निवेश = 7<br>A और B के लाभ का अनुपात = 7 : 1<br>कुल लाभ = 7 + 1 = 8 यूनिट<br>8 यूनिट = 2,75,000<br>1 यूनिट = 34,375<br>A का हिस्सा = 7 × 34,375 = ₹ 2,40,625"
+  },
+  {
+    q: "Q4. देव और तेज ने क्रमशः ₹2,450 और ₹ 1,960 का निवेश करके एक व्यवसाय शुरु किया। यदि उनके द्वारा अर्जित लाभ में देव का हिस्सा ₹ 270 है, तो उनके द्वारा मिलकर अर्जित कुल लाभ ( में) क्या है?",
+    tag: "",
+    o: [
+      "(a) 342",
+      "(b) 443",
+      "(c) 526",
+      "(d) 486"
+    ],
+    a: 3,
+    e: "देव और तेज के निवेश का अनुपात = 2450 : 1960 = 5 : 4<br>लाभ का अनुपात भी 5 : 4 होगा।<br>देव का हिस्सा = 5 यूनिट = 270<br>1 यूनिट = 54<br>कुल लाभ = 5 + 4 = 9 यूनिट = 9 × 54 = ₹ 486"
+  },
+  {
+    q: "Q5. A, B और C ने एक व्यवसाय में धनराशि का निवेश इस प्रकार किया कि A के हिस्से का 2 गुना, B के हिस्से का 4 गुना और C के हिस्से का 6 गुना सभी बराबर हैं। यदि उन्होंने 44,000 रुपये अर्जित किए, तो A का हिस्सा ज्ञात कीजिए।",
+    tag: "",
+    o: [
+      "(a) 22,000",
+      "(b) ₹12,000",
+      "(c) ₹24,000",
+      "(d) ₹20,000"
+    ],
+    a: 2,
+    e: "2A = 4B = 6C<br>A : B : C = 1/2 : 1/4 : 1/6 = 6 : 3 : 2<br>कुल लाभ = 6 + 3 + 2 = 11 यूनिट<br>11 यूनिट = 44,000<br>1 यूनिट = 4,000<br>A का हिस्सा = 6 × 4,000 = ₹ 24,000"
+  },
+  {
+    q: "Q6. A, B और C ने एक व्यवसाय की शुरुआत की A के निवेश का तिगुना B के निवेश के दोगुने तथा के निवेश के चार गुना के बराबर है। यदि कुल लाभ मे का हिस्सा ₹ 4,863 है, तो इस लाभ में A का हिस्सा ज्ञात करें।",
+    tag: "",
+    o: [
+      "(a) 7,272",
+      "(b) ₹6,484",
+      "(c) 9,726",
+      "(d) ₹8,105"
+    ],
+    a: 1,
+    e: "3A = 2B = 4C<br>A : B : C = 4 : 6 : 3<br>C का हिस्सा = 3 यूनिट = 4,863<br>1 यूनिट = 1,621<br>A का हिस्सा = 4 × 1,621 = ₹ 6,484"
+  },
+  {
+  q: "Q7. तीन साझेदार A, B और C एक व्यवसाय शुरू करते हैं। A की पूंजी का दोगुना, B की पूंजी के तीन गुना तथा C की पूंजी के चार गुना के बराबर है। वर्ष के अंत में ₹19,500 के कुल लाभ में से B का हिस्सा कितना होगा?",
+  tag: "",
+  o: [
+    "(a) ₹7,000",
+    "(b) ₹6,000",
+    "(c) ₹9,000",
+    "(d) ₹9,700"
+  ],
+  a: 1,
+  e: "प्रश्न के अनुसार:<br>2A = 3B = 4C<br><br>मान लीजिए 2A = 3B = 4C = 24<br>तब,<br>A = 12, B = 8, C = 6<br><br>लाभ का अनुपात = 12 : 8 : 6 = 6 : 4 : 3<br><br>कुल अनुपात = 6 + 4 + 3 = 13<br><br>B का हिस्सा = (4/13) × 19,500<br>= 4 × 1,500<br>= ₹6,000<br><br>अतः सही उत्तर <b>(b) ₹6,000</b> है।<br><br><b>Shortcut:</b><br>2A = 3B = 4C ⇒ A : B : C = 12 : 8 : 6 = 6 : 4 : 3<br>B का भाग = 4/(6+4+3) = 4/13<br>19,500 ÷ 13 = 1,500 ⇒ 1,500 × 4 = ₹6,000"
+},
+  {
+    q: "Q8. A, B और C एक व्यवसाय शुरु करते हैं। A कुल पूँजी का $12\\frac{1}{2}$% निवेश करता है, B शेष पूँजी का $12\\frac{1}{2}$% निवेश करता है और शेष निवेश करता है। यदि वर्ष के अंत में कुल लाभ ₹ 4,050 प्राप्त हुआ, तो का लाभ B के लाभ से कितना अधिक है।",
+    tag: "",
+    o: [
+      "(a) ₹675",
+      "(b) ₹700",
+      "(c) ₹520",
+      "(d) ₹900"
+    ],
+    a: 3,
+    e: "माना कुल पूँजी = 9 यूनिट<br>A का निवेश = 9 का $33\\frac{1}{3}$% (1/3) = 3 यूनिट<br>शेष पूँजी = 9 - 3 = 6 यूनिट<br>B का निवेश = 6 का $33\\frac{1}{3}$% (1/3) = 2 यूनिट<br>C का निवेश (शेष) = 6 - 2 = 4 यूनिट<br>A : B : C के लाभ का अनुपात = 3 : 2 : 4<br>कुल लाभ = 3 + 2 + 4 = 9 यूनिट = 4,050<br>1 यूनिट = 450<br>C का लाभ B से (4 - 2 = 2 यूनिट) अधिक है = 2 × 450 = ₹ 900"
+  },
+  {
+    q: "Q9. A और B द्वारा एक साथ किसी छोटे व्यवसाय की शुरुआत करने के लिए 15,000 निवेश किये गए। उन्हें वर्ष के अंत में ₹ 2000 का लाभ हुआ। B ने लाभ में से अपना हिस्सा ₹ 600 लिया, तो A का निवेश कितना था?",
+    tag: "",
+    o: [
+      "(a) ₹9,000",
+      "(b) ₹2,000",
+      "(c) ₹10,500",
+      "(d) ₹10,000"
+    ],
+    a: 2,
+    e: "कुल लाभ = ₹ 2,000<br>B का लाभ = ₹ 600, तो A का लाभ = 2,000 - 600 = ₹ 1,400<br>A और B के लाभ का अनुपात = 1,400 : 600 = 7 : 3<br>निवेश का अनुपात भी = 7 : 3<br>कुल निवेश = 7 + 3 = 10 यूनिट = 15,000<br>1 यूनिट = 1,500<br>A का निवेश = 7 × 1,500 = ₹ 10,500"
+  },
+  {
+    q: "Q10. अमित और दीक्षा ने मिलकर एक व्यवसाय में ₹15,700 का निवेश किया। वर्ष के अंत में, र 6,000 के कुल लाभ में से अमित का हिस्सा ₹2,100 था। अमित का निवेश कितना था?",
+    tag: "",
+    o: [
+      "(a) ₹5,495",
+      "(b) ₹26,330",
+      "(c) ₹6,545",
+      "(d) ₹6,960"
+    ],
+    a: 0,
+    e: "कुल लाभ = ₹ 6,000<br>अमित का लाभ = ₹ 2,100<br>दीक्षा का लाभ = 6,000 - 2,100 = ₹ 3,900<br>लाभ का अनुपात (अमित : दीक्षा) = 2100 : 3900 = 7 : 13<br>कुल निवेश = 7 + 13 = 20 यूनिट = 15,700<br>1 यूनिट = 785<br>अमित का निवेश = 7 × 785 = ₹ 5,495"
+  },
+  {
+    q: "Q11. अनमोल और आयुषी ने मिलकर एक व्यवसाय में र 46,600 का निवेश किया। वर्ष के अंत में, ₹ 7,500 के कुल लाभ में से अनमोल का हिस्सा ₹ 2,700 था। अनमोल का निवेश कितना था?",
+    tag: "",
+    o: [
+      "(a) ₹17,240",
+      "(b) ₹18,740",
+      "(c) ₹16,776",
+      "(d) ₹16,080"
+    ],
+    a: 2,
+    e: "कुल लाभ = ₹ 7,500<br>अनमोल का लाभ = ₹ 2,700<br>आयुषी का लाभ = 7,500 - 2,700 = ₹ 4,800<br>लाभ का अनुपात (अनमोल : आयुषी) = 2700 : 4800 = 9 : 16<br>कुल निवेश = 9 + 16 = 25 यूनिट = 46,600<br>1 यूनिट = 1,864<br>अनमोल का निवेश = 9 × 1,864 = ₹ 16,776"
+  },
+  {
+    q: "Q12 A, B और C ने एक साझेदारी में प्रवेश किया। A ने ₹ 2560 और B ने ₹ 2000 रुपये का निवेश किया। वर्ष के अत में उन्होने ₹ 1105 का लाभ अर्जित किया, जिसमें से A को ₹ 320 प्राप्त हुए। की पूँजी कितनी थी?",
+    tag: "",
+    o: [
+      "(a) ₹4,280",
+      "(b) ₹2,840",
+      "(c) 4,820",
+      "(d) 4,028"
+    ],
+    a: 0,
+    e: "A का निवेश = 2,560, A का लाभ = 320<br>लाभ और निवेश का अनुपात समान होगा क्योंकि समय समान है:<br>निवेश/लाभ = 2560/320 = 8 गुना<br>अतः कुल निवेश = कुल लाभ × 8 = 1105 × 8 = ₹ 8,840<br>C का निवेश = कुल निवेश - (A का निवेश + B का निवेश)<br>C का निवेश = 8840 - (2560 + 2000) = 8840 - 4560 = ₹ 4,280"
+  },
+  {
+    q: "Q13. A, B व C एक व्यवसाय के लिए ₹75,500 का निवेश करता है। A, B से ₹ 3,500 अधिक निवेश करता है, और B, C से ₹ 4,500 अधिक निवेश करता है, कुल लाभ ₹ 45,300 में से A को कितना प्राप्त होगा।",
+    tag: "",
+    o: [
+      "(a) 12,600",
+      "(b) ₹15,000",
+      "(c) ₹17,400",
+      "(d) ₹14,700"
+    ],
+    a: 2,
+    e: "माना C का निवेश = x<br>B का निवेश = x + 4,500<br>A का निवेश = (x + 4,500) + 3,500 = x + 8,000<br>कुल निवेश = (x + 8,000) + (x + 4,500) + x = 75,500<br>3x + 12,500 = 75,500 => 3x = 63,000 => x = 21,000 (C का निवेश)<br>A का निवेश = 29,000, B का निवेश = 25,500<br>A : B : C का अनुपात = 290 : 255 : 210 = 58 : 51 : 42<br>कुल अनुपात = 58 + 51 + 42 = 151 यूनिट<br>151 यूनिट = 45,300 => 1 यूनिट = 300<br>A का हिस्सा = 58 × 300 = ₹ 17,400"
+  },
+  {
+    q: "Q14. आशीष, ललिता और प्रणव ने क्रमशः 21:9:20 के अनुपात में निवेश करके साझेदारी में एक व्यवसाय शुरु किया। वर्ष के अंत में उन्हें ₹ 84,700 का लाभ प्राप्त हुआ, जो उनके कुल निवेश का 28% है। ललिता ने कितना निवेश ( में) किया था?",
+    tag: "",
+    o: [
+      "(a) 54,352",
+      "(b) 54,498",
+      "(c) 54,442",
+      "(d) 54,450"
+    ],
+    a: 3,
+    e: "माना कुल निवेश = X<br>X का 28% = 84,700<br>X = (84700 × 100) / 28 = 3,02,500<br>निवेश का अनुपात = 21 : 9 : 20<br>कुल यूनिट = 21 + 9 + 20 = 50 यूनिट<br>50 यूनिट = 3,02,500 => 1 यूनिट = 6,050<br>ललिता का निवेश = 9 × 6,050 = ₹ 54,450"
+  },
+  {
+    q: "Q15. विक्रम, अंजलि और राज ने क्रमशः 7 : 3 : 20 के अनुपात में निवेश करके साझेदारी में एक व्यवसाय शुरु किया। वर्ष के अंत में, उन्हें ₹ 28,800 का लाभ प्राप्त हुआ, जो उनके कुल निवेश का 25% है। अंजलि ने कितना निवेश (₹ में) किया था",
+    tag: "",
+    o: [
+      "(a) 11,472",
+      "(b) 11,564",
+      "(c) 11,520",
+      "(d) 11,682"
+    ],
+    a: 2,
+    e: "कुल निवेश का 25% = 28,800<br>कुल निवेश = 28,800 × 4 = 1,15,200<br>निवेश का अनुपात = 7 : 3 : 20<br>कुल यूनिट = 30 यूनिट = 1,15,200<br>1 यूनिट = 3,840<br>अंजलि का निवेश = 3 × 3,840 = ₹ 11,520"
+  },
+  {
+    q: "Q16. एक व्यवसाय में चार साझेदार A, B, C और D हैं। A का निवेश, D के निवेश का दो-तिहाई है। B और C बराबर राशि निवेश करते हैं, तथा का निवेश, D के निवेश का आधा है। यदि वे एक वर्ष के अंत में ₹ 137.6 लाख अर्जित करते हैं, तो A और B का कुल हिस्सा ( लाख में) ज्ञात कीजिए।",
+    tag: "",
+    o: [
+      "(a) 59.2",
+      "(b) 63.2",
+      "(c) 60.2",
+      "(d) 62.2"
+    ],
+    a: 2,
+    e: "माना D का निवेश = 6 यूनिट<br>A का निवेश = 6 × 2/3 = 4 यूनिट<br>C का निवेश = 6 / 2 = 3 यूनिट<br>B का निवेश = C का निवेश = 3 यूनिट<br>A : B : C : D = 4 : 3 : 3 : 6<br>कुल लाभ = 4 + 3 + 3 + 6 = 16 यूनिट = 137.6 लाख<br>1 यूनिट = 8.6 लाख<br>A और B का कुल हिस्सा = 4 + 3 = 7 यूनिट = 7 × 8.6 = 60.2 लाख"
+  },
+  {
+    q: "Q17. A, B और C एक भोजनालय शुरु करने के लिए निवेश करते हैं। कुल निवेश ₹ 5 लाख था। B ने A से ₹65,000 अधिक का निवेश किया और C ने B से ₹ 35,000 कम निवेश किया। यदि वर्ष के अंत में लाभ ₹15,000 था, तो लाभ में A का हिस्सा कितना (₹ में) है?",
+    tag: "",
+    o: [
+      "(a) ₹3,950",
+      "(b) ₹4,050",
+      "(c) ₹4,950",
+      "(d) 6,000"
+    ],
+    a: 1,
+    e: "माना A का निवेश = x<br>B का निवेश = x + 65,000<br>C का निवेश = (x + 65,000) - 35,000 = x + 30,000<br>कुल निवेश = x + x + 65,000 + x + 30,000 = 5,000,000 (5 लाख)<br>3x + 95,000 = 5,000,000 => 3x = 405,000 => x = 1,35,000<br>A का निवेश = 1,35,000, B का निवेश = 2,00,000, C का निवेश = 1,65,000<br>A : B : C = 135 : 200 : 165 = 27 : 40 : 33<br>कुल यूनिट = 100 यूनिट = 15,000 => 1 यूनिट = 150<br>A का लाभ = 27 × 150 = ₹ 4,050"
+  },
+  {
+    q: "Q18. एक व्यवसाय में तीन साझेदारों A, B और C में से, B की पूंजी, की पूंजी के तीन गुने और A की पूंजी के दोगुने के बीच के अंतर के आध के बराबर है। यदि वर्ष के अंत में, उन्हें 25420 रुपये का लाभ प्राप्त हुआ, तो उसमें C का हिस्सा कितना है?",
+    tag: "",
+    o: [
+      "(a) 10168",
+      "(b) 9168",
+      "(c) 8668",
+      "(d) 11668"
+    ],
+    a: 0,
+    e: "B = (3C - 2A) / 2<br>2B = 3C - 2A => 2A + 2B - 3C = 0 ----(1)<br>हम जानते हैं कि कुल लाभ A + B + C = 25,420<br>समीकरण को 2 से गुणा करने पर: 2A + 2B + 2C = 50,840 ----(2)<br>समीकरण (2) में से (1) को घटाने पर:<br>5C = 50,840 => C = 10,168"
+  },
+  {
+    q: "Q19. तीन साझेदार A, B और C एक व्यवसाय में शामिल हैं। की पूंजी, की पूंजी के तीन गुने और A की पूंजी के दोगुने के बीच के अंतर के आधे के बराबर है। यदि वर्ष के अंत में, उन्हें ₹25,415 का लाभ प्राप्त हुआ, तोट का हिस्सा (₹ में) कितना होगा?",
+    tag: "",
+    o: [
+      "(a) 10,166",
+      "(b) 9,166",
+      "(c) 11,666",
+      "(d) 8,666"
+    ],
+    a: 0,
+    e: "B = (3C - 2A) / 2<br>2B = 3C - 2A => 2A + 2B - 3C = 0<br>कुल लाभ A + B + C = 25,415<br>2 से गुणा करने पर: 2A + 2B + 2C = 50,830<br>घटाने पर: 5C = 50,830 => C = 10,166"
+  },
+  {
+    q: "Q20. X, Y और Z ने एक व्यवसाय में क्रमशः ₹4,000, ₹6000 और ₹ 8,000 का निवेश किया। उन्होंने क्रमशः 3, 2 and 4 वर्षों के लिए धनराशि का निवेश किया। यदि कुल लाभ ₹ 56,000 है, तो लाभ में Y का हिस्सा कितना है?",
+    tag: "",
+    o: [
+      "(a) ₹18,000",
+      "(b) ₹12,000",
+      "(c) 15,000",
+      "(d) ₹9,000"
+    ],
+    a: 1,
+    e: "लाभ = निवेश × समय<br>X : Y : Z = (4000 × 3) : (6000 × 2) : (8000 × 4) = 12 : 12 : 32 = 3 : 3 : 8<br>कुल लाभ = 3 + 3 + 8 = 14 यूनिट = 56,000<br>1 यूनिट = 4,000<br>Y का हिस्सा = 3 × 4,000 = ₹ 12,000"
+  },
+  {
+    q: "Q21. कविता, राकेश और शालिनी ने एक व्यवसाय में 5:8:15 के अनुपात में निवेश किया। उन्होंने अपनी पूंजी क्रमशः 8 महीने, 7 महीने और 4 महीने के लिए निवेश की। उनके लाभ का अनुपात क्या था?",
+    tag: "",
+    o: [
+      "(a) 10:14:15",
+      "(b) 13:14:15",
+      "(c) 11:14:15",
+      "(d) 12:14:15"
+    ],
+    a: 0,
+    e: "लाभ का अनुपात = (5 × 8) : (8 × 7) : (15 × 4) = 40 : 56 : 60 = 10 : 14 : 15"
+  },
+  {
+    q: "Q22. तीन साझेदारों ने एक व्यवसाय में 1:4:9 के अनुपात में निवेश किया। उन्होंने अपनी पूजी क्रमशः 4 महीने, 1 महीने और 3 महीने के लिए निवेश की। उनके लाभ का अनुपात क्या होगा?",
+    tag: "",
+    o: [
+      "(a) 5:4:27",
+      "(b) 7:4:27",
+      "(c) 3:4:27",
+      "(d) 4:4:27"
+    ],
+    a: 3,
+    e: "लाभ का अनुपात = (1 × 4) : (4 × 1) : (9 × 3) = 4:4:27"
+  },
+  {
+    q: "Q23. A, B तथा C निजी व्यापार में क्रमशः ₹40,000, ₹ 45,000 तथा ₹ 60,000 निवेश करते हैं। ये क्रमशः 5, 4 तथा 3 महीने तक व्यापार में रहे। कुल लाभ का लगभग कितना प्रतिशत भाग को प्राप्त होगा?",
+    tag: "",
+    o: [
+      "(a) 32%",
+      "(b) 36%",
+      "(c) 40%",
+      "(d) 27%"
+    ],
+    a: 0,
+    e: "A : B : C का लाभ = (40 × 5) : (45 × 4) : (60 × 3) = 200 : 180 : 180 = 10 : 9 : 9<br>कुल लाभ = 10 + 9 + 9 = 28 यूनिट<br>C का प्रतिशत = (9 / 28) × 100% = 225 / 7% ≈ 32%"
+  },
+  {
+    q: "Q24. A, B और C ने अपनी पूँजी 2:3:5 के अनुपात में लगाई। A,B और C के द्वारा निवेश की गई राशियों की अवधि (महीने में) का अनुपात 4:2:3 है। यदि C को लाभ का एक हिस्सा प्राप्त होता है जो A के हिस्से से ₹ 1,47,000 अधिक है, तो इस लाभ में B का हिस्सा ज्ञात करें।",
+    tag: "",
+    o: [
+      "(a) ₹1,26,000",
+      "(b) 1,68,000",
+      "(c) ₹1,05,000",
+      "(d) ₹1,89,000"
+    ],
+    a: 0,
+    e: "लाभ का अनुपात (A : B : C) = (2 × 4) : (3 × 2) : (5 × 3) = 8 : 6 : 15<br>C का लाभ A से अधिक है = 15 - 8 = 7 यूनिट<br>7 यूनिट = 1,47,000 => 1 यूनिट = 21,000<br>B का हिस्सा = 6 × 21,000 = ₹ 1,26,000"
+  },
+  {
+    q: "Q25. A, B और C के द्वारा लगायी गई पूँजी का अनुपात क्रमशः 4/5 : 2/3 : 5/8 है और इनके द्वारा लगाये समय का अनुपात 10:9:4 है, तो A का लाभ C के लाभ से कितना प्रतिशत ज्यादा है?",
+    tag: "",
+    o: [
+      "(a) 160%",
+      "(b) 220%",
+      "(c) 70%",
+      "(d) 95%"
+    ],
+    a: 1,
+    e: "A : B : C का लाभ = (4/5 × 10) : (2/3 × 9) : (5/8 × 4) = 8 : 6 : 2.5 = 16 : 12 : 5<br>A का लाभ C से अधिक है = 16 - 5 = 11 यूनिट<br>प्रतिशत अधिकता = (11 / 5) × 100% = 220%"
+  },
+  {
+    q: "Q26. चार दूधियों ने एक चारागाह किराए पर लिया। A ने 3 महीने के लिए 24 गायों को, B ने 5 महीने के लिए 10 गायों को, C ने 4 महीने के लिए 35 गायों को और D ने 3 महीने के लिए 21 गायों को चराया। यदि किराए में A का हिस्सा ₹720 है, तो क्षेत्र का कुल किराया ज्ञात कीजिए।",
+    tag: "",
+    o: [
+      "(a) ₹1,400",
+      "(b) ₹1,900",
+      "(c) ₹3,250",
+      "(d) ₹3,000"
+    ],
+    a: 2,
+    e: "किराए का अनुपात = (24 × 3) : (10 × 5) : (35 × 4) : (21 × 3) = 72 : 50 : 140 : 63<br>कुल किराया = 72 + 50 + 140 + 63 = 325 यूनिट<br>A का हिस्सा = 72 यूनिट = 720 => 1 यूनिट = 10<br>कुल किराया = 325 × 10 = ₹ 3,250"
+  },
+  {
+    q: "Q27. A, B तथा C ने एक चारागाह किराये पर लिया। A ने 10 बैल 7 महीने के लिए, B ने 12 बैल 5 महीने के लिए तथा C ने 15 बैल 3 महीने के लिए घास खाने के लिए रखे। यदि चारागाह का किराया रु 175 हो तो बताइए को कितना किराया देना पड़ेगा।",
+    tag: "",
+    o: [
+      "(a) 45",
+      "(b) 50",
+      "(c) 55",
+      "(d) 60"
+    ],
+    a: 0,
+    e: "किराए का अनुपात = (10 × 7) : (12 × 5) : (15 × 3) = 70 : 60 : 45<br>कुल अनुपात = 70 + 60 + 45 = 175 यूनिट<br>175 यूनिट = 175 => 1 यूनिट = 1<br>C का किराया = 45 × 1 = 45"
+  }
+];
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
+   ids.forEach(id=>{
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+if(isPaused) return;
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+document.querySelector('.custom-header-panel').style.display='none';
+}
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  if(isPaused) return;
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  resetQuestionTimer();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+});
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
+})();
+</script>
+
+</body>
+</html>
