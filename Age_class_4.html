@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
+</style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
+</head>
+<body>
+<div id="pauseFade"></div>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls" style="position:relative;z-index:10001;">
+<div class="controls">
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:34px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q59. चार मित्र A, B, C और D हैं। चार वर्ष पूर्व, A और B की आयु का अनुपात क्रमशः 4:7 था। पाँच वर्ष बाद, C और D की आयु का अनुपात 4:5 होगा। A की वर्तमान आयु D की वर्तमान आयु से 20% कम है। यदि A, B, C और D की औसत वर्तमान आयु 44 वर्ष है, तो B और C की आयु के बीच का अंतर ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 15 years",
+      "(b) 30 years",
+      "(c) 25 years",
+      "(d) 20 years"
+    ],
+    a: 2,
+    e: "माना 4 वर्ष पूर्व A और B की आयु क्रमशः 4x और 7x थी।<br>A की वर्तमान आयु = 4x + 4<br>B की वर्तमान आयु = 7x + 4<br>दिया है कि A की वर्तमान आयु D की वर्तमान आयु से 20% कम है।<br>A की वर्तमान आयु = 80% of D की वर्तमान आयु = 4/5 × D की वर्तमान आयु<br>D की वर्तमान आयु = 5/4 × (4x + 4) = 5x + 5<br>5 वर्ष बाद D की आयु = (5x + 5) + 5 = 5x + 10<br>5 वर्ष बाद C और D की आयु का अनुपात 4:5 है।<br>5 वर्ष बाद C की आयु = 4/5 × (5x + 10) = 4x + 8<br>C की वर्तमान आयु = (4x + 8) - 5 = 4x + 3<br>चारों की वर्तमान आयु का योग = 44 × 4 = 176<br>(4x + 4) + (7x + 4) + (4x + 3) + (5x + 5) = 176<br>20x + 16 = 176<br>20x = 160 ⇒ x = 8<br>B की वर्तमान आयु = 7(8) + 4 = 60 वर्ष<br>C की वर्तमान आयु = 4(8) + 3 = 35 वर्ष<br>B और C की आयु का अंतर = 60 - 35 = 25 वर्ष"
+  },
+  {
+    q: "Q60. अमिता अपनी दोस्त अमृता से 2 साल बड़ी है। अमिता के पिता अमिता से दो गुना बड़े हैं, और अमृता अपनी बहन से दो गुनी उम्र की है। अमिता के पिता और अमृता की बहन की उम्र में 43 साल का अंतर है। अमिता और अमृता की उम्र का योग (वर्षों में) क्या है?",
+    tag: "",
+    o: [
+      "(a) 54",
+      "(b) 50",
+      "(c) 64",
+      "(d) 68"
+    ],
+    a: 0,
+    e: "माना अमृता की वर्तमान आयु = x वर्ष<br>अमिता की वर्तमान आयु = x + 2 वर्ष<br>अमिता के पिता की आयु = 2(x + 2) = 2x + 4 वर्ष<br>अमृता अपनी बहन से दोगुनी उम्र की है, इसलिए बहन की आयु = x/2 वर्ष<br>पिता और बहन की आयु का अंतर 43 वर्ष है:<br>(2x + 4) - x/2 = 43<br>3x/2 + 4 = 43<br>3x/2 = 39<br>3x = 78 ⇒ x = 26<br>अमृता की आयु = 26 वर्ष<br>अमिता की आयु = 26 + 2 = 28 वर्ष<br>दोनों की आयु का योग = 28 + 26 = 54 वर्ष"
+  },
+  {
+    q: "Q61. यश और उसके पिता की आयु का योग 90 वर्ष है। जब यश की आयु उसके पिता की वर्तमान आयु के बराबर होगी, तब उसकी आयु अपने पुत्र सूरज की वर्तमान आयु की पांच गुनी होगी। जब यश की आयु उसके पिता की वर्तमान आयु के बराबर होगी, तब सूरज की आयु, यश की वर्तमान आयु से 12 वर्ष अधिक होगी। सूरज की वर्तमान आयु ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 12 yrs",
+      "(b) 18 yrs",
+      "(c) 16 yrs",
+      "(d) 15 yrs"
+    ],
+    a: 0,
+    e: "माना यश की वर्तमान आयु = y और पिता की वर्तमान आयु = f<br>y + f = 90 ⇒ f = 90 - y<br>यश को पिता की वर्तमान आयु (f) तक पहुँचने में (f - y) वर्ष लगेंगे।<br>उस समय यश की आयु = f होगी।<br>दिया है कि उस समय यश की आयु सूरज की वर्तमान आयु (s) की 5 गुनी होगी:<br>f = 5s ⇒ s = f/5<br>उस समय सूरज की आयु = s + (f - y)<br>दिया है कि उस समय सूरज की आयु, यश की वर्तमान आयु से 12 वर्ष अधिक होगी:<br>s + f - y = y + 12<br>s + f - 2y = 12<br>f/5 + f - 2y = 12<br>6f/5 - 2y = 12<br>6(90 - y)/5 - 2y = 12<br>540 - 6y - 10y = 60<br>16y = 480 ⇒ y = 30 वर्ष<br>f = 90 - 30 = 60 वर्ष<br>सूरज की वर्तमान आयु (s) = f/5 = 60/5 = 12 वर्ष"
+  },
+  {
+    q: "Q62. दो मित्रों, राम और रवि की आयु में 7 वर्ष का अंतर है। राम की माता मायादेवी की आयु, राम की आयु की तीन गुनी है और रवि की आयु अपने भाई सोहम की आयु की चार गुनी है। मायादेवी और सोहम की आयु में 65 वर्ष का अंतर है। मायादेवी की आयु (वर्षों में) ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 69",
+      "(b) 36",
+      "(c) 85",
+      "(d) 45"
+    ],
+    a: 0,
+    e: "माना राम की आयु = x वर्ष<br>चूँकि विकल्प में मायादेवी की आयु 3 का गुणज होनी चाहिए (3x), विकल्प (a) 69 लेने पर:<br>मायादेवी की आयु = 69 वर्ष ⇒ राम की आयु x = 23 वर्ष<br>रवि और राम की आयु का अंतर 7 वर्ष है। यदि रवि बड़ा है तो रवि = 23 + 7 = 30 वर्ष<br>रवि सोहम की आयु का 4 गुना है, सोहम = 30/4 = 7.5 वर्ष<br>मायादेवी और सोहम का अंतर = 69 - 7.5 = 61.5 ≠ 65<br>यदि राम बड़ा है तो रवि = 23 - 7 = 16 वर्ष<br>सोहम = 16/4 = 4 वर्ष<br>मायादेवी और सोहम का अंतर = 69 - 4 = 65 वर्ष (संतुष्ट होता है)<br>अतः मायादेवी की आयु 69 वर्ष है।"
+  },
+  {
+    q: "Q63. एक परिवार में पति, पत्नी और एक पुत्र की संयुक्त आयु 90 वर्ष है। पति सबसे बड़ा है। पति और पत्नी की आयु में अंतर उनके पुत्र की आयु का 1/3 है। 10 वर्ष बाद पुत्र की आयु उसके पिता की आयु की आधी होगी। उसकी माता की वर्तमान आयु (वर्षों में) कितनी है?",
+    tag: "",
+    o: [
+      "(a) 40",
+      "(b) 45",
+      "(c) 35",
+      "(d) 30"
+    ],
+    a: 2,
+    e: "माना पति = H, पत्नी = W, पुत्र = S<br>H + W + S = 90<br>H - W = 1/3 × S ⇒ 3H - 3 W = S<br>10 वर्ष बाद: S + 10 = 1/2 × (H + 10) ⇒ 2S + 20 = H + 10 ⇒ H = 2S + 10<br>H का मान पहले समीकरण में रखने पर:<br>(2S + 10) - W = 1/3 × S ⇒ W = 2S + 10 - S/3 = 5S/3 + 10<br>अब H + W + S = 90 में मान रखने पर:<br>(2S + 10) + (5S/3 + 10) + S = 90<br>3S + 5S/3 + 20 = 90<br>14S/3 = 70<br>14S = 210 ⇒ S = 15 वर्ष<br>W = 5(15)/3 + 10 = 25 + 10 = 35 वर्ष<br>अतः माता की वर्तमान आयु 35 वर्ष है।"
+  },
+  {
+    q: "Q64. अनिल और बीना दोस्त हैं और उनकी उम्र में 5 साल का अंतर है। अनिल के पिता, दिनेश की उम्र अनिल से तीन गुनी है और बीना की उम्र उसकी बहन, चारु से दोगुनी है। दिनेश और चारु की उम्र में 45 साल का अंतर है। यदि बीना अनिल से बड़ी है, तो दिनेश और चारु दोनों की वर्तमान उम्र का योग ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 78 years",
+      "(b) 69 years",
+      "(c) 91 years",
+      "(d) 100 years"
+    ],
+    a: 1,
+    e: "दिया है, बीना (B) - अनिल (A) = 5 ⇒ B = A + 5<br>दिनेश (D) = 3A<br>बीना = 2 × चारु (C) ⇒ C = B/2 = (A + 5)/2<br>दिनेश और चारु की उम्र का अंतर 45 वर्ष है:<br>3A - (A + 5)/2 = 45<br>6A - A - 5 = 90<br>5A = 95 ⇒ A = 19 वर्ष<br>दिनेश की आयु = 3 × 19 = 57 वर्ष<br>चारु की आयु = (19 + 5)/2 = 12 वर्ष<br>दोनों की वर्तमान आयु का योग = 57 + 12 = 69 वर्ष"
+  },
+  {
+    q: "Q65. आठ वर्ष पहले सुनीता की उम्र उसके बेटे राहुल और बेटी नेहा की वर्तमान उम्र के योग के बराबर थी। 5 वर्ष बाद नेहा और राहुल की उम्र का अनुपात 7 : 6 होगा। सुनीता का पति उससे 7 वर्ष बड़ा है और उसकी वर्तमान उम्र राहुल की वर्तमान उम्र की तीन गुना है। नेहा की वर्तमान आयु क्या है?",
+    tag: "",
+    o: [
+      "(a) 23 yrs",
+      "(b) 29 yrs",
+      "(c) 33 yrs",
+      "(d) 24 yrs"
+    ],
+    a: 0,
+    e: "माना राहुल की वर्तमान आयु = R और नेहा की वर्तमान आयु = N<br>8 वर्ष पहले सुनीता की आयु = R + N ⇒ सुनीता की वर्तमान आयु = R + N + 8<br>पति की वर्तमान आयु = सुनीता + 7 = R + N + 15<br>दिया है, पति की आयु = 3R<br>3R = R + N + 15 ⇒ 2R - N = 15 --- (i)<br>5 वर्ष बाद नेहा और राहुल की आयु का अनुपात 7:6 होगा:<br>(N + 5)/(R + 5) = 7/6 ⇒ 6N + 30 = 7R + 35 ⇒ 7R - 6N = -5 --- (ii)<br>सकरण (i) को 6 से गुणा करने पर: 12R - 6N = 90<br>समीकरण (ii) को घटाने पर: 5R = 95 ⇒ R = 19 वर्ष<br>समीकरण (i) से: 2(19) - N = 15 ⇒ 38 - N = 15 ⇒ N = 23 वर्ष<br>अतः नेहा की वर्तमान आयु 23 वर्ष है।"
+  },
+  {
+    q: "Q66. एक पिता ने अपने बेटे से कहा, \"n वर्षों पहले मैं उतना ही उम्र का था जितना अब तुम हो। मेरी वर्तमान आयु n वर्ष पहले की आपकी आयु से चार गुना है।\" यदि पिता और पुत्र की वर्तमान आयु का योग 130 वर्ष है, तो उनकी आयु का अंतर क्या है?",
+    tag: "",
+    o: [
+      "(a) 30 years",
+      "(b) 32 years",
+      "(c) 34 years",
+      "(d) 36 years"
+    ],
+    a: 0,
+    e: "माना पिता की वर्तमान आयु = F और पुत्र की वर्तमान आयु = S<br>F + S = 130<br>n वर्ष पहले पिता की आयु = F - n, जो कि S के बराबर है ⇒ F - S = n<br>n वर्ष पहले पुत्र की आयु = S - n<br>दिया है, F = 4(S - n)<br>F = 4S - 4(F - S) [चूँकि n = F - S]<br>F = 4S - 4F + 4S ⇒ 5F = 8S ⇒ F/S = 8/5<br>अनुपात का योग = 8 + 5 = 13 यूनिट = 130 वर्ष ⇒ 1 यूनिट = 10 वर्ष<br>आयु का अंतर = 8 - 5 = 3 यूनिट = 3 × 10 = 30 वर्ष"
+  },
+  {
+    q: "Q67. माँ और उसके बेटे की वर्तमान आयु का अनुपात 6 : 1 है। जब बेटे की आयु, उसकी माँ की वर्तमान आयु के बराबर होगी, तो उसके पिता की आयु और उसकी माँ की आयु का अनुपात 13 : 11 होगा। जब बेटे की आयु, उसके पिता की वर्तमान आयु के बराबर होगी, तो पिता और बेटे की आयु का योगफल 115 वर्ष होगा। पिता की वर्तमान आयु ज्ञात करें.",
+    tag: "",
+    o: [
+      "(a) 40 years",
+      "(b) 42 years",
+      "(c) 45 years",
+      "(d) 44 years"
+    ],
+    a: 0,
+    e: "माना माँ की वर्तमान आयु = 6x, बेटे की वर्तमान आयु = 1x<br>बेटे को माँ की आयु (6x) तक पहुँचने में 5x वर्ष लगेंगे।<br>5x वर्ष बाद माँ की आयु = 6x + 5x = 11x<br>उस समय पिता और माँ की आयु का अनुपात 13:11 है, अतः पिता की आयु = 13x होगी।<br>पिता की वर्तमान आयु = 13x - 5x = 8x<br>बेटे को पिता की वर्तमान आयु (8x) तक पहुँचने में (8x - 1x) = 7x वर्ष लगेंगे।<br>7x वर्ष बाद पिता की आयु = 8x + 7x = 15x<br>7x वर्ष बाद बेटे की आयु = 1x + 7x = 8x<br>दोनों की आयु का योग = 15x + 8x = 23x = 115 वर्ष ⇒ x = 5<br>पिता की वर्तमान आयु = 8x = 8 × 5 = 40 वर्ष"
+  },
+  {
+    q: "Q68. सोनिया की शादी 15 वर्ष पहले हुई थी। उसकी वर्तमान आयु उसकी शादी के समय की आयु का 8/5 गुना है। उसकी शादी के समय उसकी बहन उससे 8 वर्ष छोटी थी। उसकी बहन की वर्तमान आयु ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 24 years",
+      "(b) 32 years",
+      "(c) 28 years",
+      "(d) 40 years"
+    ],
+    a: 1,
+    e: "माना शादी के समय सोनिया की आयु = x वर्ष<br>वर्तमान आयु = x + 15 वर्ष<br>दिया है, x + 15 = 8/5 × x<br>5x + 75 = 8x ⇒ 3x = 75 ⇒ x = 25 वर्ष<br>सोनिया की वर्तमान आयु = 25 + 15 = 40 वर्ष<br>शादी के समय बहन सोनिया से 8 वर्ष छोटी थी, तो वह हमेशा 8 वर्ष छोटी रहेगी।<br>बहन की वर्तमान आयु = 40 - 8 = 32 वर्ष"
+  },
+  {
+    q: "Q69. सोनिया का विवाह 10 वर्ष पूर्व हुआ था। उसकी वर्तमान आयु, विवाह के समय उसकी आयु की 7/5 गुना है। विवाह के समय उसकी बहन उससे 5 वर्ष छोटी थी। उसकी बहन की वर्तमान आयु ज्ञात कीजिए.",
+    tag: "",
+    o: [
+      "(a) 25 years",
+      "(b) 35 years",
+      "(c) 30 years",
+      "(d) 48 years"
+    ],
+    a: 2,
+    e: "माना विवाह के समय सोनिया की आयु = x वर्ष<br>वर्तमान आयु = x + 10 वर्ष<br>x + 10 = 7/5 × x ⇒ 5x + 50 = 7x ⇒ 2x = 50 ⇒ x = 25 वर्ष<br>सोनिया की वर्तमान आयु = 25 + 10 = 35 वर्ष<br>बहन की वर्तमान आयु = 35 - 5 = 30 वर्ष"
+  },
+  {
+    q: "Q70. P की शादी 15 वर्ष पहले हुई थी। आज उसकी आयु उसके विवाह के समय की आयु का 1\\frac{3}{5} गुना है। वर्तमान में उसके पुत्र की आयु उसकी आयु का 1/5 है। 4 वर्ष पूर्व उसके पुत्र की आयु उस समय P की आयु के भिन्न के रूप में कितनी थी?",
+    tag: "",
+    o: [
+      "(a) 1/9",
+      "(b) 1/8",
+      "(c) 5/9",
+      "(d) 10"
+    ],
+    a: 0,
+    e: "1\\frac{3}{5} = 8/5<br>माना विवाह के समय P की आयु = 5x, वर्तमान आयु = 8x<br>अंतर = 3x = 15 वर्ष ⇒ x = 5<br>P की वर्तमान आयु = 8 × 5 = 40 वर्ष<br>पुत्र की वर्तमान आयु = 40 × 1/5 = 8 वर्ष<br>4 वर्ष पूर्व पुत्र की आयु = 8 - 4 = 4 वर्ष<br>4 वर्ष पूर्व P की आयु = 40 - 4 = 36 वर्ष<br>अभीष्ट भिन्न = 4/36 = 1/9"
+  },
+  {
+    q: "Q71. मोनिका की शादी 20 वर्ष पहले हुई थी। आज उसकी उम्र शादी के समय की उम्र से 71\\frac{3}{7}% अधिक है। उसके पुत्र की आयु उसकी वर्तमान आयु का 37\\frac{1}{2}% है। उसके पुत्र की उम्र कितनी है?",
+    tag: "",
+    o: [
+      "(a) 12 years",
+      "(b) 13 years",
+      "(c) 14 years",
+      "(d) 18 years"
+    ],
+    a: 3,
+    e: "71\\frac{3}{7}% = 5/7<br>माना शादी के समय आयु = 7x, वर्तमान आयु = 7x + 5x = 12x<br>अंतर = 5x = 20 वर्ष ⇒ x = 4<br>मोनिका की वर्तमान आयु = 12 × 4 = 48 वर्ष<br>पुत्र की आयु = 48 का 37\\frac{1}{2}% = 48 × 3/8 = 18 वर्ष"
+  },
+  {
+    q: "Q72. पति और पत्नी की वर्तमान आयु का अनुपात 5: 4 है। 6 वर्ष बाद उनकी आयु का अनुपात 6 : 5 हो जाएगा। उनकी शादी के समय उनकी आयु का अनुपात 4:3 था। उन्होंने कितने वर्ष पहले शादी की?",
+    tag: "",
+    o: [
+      "(a) 8 yrs",
+      "(b) 10 yrs",
+      "(c) 6 yrs",
+      "(d) 4 yrs"
+    ],
+    a: 2,
+    e: "वर्तमान अनुपात = 5 : 4<br>6 वर्ष बाद अनुपात = 6 : 5<br>दोनों अनुपातों में अंतर (6-5 = 1 और 5-4 = 1) समान है।<br>1 यूनिट = 6 वर्ष<br>पति की वर्तमान आयु = 5 × 6 = 30 वर्ष<br>पत्नी की वर्तमान आयु = 4 × 6 = 24 वर्ष<br>शादी के समय का अनुपात = 4 : 3<br>माना उन्होंने 't' वर्ष पहले शादी की:<br>(30 - t)/(24 - t) = 4/3<br>90 - 3t = 96 - 4t<br>t = 6 वर्ष"
+  },
+  {
+    q: "Q73. हरीश और उसकी पत्नी लता की वर्तमान आयु का अनुपात 4 : 3 है। 4 वर्ष बाद यह अनुपात 9: 7 हो जाएगा। यदि विवाह के समय अनुपात 5 : 3 था, तो उनका विवाह कितने वर्ष पहले हुआ था?",
+    tag: "",
+    o: [
+      "(a) 10 years",
+      "(b) 25 years",
+      "(c) 12 years",
+      "(d) 8 years"
+    ],
+    a: 2,
+    e: "वर्तमान अनुपात = 4 : 3 (अंतर = 1, इसे 2 से गुना करने पर = 8 : 6)<br>4 वर्ष बाद अनुपात = 9 : 7 (अंतर = 2)<br>8 से 9 और 6 से 7 में अंतर = 1 यूनिट = 4 वर्ष<br>हरीश की वर्तमान आयु = 8 × 4 = 32 वर्ष<br>लता की वर्तमान आयु = 6 × 4 = 24 वर्ष<br>माना विवाह t वर्ष पहले हुआ था:<br>(32 - t)/(24 - t) = 5/3<br>96 - 3t = 120 - 5t<br>2t = 24 ⇒ t = 12 वर्ष"
+  },
+  {
+    q: "Q74. यदि अरुण की वर्तमान आयु में से 6 वर्ष घटाकर शेष को 18 से विभाजित किया जाए, तो उसके पोते गोकुल की वर्तमान आयु प्राप्त होती है। यदि गोकुल मदन से 2 वर्ष छोटा है जिसकी आयु 5 वर्ष है, तो अरुण की आयु कितनी है?",
+    tag: "",
+    o: [
+      "(a) 72 years",
+      "(b) 54 years",
+      "(c) 60 years",
+      "(d) 47 years"
+    ],
+    a: 2,
+    e: "मदन की आयु = 5 वर्ष<br>गोकुल मदन से 2 वर्ष छोटा है, तो गोकुल की आयु = 5 - 2 = 3 वर्ष<br>माना अरुण की आयु = A<br>प्रश्न से: (A - 6)/18 = 3<br>A - 6 = 54<br>A = 60 वर्ष"
+  },
+  {
+    q: "Q75. यदि अरुण की वर्तमान आयु में से 5 वर्ष घटा दिए जाएँ और शेषफल को 12 से विभाजित किया जाए, तो उसके पोते गोकुल की वर्तमान आयु प्राप्त होती है। यदि गोकुल, मदन से 3 वर्ष छोटा है जिसकी आयु 8 वर्ष है, तो अरुण की वर्तमान आयु क्या है?",
+    tag: "",
+    o: [
+      "(a) 65 years",
+      "(b) 55 years",
+      "(c) 60 years",
+      "(d) 40 years"
+    ],
+    a: 0,
+    e: "मदन की आयु = 8 वर्ष<br>गोकुल की आयु = 8 - 3 = 5 वर्ष<br>माना अरुण की आयु = A<br>प्रश्न से: (A - 5)/12 = 5<br>A - 5 = 60<br>A = 65 वर्ष"
+  },
+  {
+    q: "Q76. छः वर्ष पहले अनीता की आयु बेन की आयु की P गुनी थी। यदि अनीता अभी 17 वर्ष की है, तो P के संदर्भ में बेन की आयु कितनी है?",
+    tag: "",
+    o: [
+      "(a) 11/(P+6)",
+      "(b) P/(11+6)",
+      "(c) (17-P)/6",
+      "(d) (11+6P)/P"
+    ],
+    a: 3,
+    e: "अनीता की वर्तमान आयु = 17 वर्ष<br>6 वर्ष पहले अनीता की आयु = 17 - 6 = 11 वर्ष<br>माना बेन की वर्तमान आयु = B, तो 6 वर्ष पहले बेन की आयु = B - 6<br>प्रश्न से: 11 = P × (B - 6)<br>11/P = B - 6<br>B = 11/P + 6 = (11 + 6P)/P"
+  },
+  {
+    q: "Q77. आठ वर्ष पूर्व, अनीता की आयु बेन की आयु की P गुना थी। यदि अनीता अब 23 वर्ष की है, तो P के पदों में बेन की वर्तमान आयु कितनी है?",
+    tag: "",
+    o: [
+      "(a) (15+8P)/P",
+      "(b) (11+8P)/P",
+      "(c) (14P+7P)/P",
+      "(d) (13+5P)/P"
+    ],
+    a: 0,
+    e: "अनीता की वर्तमान आयु = 23 वर्ष<br>8 वर्ष पहले अनीता की आयु = 23 - 8 = 15 वर्ष<br>माना बेन की वर्तमान आयु = B, तो 8 वर्ष पहले बेन की आयु = B - 8<br>प्रश्न से: 15 = P × (B - 8)<br>15/P = B - 8<br>B = 15/P + 8 = (15 + 8P)/P"
+  },
+  {
+    q: "Q78. पाँच वर्ष पहले, A की आयु B की आयु से तीन गुना थी। दस वर्ष पहले A की आयु C की आयु से आधी थी। अगर 'c' C की वर्तमान आयु दर्शाता है, निम्नलिखित में से कौन-सा विकल्प B की वर्तमान आयु दर्शाता है?",
+    tag: "",
+    o: [
+      "(a) 3c-5",
+      "(b) c/6+5",
+      "(c) 5c/(3-10)",
+      "(d) (c-10)/3"
+    ],
+    a: 1,
+    e: "C की वर्तमान आयु = c<br>10 वर्ष पहले C की आयु = c - 10<br>10 वर्ष पहले A की आयु = 1/2 × (c - 10)<br>A की वर्तमान आयु = 1/2 × (c - 10) + 10 = c/2 + 5<br>5 वर्ष पहले A की आयु = (c/2 + 5) - 5 = c/2<br>दिया है, 5 वर्ष पहले A की आयु B की 5 वर्ष पहले की आयु की 3 गुना थी:<br>c/2 = 3 × (B - 5)<br>c/6 = B - 5<br>B = c/6 + 5"
+  },
+  {
+  q: "Q79. सुजाता की वर्तमान आयु का 5 गुना वनिता की वर्तमान आयु के 2 गुना से 5 वर्ष अधिक है। 4 वर्ष बाद, वनिता की आयु का 3 गुना सुजाता की आयु के 5 गुना से 8 वर्ष कम होगा। वनिता की आयु सुजाता की आयु से k वर्ष अधिक है। k का मान क्या है?",
+  tag: "",
+  o: [
+    "(a) 2",
+    "(b) 3",
+    "(c) 4",
+    "(d) 5"
+  ],
+  a: 0,
+  e: "माना सुजाता की वर्तमान आयु = S वर्ष तथा वनिता की वर्तमान आयु = V वर्ष।<br>प्रश्नानुसार:<br>5S = 2V + 5 ⇒ 5S - 2V = 5 &nbsp;...(i)<br><br>4 वर्ष बाद:<br>3(V + 4) = 5(S + 4) - 8<br>3V + 12 = 5S + 20 - 8<br>3V + 12 = 5S + 12<br>⇒ 5S = 3V &nbsp;...(ii)<br><br>अब (ii) को (i) में रखने पर:<br>3V - 2V = 5<br>⇒ V = 5 वर्ष<br><br>5S = 3 × 5 = 15<br>⇒ S = 3 वर्ष<br><br>अतः,<br>k = V - S = 5 - 3 = 2 वर्ष।<br><br><b>Shortcut:</b><br>दूसरी शर्त से सीधे 5S = 3V प्राप्त होता है। इसे पहली शर्त में रखने पर:<br>3V = 2V + 5 ⇒ V = 5 ⇒ S = 3 ⇒ k = 2।"
+},
+  {
+    q: "Q80. सुजाता की वर्तमान आयु का 4 गुना वनिता की वर्तमान आयु के 2 गुने से 4 वर्ष अधिक है। 5 वर्ष बाद, वनिता की आयु का 3 गुना सुजाता की आयु के 4 गुने से 3 वर्ष कम होगा। वनिता की आयु सुजाता की आयु से k वर्ष अधिक है। k का मान क्या है?",
+    tag: "",
+    o: [
+      "(a) 2",
+      "(b) 3",
+      "(c) 4",
+      "(d) 5"
+    ],
+    a: 0,
+    e: "माना सुजाता की वर्तमान आयु = S और वनिता की वर्तमान आयु = V<br>4S = 2V + 4 ⇒ 4S - 2V = 4 ⇒ 2S - V = 2 --- (i)<br>5 वर्ष बाद:<br>3(V + 5) = 4(S + 5) - 3<br>3V + 15 = 4S + 20 - 3<br>3V + 15 = 4S + 17 ⇒ 4S - 3V = -2 --- (ii)<br>समीकरण (i) से V = 2S - 2, इसे (ii) में रखने पर:<br>4S - 3(2S - 2) = -2<br>4S - 6S + 6 = -2<br>-2S = -8 ⇒ S = 4 वर्ष<br>V = 2(4) - 2 = 6 वर्ष<br>अंतर k = V - S = 6 - 4 = 2"
+  },
+  {
+    q: "Q81. अनन्या और ऋषभ की आयु का अनुपात 5: 6 है। यदि अनन्या की एक-तिहाई आयु और ऋषभ की आधी आयु का अनुपात भी 5:9 है, तो ऋषभ की वर्तमान आयु क्या है?",
+    tag: "",
+    o: [
+      "(a) 28 yrs",
+      "(b) 23 yrs",
+      "(c) 36 yrs",
+      "(d) Cannot be determined"
+    ],
+    a: 3,
+    e: "माना अनन्या की आयु = 5x और ऋषभ की आयु = 6x<br>अनन्या की एक-तिहाई आयु = 5x/3<br>ऋषभ की आधी आयु = 6x/2 = 3x<br>इनका अनुपात = (5x/3) / 3x = 5/9 = 5/9<br>यह अनुपात x के हर मान के लिए समान रहेगा, जिससे x का कोई निश्चित मान ज्ञात नहीं किया जा सकता।<br>अतः ऋषभ की वर्तमान आयु निर्धारित नहीं की जा सकती (Cannot be determined)।"
+  },
+  {
+  q: "Q82. एक पिता और पुत्र की आयु के योगफल और अंतर का अनुपात 11 : 3 है। विचार करें:<br>1. उनकी आयु का अनुपात 8 : 5 है।<br>2. पुत्र का उसकी वर्तमान आयु के दुगुनी आयु का हो जाने पर उनकी आयु का अनुपात 11 : 8 होगा।<br>कौन-सा/से कथन सही है/हैं?",
+  tag: "",
+  o: [
+    "(a) 1 only",
+    "(b) 2 only",
+    "(c) Both 1 and 2",
+    "(d) Neither 1 nor 2"
+  ],
+  a: 2,
+  e: "माना पिता की आयु = F तथा पुत्र की आयु = S।<br>प्रश्नानुसार:<br>(F + S) : (F - S) = 11 : 3<br><br>माना,<br>F + S = 11x तथा F - S = 3x<br><br>दोनों समीकरण जोड़ने पर:<br>2F = 14x ⇒ F = 7x<br>घटाने पर:<br>2S = 8x ⇒ S = 4x<br><br>अतः वर्तमान आयु का अनुपात = 7 : 4 होगा। इसलिए कथन 1 (8 : 5) गलत है।<br><br>अब जब पुत्र अपनी वर्तमान आयु का दुगुना हो जाएगा, तब बीता समय = S = 4x वर्ष।<br><br>उस समय:<br>पिता की आयु = 7x + 4x = 11x<br>पुत्र की आयु = 4x + 4x = 8x<br><br>अतः नया अनुपात = 11 : 8 होगा। इसलिए कथन 2 सही है।<br><br>सही उत्तर: (b) केवल 2।<br><br><b>Shortcut:</b><br>योग : अंतर = 11 : 3 होने पर<br>पिता = (11 + 3)/2 = 7 भाग<br>पुत्र = (11 - 3)/2 = 4 भाग।<br>पुत्र के दुगुना होने तक 4 भाग समय बीतेगा, तब अनुपात 11 : 8 बन जाएगा।"
+},
+  {
+    q: "Q83. प्रिया की आयु चार वर्ष पहले एक पूर्णांक संख्या (1 से भिन्न) का घन थी तथा चार वर्ष बाद एक पूर्णांक संख्या का वर्ग थी। उसे कितने समय तक प्रतीक्षा करनी चाहिए ताकि उसकी आयु पिछले वर्ष की एक संख्या का वर्ग तथा अगले वर्ष की एक संख्या का घन हो जाए?",
+    tag: "",
+    o: [
+      "(a) 7 years",
+      "(b) 12 years",
+      "(c) 14 years",
+      "(d) 21 years"
+    ],
+    a: 2,
+    e: "माना प्रिया की वर्तमान आयु = A<br>A - 4 = x³ और A + 4 = y²<br>यदि x = 2 लें, तो A - 4 = 8 ⇒ A = 12 वर्ष<br>तो A + 4 = 16 = 4² (संतुष्ट होता है)<br>अतः प्रिया की वर्तमान आयु 12 वर्ष है।<br>अब हमें वह आयु चाहिए जहाँ (आयु - 1) = वर्ग हो और (आयु + 1) = घन हो।<br>हम जानते हैं कि 26 ऐसी संख्या है जिसके पहले 25 (5²) है और बाद में 27 (3³) है।<br>प्रिया की आयु 26 वर्ष होने के लिए प्रतीक्षा समय = 26 - 12 = 14 वर्ष"
+  },
+  {
+    q: "Q84. एक महिला की आयु दो अंकों का एक पूर्णांक है। इस पूर्णांक के अंकों का स्थान बदल देने पर नया पूर्णांक उसके पति, जो कि उससे बड़े हैं, की आयु बन जाता है। उनकी आयु का अंतर, उनकी आयु के योगफल का ग्यारहवाँ हिस्सा है। उनकी आयु का अंतर क्या है?",
+    tag: "",
+    o: [
+      "(a) 8 years",
+      "(b) 9 years",
+      "(c) 10 years",
+      "(d) 11 years"
+    ],
+    a: 1,
+    e: "माना महिला की आयु = 10x + y, तो पति की आयु = 10y + x (जहाँ y > x)<br>अंतर = (10y + x) - (10x + y) = 9(y - x)<br>योगफल = (10y + x) + (10x + y) = 11(x + y)<br>दिया है, अंतर = 1/11 × योगफल<br>9(y - x) = 1/11 × 11(x + y)<br>9y - 9x = x + y ⇒ 8y = 10x ⇒ 4y = 5x ⇒ x/y = 4/5<br>चूँकि x और y एकल अंक हैं, x = 4 और y = 5<br>महिला की आयु = 45 वर्ष, पति की आयु = 54 वर्ष<br>उनकी आयु का अंतर = 54 - 45 = 9 वर्ष"
+  },
+  {
+  q: "Q85. दिव्या की उम्र श्रुति से दोगुनी है। उनकी आयु में कितना अंतर है?<br><br>कथन:<br>I. पाँच वर्ष बाद उनकी आयु का अनुपात 9 : 5 होगा।<br>II. दस वर्ष पहले उनकी आयु का अनुपात 3 : 1 था।",
+  tag: "",
+  o: [
+    "(a) केवल II पर्याप्त है जबकि I पर्याप्त नहीं है",
+    "(b) केवल I या केवल II में से कोई एक पर्याप्त है",
+    "(c) I और II दोनों पर्याप्त नहीं हैं",
+    "(d) I और II दोनों आवश्यक हैं"
+  ],
+  a: 1,
+  e: "माना वर्तमान आयु:<br>दिव्या = 2x तथा श्रुति = x<br>अंतर = x<br><br><b>कथन I:</b><br>5 वर्ष बाद:<br>(2x + 5) : (x + 5) = 9 : 5<br>5(2x + 5) = 9(x + 5)<br>10x + 25 = 9x + 45<br>x = 20<br>अंतर = 20 वर्ष।<br>अतः केवल कथन I से उत्तर ज्ञात हो जाता है।<br><br><b>कथन II:</b><br>10 वर्ष पहले:<br>(2x - 10) : (x - 10) = 3 : 1<br>2x - 10 = 3(x - 10)<br>2x - 10 = 3x - 30<br>x = 20<br>अंतर = 20 वर्ष।<br>अतः केवल कथन II से भी उत्तर ज्ञात हो जाता है।<br><br>इसलिए सही उत्तर है <b>(b) केवल I या केवल II में से कोई एक पर्याप्त है।</b><br><br><b>Shortcut:</b><br>प्रारम्भिक अनुपात 2 : 1 पहले से दिया है। किसी एक कथन से केवल एक समीकरण बन जाती है, जिससे x सीधे निकल जाता है। इसलिए दोनों कथनों में से कोई भी अकेला पर्याप्त है।"
+}
+];
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
+   ids.forEach(id=>{
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+if(isPaused) return;
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+document.querySelector('.custom-header-panel').style.display='none';
+}
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  if(isPaused) return;
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  resetQuestionTimer();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+});
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
+})();
+</script>
+
+</body>
+</html>
