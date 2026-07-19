@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAM TO DESTINY - PYQ़</title>
+<style>
+body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 500px; background: #fff; padding: 20px; border-radius: 15px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+h2 { text-align: center; color: #d32f2f; font-size: 1.2rem; margin-bottom: 15px; }
+.question { font-weight: bold; margin-bottom: 15px; font-size: 1.05rem; line-height: 1.4; color: #333; }
+.options button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.95rem; }
+.options button:disabled{
+    opacity: 1;
+    color: #222;
+    -webkit-text-fill-color: #222;
+}
+#feedback { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 5px solid #1976d2; display: none; font-size: 0.9rem; line-height: 1.4; color: #444; }
+.controls { display: flex; justify-content: space-between; margin-top: 20px; }
+.nav-btn { padding: 10px 15px; border: none; border-radius: 5px; background: #1976d2; color: white; font-weight: bold; cursor: pointer; }
+#submit-btn { background: #388e3c; width: 100%; margin-top: 10px; }
+
+
+#streakPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:flex-start;
+justify-content:center;
+background:transparent;
+pointer-events:none;
+z-index:99999;
+overflow:hidden;
+}
+#streakPopup.show{
+display:flex;
+}
+#streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+transform:none;
+transition:none;
+}
+#streakPopup.show #streakCard{
+background:linear-gradient(135deg,#ffd54f,#fff8e1);
+padding:16px 22px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 24px rgba(255,193,7,.55);
+transform:scale(.5);
+transition:.3s;
+font-weight:bold;
+max-width:320px;
+width:72%;
+margin-top:40px;
+}
+.burst{
+position:fixed;width:10px;height:10px;border-radius:50%;
+background:#FFD700;box-shadow:0 0 10px #FFD700;pointer-events:none;animation:burst .8s ease-out forwards;
+}
+@keyframes burst{
+to{transform:translate(var(--x),var(--y)) scale(0);opacity:0;}
+}
+
+
+#pauseFade{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.42);
+opacity:0;
+pointer-events:none;
+transition:opacity .35s ease;
+z-index:9999;
+}
+#pauseFade.show{opacity:1;}
+
+
+#pauseModal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10005;}
+#pauseModal.show{display:flex;}
+#pauseCard{
+background:#fff;
+border-radius:22px;
+padding:30px 24px;
+width:min(300px,86%);transform:scale(.9);transform-origin:center;
+min-height:220px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+box-shadow:0 18px 40px rgba(0,0,0,.30);
+}
+#pauseCard .btns{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+
+#pauseCard .btns button{
+flex:1;
+height:40px;
+border:none;
+border-radius:16px;
+font-weight:700;
+font-size:13px;
+color:#fff;
+box-shadow:0 10px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#resumePopupBtn{
+background:linear-gradient(135deg,#ffb74d,#fb8c00);
+}
+#submitPopupBtn{
+background:linear-gradient(135deg,#66bb6a,#2e7d32);
+}
+#pauseCard .btns button:hover,
+#pauseCard .btns button:active{
+transform:scale(.97);
+filter:brightness(1.05);
+box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+
+</style>
+
+<!-- इमेज के जैसी डिज़ाइन के लिए हेडर स्टाइल -->
+<style>
+
+
+.custom-header-panel{
+background:transparent;
+border:none;
+border-radius:0;
+padding:6px 2px 10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:6px;
+margin:0 0 10px 0;
+box-shadow:none;
+border-bottom:1px solid #eceff3;
+}
+.header-divider{
+width:1px;
+height:24px;
+background:#f1f3f5;
+opacity:.9;
+}
+
+.header-title{
+flex:1;
+text-align:center;
+font-size:13px;
+font-weight:700;
+color:#c62828;
+line-height:1.1;
+letter-spacing:.2px;
+}
+.badge-text{font-size:13px;font-weight:700;color:#222;}
+.timer-container{display:flex;flex-direction:column;align-items:center;}
+.timer-val{font-size:13px;font-weight:700;}
+.timer-lbl{font-size:8px;color:#8b96a8;}
+#pauseBtn{
+background:#e8b74d;
+border:1px solid #d79a22;
+backdrop-filter:blur(6px);
+
+border:none;
+border-radius:10px;
+padding:6px 10px;
+font-size:12px;
+font-weight:700;
+color:#fff;
+display:flex;
+align-items:center;
+gap:4px;
+box-shadow:0 2px 6px rgba(215,154,34,.18);
+}
+#pauseBtn:active{opacity:.92;}
+
+</style>
+
+</head>
+<body>
+<div id="pauseFade"></div>
+<div id='streakPopup'><div id='streakCard'><div id='streakTitle' style='font-size:24px'></div><div id='streakSub' style='margin-top:40px;font-size:15px'>Keep Going!</div></div></div>
+<div class="container" style="position:relative;">
+
+  <!-- अपडेटेड प्रीमियम हेडर पैनल -->
+  <div class="custom-header-panel">
+    <!-- क्वेश्चन काउंटर -->
+    <div class="header-segment">
+      <span id="qBadge" class="badge-text">Q 1/1</span>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- प्रश्न टाइमर -->
+    <div class="header-segment">
+      <span id="qTimerIcon" style="display:none"></span>
+      <div class="timer-container">
+        <span id="qTimer" class="timer-val" style="color: #4caf50;">00:00</span>
+        <span class="timer-lbl">प्रश्न समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- मुख्य टाइटल -->
+    <div class="header-title" style="color:#d32f2f;">DREAM TO DESTINY</div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- कुल टाइमर -->
+    <div class="header-segment">
+      <div class="timer-container">
+        <span id="liveTimer" class="timer-val" style="color: #455A64;">00:00</span>
+        <span class="timer-lbl">कुल समय</span>
+      </div>
+    </div>
+    
+    <div class="header-divider"></div>
+    
+    <!-- पॉज बटन -->
+    <button id="pauseBtn" type="button">
+      <span style="font-size: 10px; letter-spacing: -1px;">❚❚</span> Pause
+    </button>
+  </div>
+
+<div id="jumpBox" style="display:flex;gap:10px;margin:10px 0 18px;align-items:center;">
+<input id="jumpNo" type="number" placeholder="Question No"
+style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;">
+<button class="nav-btn" onclick="goToQuestion(document.getElementById('jumpNo').value)">Go</button>
+</div>
+<div id="quiz-box" style="position:relative;"><div id="pauseModal"><div id="pauseCard">
+<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:linear-gradient(135deg,#ffca28,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;box-shadow:0 0 35px rgba(255,152,0,.45)">⏸</div>
+<h2 style="margin:18px 0 8px;color:#ff8f00;font-size:27px;line-height:1.05;margin:12px 0 6px">TEST PAUSED</h2>
+<p style="color:#666;font-size:18px">The test is currently on hold.</p>
+<div style="margin:18px auto;padding:12px 20px;border-radius:14px;background:#fafafa;border:1px solid #eee;display:inline-block;font-weight:700">⏱ Current Time: <span id="popupTime">00:00</span></div>
+<div class="btns">
+<button id="resumePopupBtn">▶ Resume<br><small style="font-weight:400;font-size:11px">Continue Test</small></button>
+<button id="submitPopupBtn">✔ Submit<br><small style="font-weight:400;font-size:11px">End & Submit Test</small></button>
+</div>
+<div style="margin-top:18px;color:#666;font-size:14px">🛡 Your progress is safe. You can resume anytime.</div>
+</div></div>
+<div id="q-text" class="question"></div>
+<div id="exam-tag" style="color:#d32f2f;font-weight:bold;margin:-5px 0 12px 0;"></div>
+<div id="options" class="options"></div>
+<div id="feedback"></div>
+</div>
+<div id="controls" style="position:relative;z-index:10001;">
+<div class="controls">
+<button id="backBtn" class="nav-btn" onclick="prevQ()">⬅ Back</button>
+<button id="submitKeep" class="nav-btn" style="background:#388e3c;position:relative;z-index:10002;" onclick="confirmSubmit()">✅ Submit Test</button>
+<button id="nextBtn" class="nav-btn" onclick="nextQ()">Next ➡</button>
+</div>
+</div>
+
+<div id="score-card" style="display:none;padding:20px;position:relative;z-index:10001;">
+<div style="text-align:center;background:linear-gradient(145deg,#fff8dc 0%,#ffffff 45%,#f7f2d3 100%);border:1px solid #f1d46a;border-radius:18px;padding:20px;box-shadow:0 6px 16px rgba(0,0,0,.12);">
+<div style="font-size:34px;">🏆</div>
+<h2 style="margin:5px 0;color:#d32f2f;">TEST RESULT</h2>
+<div style="font-size:38px;font-weight:bold;"><span id="score"></span>/<span id="total"></span></div>
+<div id="perfBadge" style="display:inline-block;margin:10px auto;padding:8px 16px;border-radius:20px;background:#2e7d32;color:#fff;font-weight:bold;">EXCELLENT</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px;">
+<div style="background:#e8f5e9;padding:12px;border-radius:12px;">✔<br><b id="correct"></b><br>Correct</div>
+<div style="background:#ffebee;padding:12px;border-radius:12px;">❌<br><b id="wrong"></b><br>Wrong</div>
+<div style="background:#e3f2fd;padding:12px;border-radius:12px;">📝<br><b id="attempted"></b><br>Attempted</div>
+<div style="background:#fff8e1;padding:12px;border-radius:12px;">📋<br><b id="unattempted"></b><br>Unattempted</div>
+<div style="background:#f3e5f5;padding:12px;border-radius:12px;">🎯<br><b><span id="accuracy"></span>%</b><br>Accuracy</div>
+<div style="background:#ede7f6;padding:12px;border-radius:12px;">🔥<br><b id="highestStreak"></b><br>Streak</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;">
+<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(25,118,210,.12);">
+<div style="font-size:12px;font-weight:700;color:#1976d2;">⏱️ TIME TAKEN</div>
+<div style="font-size:26px;font-weight:800;"><span id="timeTaken"></span></div>
+</div>
+<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:14px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(255,152,0,.12);">
+<div style="font-size:12px;font-weight:700;color:#ef6c00;">⚡ Avg. Time / Q</div>
+<div style="font-size:26px;font-weight:800;"><span id="avgTime"></span></div>
+</div>
+</div>
+
+<button class="nav-btn" style="background:#d32f2f;" onclick="location.reload()">Restart</button>
+</div>
+</div>
+</div>
+<script>
+
+const data = [
+  {
+    q: "Q1. निम्नलिखित में से कौन-सी भाषा, भारत के संविधान की आठवीं अनुसूची में शामिल की जाने वाली नवीनतम भाषा है?",
+    tag: "CDS-II-2025",
+    o: [
+      "(a) मैथिली",
+      "(b) नेपाली",
+      "(c) कोंकणी",
+      "(d) मणिपुरी"
+    ],
+    a: 0,
+    e: "2003 के 92वें संविधान संशोधन द्वारा बोडो, डोगरी, मैथिली और संथाली को आठवीं अनुसूची में जोड़ा गया, जो नवीनतम हैं।"
+  },
+  {
+    q: "Q2. निम्नलिखित में से कौन-सी भाषा भारत के संविधान की आठवीं अनुसूची में सूचीबद्ध नहीं है?",
+    tag: "CDS-II-2025",
+    o: [
+      "(a) मणिपुरी",
+      "(b) गोंडी",
+      "(c) नेपाली",
+      "(d) डोगरी"
+    ],
+    a: 1,
+    e: "गोंडी भाषा भारत के संविधान की आठवीं अनुसूची में 22 आधिकारिक भाषाओं में सूचीबद्ध नहीं है।"
+  },
+  {
+    q: "Q3. भारत के संविधान की सातवीं अनुसूची के अंतर्गत विषयों और सूचियों का निम्नलिखित में से कौन-सा युग्म सही सुमेलित नहीं है ?",
+    tag: "CDS-II-2025",
+    o: [
+      "(a) वन : समवर्ती सूची",
+      "(b) भूमि और भवन पर कर : राज्य सूची",
+      "(c) बीमा : संघ सूची",
+      "(d) जनगणना : समवर्ती सूची"
+    ],
+    a: 3,
+    e: "जनगणना (Census) संघ सूची (Union List) का विषय है, समवर्ती सूची का नहीं। अतः विकल्प d सही सुमेलित नहीं है।"
+  },
+  {
+    q: "Q4. निम्नलिखित कथनों पर विचार कीजिए :<br>भारत के संविधान के संदर्भ में, यदि पाँचवीं अनुसूची के अधीन किसी राज्य में कोई क्षेत्र अनुसूचित क्षेत्र घोषित कर दिया जाता है, तो<br>I. ऐसे क्षेत्रों में राज्य सरकार अपनी कार्यपालिका शक्ति खो देती है और एक स्थानीय निकाय पूर्ण प्रशासन ग्रहण कर लेता है<br>II. संघ की सरकार कतिपय परिस्थितियों में राज्यपाल की सिफारिश पर ऐसे क्षेत्रों के पूर्ण प्रशासन को अपने हाथ में ले सकती है<br>उपर्युक्त कथनों में से कौन-सा/कौन-से सही है/हैं?",
+    tag: "CSE 2025",
+    o: [
+      "(a) केवल I",
+      "(b) केवल II",
+      "(c) I और II दोनों",
+      "(d) न तो I और न ही II"
+    ],
+    a: 1,
+    e: "राज्य सरकार अपनी कार्यपालिका शक्ति नहीं खोती है, बल्कि राज्यपाल को इन क्षेत्रों के प्रशासन के संबंध में विशेष अधिकार प्राप्त होते हैं और केंद्र सरकार प्रशासन के संबंध में निर्देश दे सकती है। अतः केवल कथन II सही है।"
+  },
+  {
+  q: "Q5. निम्नलिखित में से कौन-सी विशेषता दी गई विशेषताओं के अनुसार 'एकात्मक' (Unitary) शासन प्रणाली की विशेषता है?",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) द्विसदनीयता (Bicameralism)",
+    "(b) न्यायपालिका की स्वतंत्रता (Independence of Judiciary)",
+    "(c) एकल नागरिकता (Single Citizenship)",
+    "(d) संविधान की सर्वोच्चता (Supremacy of the Constitution)"
+  ],
+  a: 2,
+  e: "सही उत्तर <b>(c) एकल नागरिकता (Single Citizenship)</b> है।<br><br><b>व्याख्या:</b><br>एकात्मक (Unitary) शासन प्रणाली की प्रमुख विशेषताओं में <b>एकल नागरिकता</b>, शक्तियों का केंद्रीकरण तथा एक ही सर्वोच्च सरकार का होना शामिल है।<br><br>अन्य विकल्प:<br>• (a) द्विसदनीयता – सामान्यतः संघीय व्यवस्था से संबंधित मानी जाती है।<br>• (b) न्यायपालिका की स्वतंत्रता – लोकतांत्रिक शासन की विशेषता है, केवल एकात्मक प्रणाली की नहीं।<br>• (d) संविधान की सर्वोच्चता – संघीय शासन की प्रमुख विशेषता मानी जाती है।<br><br><b>Shortcut:</b><br><b>Unitary Government → Single Citizenship + Strong Centre</b>"
+},
+{
+  q: "Q6. निम्नलिखित में से कौन-सी विशेषताएँ प्रकृति में एकात्मक (Unitary) हैं, जो केंद्र को एक मजबूत स्थिति प्रदान करती हैं?<br>1. एकल संविधान (Single Constitution)<br>2. एकीकृत न्यायपालिका (Integrated Judiciary)<br>3. द्विसदनीयता (Bicameralism)<br>4. केंद्र द्वारा राज्यपालों की नियुक्ति (Appointment of Governors by Centre)",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) केवल 1, 2 और 3",
+    "(b) केवल 2, 3 और 4",
+    "(c) केवल 1, 2 और 4",
+    "(d) केवल 1, 3 और 4"
+  ],
+  a: 2,
+  e: "सही उत्तर <b>(c) केवल 1, 2 और 4</b> है।<br><br><b>व्याख्या:</b><br>• 1. <b>एकल संविधान (Single Constitution)</b> – भारत में अधिकांश राज्यों के लिए एक ही संविधान लागू है, यह एकात्मक विशेषता है। ✔️<br>• 2. <b>एकीकृत न्यायपालिका (Integrated Judiciary)</b> – भारत में एकीकृत न्यायिक व्यवस्था है, जो केंद्र को मजबूत बनाती है। ✔️<br>• 3. <b>द्विसदनीयता (Bicameralism)</b> – यह संघीय व्यवस्था की विशेषता मानी जाती है, एकात्मक नहीं। ✖️<br>• 4. <b>केंद्र द्वारा राज्यपालों की नियुक्ति</b> – राज्यपाल की नियुक्ति राष्ट्रपति (केंद्र) द्वारा की जाती है, यह एकात्मक झुकाव को दर्शाता है। ✔️<br><br><b>Shortcut:</b><br>Unitary Features → <b>Single Constitution + Integrated Judiciary + Single Citizenship + Governors appointed by Centre</b>"
+},
+  {
+    q: "Q7. निम्नलिखित में से कौन-सी भारतीय संघवाद की विशेषता नहीं है?",
+    tag: "CAPF-2022",
+    o: [
+      "(a) न्यायालय, संविधान और सरकार के विभिन्न स्तरों की शक्तियों का निर्वचन (इंटरप्रेट) कर सकते हैं।",
+      "(b) संघ सरकार और राज्य सरकारों के लिए राजस्व के स्रोत विनिर्दिष्ट किए गए हैं।",
+      "(c) संविधान में संघ और राज्यों की शक्तियों को विनिर्दिष्ट किया गया है।",
+      "(d) भारतीय संघवाद शक्तियों के पृथक्करण के सिद्धांत पर आधारित है।"
+    ],
+    a: 3,
+    e: "भारतीय संविधान शक्तियों के सख्त पृथक्करण (Separation of Powers) का पालन नहीं करता, बल्कि यहाँ कार्यपालिका और विधायिका के बीच जुड़ाव (संसदीय प्रणाली) है। यह अमेरिकी संघवाद की विशेषता है।"
+  },
+  {
+    q: "Q8. भारत में विधि का/के स्रोत निम्नलिखित में से कौन-सा / कौन-से है/हैं?<br>1. भारत का संविधान<br>2. संविधियाँ (कानून)<br>3. रूढ़िजन्य विधि<br>4. निर्णयज विधि<br>नीचे दिए गए कूट का प्रयोग कर सही उत्तर चुनिए।",
+    tag: "CAPF-2022",
+    o: [
+      "(a) केवल 1",
+      "(b) केवल 1, 2 और 4",
+      "(c) केवल 2 और 3",
+      "(d) 1, 2, 3 और 4"
+    ],
+    a: 3,
+    e: "भारत में कानून के स्रोतों में संविधान, संसदीय कानून (संविधियाँ), प्रथागत कानून (रूढ़िजन्य विधि) और न्यायिक निर्णय (निर्णयज विधि) चारों शामिल हैं।"
+  },
+  {
+    q: "Q9. निम्नलिखित में से कौन-सा सही नहीं है ?",
+    tag: "CAPF-2023",
+    o: [
+      "(a) अपवादों को छोड़कर, दंड विधि पर विधान समवर्ती सूची के अधीन एक विषय है ।",
+      "(b) शोधन अक्षमता और दिवाला समवर्ती सूची के अधीन विषय हैं ।",
+      "(c) अंतर्राज्यीय व्यापार और वाणिज्य राज्य सूची के अधीन एक विषय है ।",
+      "(d) bankkari केवल संघ सूची के अधीन है।"
+    ],
+    a: 2,
+    e: "अंतर्राज्यीय व्यापार और वाणिज्य (Inter-State trade and commerce) संघ सूची का विषय है, राज्य सूची का नहीं।"
+  },
+  {
+    q: "Q10. निम्नलिखित में से कौन-सा/कौन-से कथन सही है/हैं ?<br>1. दंड विधि विशेष रूप से भारत के संविधान की राज्य सूची के अधीन एक विषय है。<br>2. Civil प्रक्रिया संहिता भारत के संविधान की समवर्ती सूची के अधीन शामिल है。<br>नीचे दिए गए कूट का प्रयोग कर उत्तर चुनिए :",
+    tag: "CDS-II-2024",
+    o: [
+      "(a) केवल 1",
+      "(b) केवल 2",
+      "(c) 1 और 2 दोनों",
+      "(d) न तो 1, न ही 2"
+    ],
+    a: 1,
+    e: "दंड विधि (Criminal Law) समवर्ती सूची का विषय है, राज्य सूची का नहीं (कथन 1 गलत)। सिविल प्रक्रिया संहिता समवर्ती सूची में है (कथन 2 सही)।"
+  },
+  {
+    q: "Q11. भारत के संविधान की सप्तम अनुसूची के अधीन राज्य-सूची के अनुसार, निम्नलिखित में से किन विषयों के संबंध में राज्यों को कृषि भूमि पर अधिकारिता है?<br>1. कृषि आय पर कर<br>2. कृषि भूमि के उत्तराधिकार के संबंध में शुल्क<br>3. कृषि भूमि के संबंध में संपदा शुल्क<br>नीचे दिए गए कूट का प्रयोग कर सही उत्तर चुनिए।",
+    tag: "CDS-I-2024",
+    o: [
+      "(a) केवल 1 और 2",
+      "(b) केवल 2 और 3",
+      "(c) केवल 1 और 3",
+      "(d) 1, 2 और 3"
+    ],
+    a: 3,
+    e: "कृषि आय पर कर, कृषि भूमि के उत्तराधिकार पर शुल्क और कृषि भूमि पर संपदा शुल्क - ये तीनों विषय 7वीं अनुसूची के तहत राज्य सूची में शामिल हैं।"
+  },
+  {
+    q: "Q12. निम्नलिखित में से किस भाषा को 1967 में संविधान संशोधन के द्वारा आठवीं अनुसूची में शामिल किया गया था ?",
+    tag: "CDS-II-2022",
+    o: [
+      "(a) खासी",
+      "(b) कश्मीरी",
+      "(c) सिंधी",
+      "(d) उर्दू"
+    ],
+    a: 2,
+    e: "1967 के 21वें संविधान संशोधन अधिनियम द्वारा सिंधी भाषा को आठवीं अनुसूची में 15वीं भाषा के रूप में शामिल किया गया था।"
+  },
+  {
+    q: "Q13. भारत के संविधान की अनुसूची और विषय-सूची के निम्नलिखित युग्मों पर विचार कीजिए :<br>अनुसूची : विषय<br>1. पहली अनुसूची : शपथ या प्रतिज्ञान के प्ररूप<br>2. तीसरी अनुसूची : राज्य सभा में स्थानों का आबंटन<br>3. पाँचवीं अनुसूची : अनुसूचित क्षेत्रों और अनुसूचित जनजातियों के प्रशासन के बारे में उपबंध<br>4. नवीं अनुसूची : कुछ राज्यों में जनजाति क्षेत्रों के प्रशासन के बारे में उपबंध<br>उपर्युक्त में से कितने युग्म सही सुमेलित हैं ?",
+    tag: "CDS-II-2022",
+    o: [
+      "(a) 1",
+      "(b) 2",
+      "(c) 3",
+      "(d) 4"
+    ],
+    a: 0,
+    e: "केवल युग्म 3 (पाँचवीं अनुसूची) सही सुमेलित है। पहली अनुसूची राज्यों के नाम से, तीसरी शपथ से और चौथी राज्यसभा सीटों से संबंधित है। छठी अनुसूची जनजाति क्षेत्रों से संबंधित है।"
+  },
+  {
+    q: "Q14. निम्नलिखित में से कौन-सी एक, भारतीय संघवाद की अभिलाक्षणिक विशेषता नहीं है?",
+    tag: "CDS-I-2021",
+    o: [
+      "(a) संघबद्ध होने वाली इकाइयाँ संघ बनाने के लिए सहमत हुईं",
+      "(b) अवशिष्ट शक्तियाँ केंद्र में निहित होती हैं",
+      "(c) एकल नागरिकता",
+      "(d) व्यापक संघ और समवर्ती सूची"
+    ],
+    a: 0,
+    e: "भारतीय संघ राज्यों के बीच किसी समझौते या सहमति का परिणाम नहीं है (जैसे कि अमेरिका में है)। भारत विनाशी राज्यों का अविनाशी संघ है।"
+  },
+  {
+  q: "Q15. 42वें संविधान संशोधन द्वारा निम्नलिखित में से किन विषयों को राज्य सूची से समवर्ती सूची में स्थानांतरित किया गया था?<br>1. शिक्षा (Education)<br>2. वन (Forests)<br>3. बाट और माप (Weights and Measures)<br>4. न्याय प्रशासन (Administration of Justice)",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) केवल 1 और 2",
+    "(b) केवल 1, 2 और 3",
+    "(c) केवल 2, 3 और 4",
+    "(d) 1, 2, 3 और 4"
+  ],
+  a: 1,
+  e: "सही उत्तर <b>(b) केवल 1, 2 और 3</b> है।<br><br><b>व्याख्या:</b><br>42वें संविधान संशोधन अधिनियम, 1976 द्वारा कुछ विषयों को राज्य सूची से समवर्ती सूची में स्थानांतरित किया गया। इनमें शामिल हैं:<br>• शिक्षा (Education) ✔️<br>• वन (Forests) ✔️<br>• बाट और माप (Weights and Measures) ✔️<br>• वन्य जीव एवं पक्षियों का संरक्षण (Protection of Wild Animals and Birds) ✔️<br><br><b>न्याय प्रशासन (Administration of Justice)</b> 42वें संशोधन द्वारा स्थानांतरित विषयों में शामिल नहीं था। ✖️<br><br><b>Shortcut:</b><br><b>42nd Amendment → EFWP</b><br>E = Education<br>F = Forests<br>W = Weights & Measures<br>P = Protection of Wild Animals & Birds"
+},
+{
+  q: "Q16. कथन (A): भारत को 'मजबूत केंद्र वाले संघ' (Federation with a unitary bias) के रूप में वर्णित किया जाता है।<br>कारण (R): संविधान केंद्र द्वारा राज्यपालों की नियुक्ति तथा आपातकालीन प्रावधानों का प्रावधान करता है।",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) A और R दोनों सत्य हैं तथा R, A की सही व्याख्या है।",
+    "(b) A और R दोनों सत्य हैं, लेकिन R, A की सही व्याख्या नहीं है।",
+    "(c) A सत्य है, लेकिन R असत्य है।",
+    "(d) A असत्य है, लेकिन R सत्य है।"
+  ],
+  a: 0,
+  e: "सही उत्तर <b>(a) A और R दोनों सत्य हैं तथा R, A की सही व्याख्या है।</b><br><br><b>व्याख्या:</b><br>• भारत को <b>'Federation with a Unitary Bias'</b> कहा जाता है क्योंकि संविधान में संघीय व्यवस्था के साथ कई एकात्मक विशेषताएँ भी हैं। ✔️<br>• <b>राज्यपालों की नियुक्ति राष्ट्रपति (केंद्र)</b> द्वारा की जाती है तथा <b>आपातकालीन प्रावधानों</b> के दौरान केंद्र की शक्तियाँ अत्यधिक बढ़ जाती हैं। ✔️<br>• यही कारण भारत को <b>मजबूत केंद्र वाला संघ</b> बनाते हैं, इसलिए R, A की सही व्याख्या करता है।<br><br><b>Shortcut:</b><br>Strong Centre → <b>Governor appointed by Centre + Emergency Provisions + Single Citizenship + Integrated Judiciary</b>"
+},
+{
+  q: "Q17. मूल रूप से, 26 नवम्बर 1949 को भारत के संविधान में कितने अनुच्छेद (Articles) थे?",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) 470",
+    "(b) 395",
+    "(c) 375",
+    "(d) 448"
+  ],
+  a: 1,
+  e: "सही उत्तर <b>(b) 395</b> है।<br><br><b>व्याख्या:</b><br>26 नवम्बर 1949 को अंगीकृत (Adopted) भारतीय संविधान में <b>395 अनुच्छेद</b>, <b>22 भाग</b> तथा <b>8 अनुसूचियाँ</b> थीं।<br><br>वर्तमान में संविधान में <b>470 अनुच्छेद</b>, <b>25 भाग</b> तथा <b>12 अनुसूचियाँ</b> हैं (संशोधनों के बाद)।<br><br><b>Shortcut:</b><br><b>Original Constitution = 395 Articles + 22 Parts + 8 Schedules</b><br><b>Present Constitution = 470 Articles + 25 Parts + 12 Schedules</b>"
+},
+{
+  q: "Q18. निम्नलिखित में से किन विषयों पर संघ और राज्य सरकारें समवर्ती सूची (Concurrent List) के अंतर्गत दोनों कानून बना सकती हैं?<br>1. विवाह और तलाक<br>2. व्यापार और श्रम विवाद<br>3. बैंकिंग<br>4. बिजली",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) केवल 1, 2 और 3",
+    "(b) केवल 1, 3 और 4",
+    "(c) केवल 3 और 4",
+    "(d) केवल 1, 2 और 4"
+  ],
+  a: 3,
+  e: "सही उत्तर <b>(d) केवल 1, 2 और 4</b> है।<br><br><b>व्याख्या:</b><br>समवर्ती सूची (Concurrent List) के विषयों पर <b>संसद और राज्य विधानमंडल दोनों</b> कानून बना सकते हैं।<br><br>1. <b>विवाह और तलाक</b> ✔️ (Concurrent List)<br>2. <b>व्यापार एवं श्रम विवाद (Trade and Labour Disputes)</b> ✔️ (Concurrent List)<br>3. <b>बैंकिंग</b> ✖️ (Union List – संघ सूची)<br>4. <b>बिजली (Electricity)</b> ✔️ (Concurrent List)<br><br>अतः सही उत्तर <b>1, 2 और 4</b> है।<br><br><b>Shortcut:</b><br>Concurrent List में याद रखें: <b>Marriage, Divorce, Labour, Electricity, Education, Forests, Weights & Measures</b> आदि आते हैं, जबकि <b>Banking</b> संघ सूची का विषय है।"
+},
+  {
+    q: "Q19. निम्नलिखित में से कौन-सा केन्द्रीकरण की विशेषता नहीं है?",
+    tag: "CDS-I-2021",
+    o: [
+      "(a) राष्ट्रीय एकता",
+      "(b) एकरूपता",
+      "(c) समृद्धि",
+      "(d) स्वाधीनता"
+    ],
+    a: 3,
+    e: "स्वाधीनता (Liberty) विकेंद्रीकरण और शक्तियों के पृथक्करण से जुड़ी विशेषता है, जबकि केन्द्रीकरण राष्ट्रीय एकता और एकरूपता को बढ़ावा देता है।"
+  },
+  {
+  q: "Q20. किस संवैधानिक संशोधन ने 8वीं अनुसूची में 'Oriya' भाषा की वर्तनी को बदलकर 'Odia' कर दिया?",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) 92वाँ संवैधानिक संशोधन",
+    "(b) 96वाँ संवैधानिक संशोधन",
+    "(c) 71वाँ संवैधानिक संशोधन",
+    "(d) पहला संवैधानिक संशोधन"
+  ],
+  a: 1,
+  e: "सही उत्तर <b>(b) 96वाँ संवैधानिक संशोधन</b> है।<br><br><b>व्याख्या:</b><br>96वें संविधान (संशोधन) अधिनियम, 2011 द्वारा संविधान की <b>आठवीं अनुसूची</b> में भाषा <b>'Oriya'</b> की अंग्रेज़ी वर्तनी बदलकर <b>'Odia'</b> कर दी गई। इस संशोधन में केवल भाषा का नाम बदला गया, कोई नई भाषा नहीं जोड़ी गई।<br><br><b>याद रखें:</b><br>• <b>71वाँ संशोधन (1992)</b> – कोंकणी, मणिपुरी और नेपाली को 8वीं अनुसूची में जोड़ा गया।<br>• <b>92वाँ संशोधन (2003)</b> – बोडो, डोगरी, मैथिली और संथाली को जोड़ा गया।<br>• <b>96वाँ संशोधन (2011)</b> – Oriya का नाम बदलकर Odia किया गया।"
+},
+  {
+    q: "Q21. निम्नलिखित में से कौन-सी भाषा भारत के संविधान की आठवीं अनुसूची में शामिल नहीं है?",
+    tag: "CISF AC 2024",
+    o: [
+      "(a) बोडो",
+      "(b) मैथिली",
+      "(c) संथाली",
+      "(d) लद्दाखी"
+    ],
+    a: 3,
+    e: "लद्दाखी भाषा संविधान की आठवीं अनुसूची की 22 भाषाओं की सूची में शामिल नहीं है।"
+  },
+  {
+    q: "Q22. भारत के संविधान के अनुसार निम्नलिखित में से कौन-सा कथन सही है ?",
+    tag: "CSE 2024",
+    o: [
+      "(a) अंतरराज्यीय व्यापार और वाणिज्य राज्य सूची के अधीन एक राज्य विषय है।",
+      "(b) अंतरराज्यीय प्रवासन राज्य सूची के अधीन एक राज्य विषय है।",
+      "(c) अंतरराज्यीय संगरोध संघ सूची के अधीन एक संघ विषय है ।",
+      "(d) निगम कर राज्य सूची के अधीन एक राज्य विषय है।"
+    ],
+    a: 2,
+    e: "अंतरराज्यीय संगरोध (Inter-State quarantine) संघ सूची का विषय है। व्यापार/वाणिज्य और निगम कर भी संघ सूची के विषय हैं।"
+  },
+  {
+    q: "Q23. निम्नलिखित कथनों पर विचार कीजिए :<br>1. वह राज्य का राज्यपाल है जो उस राज्य के किसी समुदाय को अनुसूचित जनजाति के रूप में मान्यता देता है और घोषित करता है ।<br>2. किसी राज्य में अनुसूचित जनजाति के रूप में घोषित किसी समुदाय के लिए यह आवश्यक नहीं है कि दूसरे राज्य में भी ऐसा हो ।<br>उपर्युक्त कथनों में से कौन-सा/कौन-से सही है/हैं ?",
+    tag: "CSE 2024",
+    o: [
+      "(a) केवल 1",
+      "(b) केवल 2",
+      "(c) 1 और 2 दोनों",
+      "(d) न तो 1, न ही 2"
+    ],
+    a: 1,
+    e: "किसी समुदाय को अनुसूचित जनजाति घोषित करने का अधिकार भारत के राष्ट्रपति को है, राज्यपाल को नहीं (कथन 1 गलत)। एक राज्य में अनुसूचित जनजाति दूसरे राज्य में भी हो, यह आवश्यक नहीं (कथन 2 सही)।"
+  },
+  {
+    q: "Q24. भारत में 'अनुसूचित क्षेत्र' के संदर्भ में, निम्नलिखित कथनों पर विचार कीजिए :<br>1. किसी राज्य के भीतर, किसी क्षेत्र की अनुसूचित क्षेत्र के रूप में अधिसूचना राष्ट्रपति के एक आदेश के माध्यम से होती है।<br>2. अनुसूचित क्षेत्र के रूप में बनने वाली सबसे बड़ी प्रशासकीय इकाई जिला होता है और सबसे छोटी इकाई ब्लॉक में गाँवों का समूह होता है।<br>3. संबंधित राज्यों के मुख्यमंत्रियों से अपेक्षित है कि वे राज्यों के अनुसूचित क्षेत्रों के प्रशासन के विषय में केन्द्रीय गृह मंत्रालय को वार्षिक प्रतिवेदन दें।<br>उपर्युक्त में से कितने कथन सही हैं?",
+    tag: "CSE 2023",
+    o: [
+      "(a) केवल एक",
+      "(b) केवल दो",
+      "(c) सभी तीन",
+      "(d) कोई भी नहीं"
+    ],
+    a: 0,
+    e: "केवल कथन 1 सही है। राष्ट्रपति किसी क्षेत्र को अनुसूचित क्षेत्र घोषित करते हैं। कथन 3 गलत है क्योंकि राज्यपाल राष्ट्रपति को वार्षिक रिपोर्ट सौंपते हैं।"
+  },
+  {
+    q: "Q25. यदि किसी विशिष्ट क्षेत्र को भारत के संविधान की पाँचवीं अनुसूची के अधीन लाया जाए, तो निम्नलिखित कथनों में कौन-सा एक, इसके परिणाम को सर्वोत्तम रूप से प्रतिबिंबित करता है ?",
+    tag: "CSE 2022",
+    o: [
+      "(a) इससे जनजातीय लोगों की जमीनें गैर-जनजातीय लोगों को अंतरित करने पर रोक लगेगी ।",
+      "(b) इससे उस क्षेत्र में एक स्थानीय स्वशासी निकाय का सृजन होगा ।",
+      "(c) इससे वह क्षेत्र संघ राज्यक्षेत्र में बदल जाएगा ।",
+      "(d) जिस राज्य के पास ऐसे क्षेत्र होंगे, उसे विशेष कोटि का राज्य घोषित किया जाएगा ।"
+    ],
+    a: 0,
+    e: "पाँचवीं अनुसूची का मुख्य उद्देश्य जनजातीय अधिकारों की रक्षा करना है, जिसमें उनकी भूमि को गैर-जनजातीय लोगों को हस्तांतरित होने से रोकना मुख्य प्रावधान है।"
+  },
+  {
+    q: "Q26. हमने ब्रिटिश मॉडल पर आधारित संसदीय लोकतंत्र को अपनाया है, किन्तु हमारा मॉडल उस मॉडल से किस प्रकार भिन्न है?<br>1. जहाँ तक विधि-निर्माण का संबंध है, ब्रिटिश संसद सर्वोपरि अथवा संप्रभु है, किन्तु भारत में संसद की विधि-निर्माण की शक्ति परिसीमित है।<br>2. भारत में, संसद के किसी अधिनियम के संशोधन की संवैधानिकता से संबंधित मामले उच्चतम न्यायालय द्वारा संविधान पीठ को भेजे जाते हैं।<br>नीचे दिए गए कूट का प्रयोग कर सही उत्तर चुनिए।",
+    tag: "CSE 2021",
+    o: [
+      "(a) केवल 1",
+      "(b) केवल 2",
+      "(c) 1 और 2 दोनों",
+      "(d) न तो 1 और न ही 2"
+    ],
+    a: 2,
+    e: "ब्रिटिश संसद पूर्णतः संप्रभु है, जबकि भारत में संविधान सर्वोच्च है और संसद की शक्ति न्यायिक समीक्षा के अधीन परिसीमित है। उच्चतम न्यायालय संवैधानिक मामलों को संविधान पीठ को भेजता है। दोनों कथन सही हैं।"
+  },
+  {
+    q: "Q27. भारतीय राज्य-व्यवस्था में, निम्नलिखित में से कौन-सी अनिवार्य विशेषता है, जो यह दर्शाती है कि उसका स्वरूप संघीय है?",
+    tag: "CSE 2021",
+    o: [
+      "(a) न्यायपालिका की स्वतंत्रता सुरक्षित है।",
+      "(b) संघ की विधायिका में संघटक इकाइयों के निर्वाचित प्रतिनिधि होते हैं।",
+      "(c) केन्द्रीय मंत्रिमंडल में क्षेत्रीय पार्टियों के निर्वाचित प्रतिनिधि हो सकते हैं।",
+      "(d) मूल अधिकार न्यायालयों द्वारा प्रवर्तनीय हैं।"
+    ],
+    a: 0,
+    e: "स्वतंत्र न्यायपालिका संघीय व्यवस्था की एक अनिवार्य विशेषता है जो केंद्र और राज्यों के बीच शक्तियों के विभाजन की रक्षा करती है और विवादों का निपटारा करती है।"
+  },
+  {
+    q: "Q28. निम्नलिखित में से कौन-सा कारक किसी उदार लोकतंत्र में स्वतंत्रता की सर्वोत्तम सुरक्षा को नियत करता है?",
+    tag: "CSE 2021",
+    o: [
+      "(a) एक प्रतिबद्ध न्यायपालिका",
+      "(b) शक्तियों का केन्द्रीकरण",
+      "(c) निर्वाचित सरकार",
+      "(d) शक्तियों का पृथक्करण"
+    ],
+    a: 3,
+    e: "शक्तियों का पृथक्करण (विधायिका, कार्यपालिका और न्यायपालिका के बीच) शक्ति के दुरुपयोग को रोकता है और एक उदार लोकतंत्र में नागरिकों की स्वतंत्रता की रक्षा करता है।"
+  },
+  {
+    q: "Q29. भारत के संविधान की तीसरी अनुसूची के अनुसार निम्नलिखित में से कौन सा/से कथन सही है/हैं?<br>1. संसद का एक सदस्य 'ईश्वर के नाम पर शपथ' लेने या प्रतिज्ञान करने के लिए स्वतंत्र है।<br>2. सर्वोच्च न्यायालय के न्यायाधीश को 'भारत के संविधान के नाम पर शपथ' या प्रतिज्ञान लेना होता है।<br>नीचे दिए गए कूट का प्रयोग कर उत्तर चुनिए :",
+    tag: "GEO SCIENTISTS 2024",
+    o: [
+      "(a) केवल 1",
+      "(b) केवल 2",
+      "(c) 1 और 2 दोनों",
+      "(d) न तो 1, न ही 2"
+    ],
+    a: 0,
+    e: "तीसरी अनुसूची के अनुसार, संसद सदस्य 'ईश्वर की शपथ' या प्रतिज्ञान ले सकते हैं। सर्वोच्च न्यायालय के न्यायाधीश 'संविधान के प्रति सच्ची श्रद्धा और निष्ठा' रखने की शपथ लेते हैं, अतः कथन 2 गलत है।"
+  },
+  {
+    q: "Q30. भारत के संविधान का निम्नलिखित में से कौन-सा प्रावधान ब्रिटिश संविधान से नहीं अपनाया गया था?",
+    tag: "GEOSCIENTITS 2022",
+    o: [
+      "(a) सर्वाधिक मत प्राप्त करने वाले की जीत (फर्स्ट पास्ट द पोस्ट) प्रणाली",
+      "(b) राज्य के नीति निदेशक सिद्धांत",
+      "(c) कानून बनाने की प्रक्रिया",
+      "(d) सरकार का संसदीय स्वरूप"
+    ],
+    a: 1,
+    e: "राज्य के नीति निदेशक सिद्धांत (Directive Principles of State Policy) आयरलैंड के संविधान से लिए गए हैं, ब्रिटिश संविधान से नहीं।"
+  },
+  {
+    q: "Q31. निम्नलिखित में से किस सर्वोच्च न्यायालय के निर्णय ने यह सिद्धांत स्थापित किया कि भारत के संविधान की 'मूल संरचना' असंशोधनीय थी?",
+    tag: "GEOSCIENTITS 2022",
+    o: [
+      "(a) गोलकनाथ बनाम पंजाब राज्य",
+      "(b) केशवानंद भारती बनाम केरल राज्य",
+      "(c) शंकरी प्रसाद बनाम भारत संघ",
+      "(d) सज्जन सिंह बनाम राजस्थान राज्य"
+    ],
+    a: 1,
+    e: "1973 के केशवानंद भारती मामले में सर्वोच्च न्यायालय ने ऐतिहासिक निर्णय देते हुए 'मूल संरचना' (Basic Structure) का सिद्धांत दिया, जिसे संसद द्वारा संशोधित नहीं किया जा सकता।"
+  },
+  {
+    q: "Q32. भारत के संविधान की किस अनुसूची में, दल परिवर्तन के आधार पर निरर्हता के बारे में उपबंध किया गया है ?",
+    tag: "NDA-II-2024",
+    o: [
+      "(a) नौवीं अनुसूची",
+      "(b) दसवीं अनुसूची",
+      "(c) ग्यारहवीं अनुसूची",
+      "(d) छठी अनुसूची"
+    ],
+    a: 1,
+    e: "52वें संविधान संशोधन 1985 द्वारा दसवीं अनुसूची जोड़ी गई, जो दलबदल के आधार पर सदस्यों की अयोग्यता से संबंधित है।"
+  },
+  {
+    q: "Q33. निम्नलिखित में से कौन-सी भारत के संविधान की विशेषता नहीं है ?",
+    tag: "NDA-II-2022",
+    o: [
+      "(a) यह मूल नियमों का एक समुच्चय (सेट) प्रदान करता है।",
+      "(b) यह सरकार की शक्ति को विनिर्दिष्ट करता है।",
+      "(c) यह देश की सर्वोच्च विधि है।",
+      "(d) यह न्यायपालिका की सर्वोच्चता को विनिर्दिष्ट करता है।"
+    ],
+    a: 3,
+    e: "भारतीय संविधान 'संविधान की सर्वोच्चता' (Supremacy of the Constitution) स्थापित करता है, न कि 'न्यायपालिका की सर्वोच्चता'।"
+  },
+  {
+    q: "Q34. निम्नलिखित में से कौन-सा भारत के संविधान का प्रकार्य नहीं है ?",
+    tag: "NDA-II-2022",
+    o: [
+      "(a) राजनीति में अच्छे लोगों की भागीदारी सुनिश्चित करना",
+      "(b) नागरिकों को अधिकारों के एक समुच्चय (सेट) की गारंटी देना",
+      "(c) सरकार के विभिन्न अंगों की शक्ति को परिभाषित करना",
+      "(d) न्यायपूर्ण समाज के लिए स्थितियाँ सृजित करना"
+    ],
+    a: 0,
+    e: "राजनीती में अच्छे लोगों की भागीदारी सुनिश्चित करना संविधान का प्रत्यक्ष प्रकार्य नहीं है; यह चुनावी प्रक्रिया और नागरिकों पर निर्भर करता है।"
+  },
+  {
+    q: "Q35. संविधान (35वाँ संशोधन) अधिनियम, 1974, निम्नलिखित में से किस राज्य से संबंधित है ?",
+    tag: "NDA-II-2021",
+    o: [
+      "(a) मिज़ोरम",
+      "(b) सिक्किम",
+      "(c) नागालैंड",
+      "(d) अरुणाचल प्रदेश"
+    ],
+    a: 1,
+    e: "35वें संविधान संशोधन अधिनियम (1974) द्वारा सिक्किम को 'सह-राज्य' (Associate State) का दर्जा दिया गया था।"
+  },
+  {
+  q: "Q36. निम्नलिखित में से कौन-सी विशेषता संघीय (Federal) तथा एकात्मक (Unitary) दोनों शासन प्रणालियों में समान रूप से पाई जाती है?",
+  tag: "SALIENT FEATURES OF CONSTITUTION",
+  o: [
+    "(a) एकल नागरिकता (Single Citizenship)",
+    "(b) दोहरी सरकार (Dual Government)",
+    "(c) लिखित संविधान (Written Constitution)",
+    "(d) एकीकृत न्यायपालिका (Integrated Judiciary)"
+  ],
+  a: 2,
+  e: "सही उत्तर <b>(c) लिखित संविधान (Written Constitution)</b> है।<br><br><b>व्याख्या:</b><br>संघीय (Federal) तथा एकात्मक (Unitary) दोनों प्रकार की शासन प्रणालियों में <b>लिखित संविधान</b> हो सकता है। इसलिए यह दोनों में समान विशेषता है।<br><br>अन्य विकल्प:<br>• <b>एकल नागरिकता</b> – मुख्यतः एकात्मक व्यवस्था की विशेषता।<br>• <b>दोहरी सरकार (Dual Government)</b> – संघीय व्यवस्था की प्रमुख विशेषता।<br>• <b>एकीकृत न्यायपालिका (Integrated Judiciary)</b> – भारतीय संविधान की विशेषता है, सभी संघीय व्यवस्थाओं की नहीं।<br><br><b>Shortcut:</b><br><b>Common Feature = Written Constitution</b><br><b>Federal = Dual Government</b><br><b>Unitary = Single Citizenship</b>"
+},
+  {
+    q: "Q37. संविधान के मूल नियमों को प्रभावी कौन बनाता है?",
+    tag: "RRB NTPC UG 11/08/2025 - AFTERNOON",
+    o: [
+      "(a) ये केवल प्रचलित रीति-रिवाजों पर आधारित हैं।",
+      "(b) इन्हें लागू नहीं किया जाता।",
+      "(c) ये गुप्त हैं।",
+      "(d) कानूनी रूप से लागू किया जा सकता है।"
+    ],
+    a: 3,
+    e: "संविधान के मूल नियम कानूनी रूप से लागू करने योग्य (Legally enforceable) होते हैं, जो उन्हें प्रभावी बनाते हैं।"
+  },
+  {
+    q: "Q38. निम्नलिखित में से किसने भारतीय संविधान की संशोधन विशेषता की प्रशंसा करते हुए कहा कि 'संशोधन प्रक्रिया में यह विविधता बुद्धिमत्तापूर्ण है, लेकिन दुर्लभ रूप से पाई जाती है'?",
+    tag: "SSC CGL11/09/2024 (2nd Shift)",
+    o: [
+      "(a) ग्रैनविले ऑस्टिन",
+      "(b) आइवर जेनिंग्स",
+      "(c) के सी व्हेयर",
+      "(d) एचएम सीरवाई"
+    ],
+    a: 2,
+    e: "के. सी. व्हेयर ने भारतीय संविधान की संशोधन प्रक्रिया में विविधता (लचीलापन और कठोरता का मिश्रण) की प्रशंसा करते हुए यह कथन कहा था।"
+  },
+  {
+    q: "Q39. निम्नलिखित में से कौन सी विशेषता भारत के संविधान की नहीं है?",
+    tag: "SSC CGL 18/09/2024 (2nd Shift)",
+    o: [
+      "(a) सार्वभौमिक वयस्क मताधिकार",
+      "(b) स्वतंत्र न्यायपालिका",
+      "(c) दोहरी नागरिकता",
+      "(d) कठोरता और लचीलेपन का मिश्रण"
+    ],
+    a: 2,
+    e: "भारत में 'एकल नागरिकता' (Single Citizenship) का प्रावधान है। 'दोहरी नागरिकता' भारतीय संविधान की विशेषता नहीं है।"
+  },
+  {
+    q: "Q40. निम्नलिखित में से कौन सा कथन भारतीय संविधान की विशेषताओं की तुलना में गलत है?<br>1. संविधान प्रधानमंत्री को तीन प्रकार की आपात स्थितियों की घोषणा करने का अधिकार देता है。<br>2. समाज के वंचित वर्गों के उत्थान के लिए आरक्षण नीति है。<br>3. सुप्रीम कोर्ट के पास न्यायिक समीक्षा की कोई शक्ति नहीं है。<br>4. संविधान सार्वभौमिक वयस्क मताधिकार का प्रावधान करता है。",
+    tag: "SSC CHSL02/07/2024 (2nd shift)",
+    o: [
+      "(a) 1 और 3",
+      "(b) 1 और 2",
+      "(c) 2 और 4",
+      "(d) 3 और 4"
+    ],
+    a: 0,
+    e: "कथन 1 गलत है क्योंकि आपातकाल की घोषणा राष्ट्रपति करते हैं। कथन 3 गलत है क्योंकि सुप्रीम कोर्ट के पास न्यायिक समीक्षा (Judicial Review) की शक्ति है।"
+  },
+  {
+    q: "Q41. इनमें से कौन सी भारतीय संघवाद की विशेषता नहीं है?",
+    tag: "SSC STENO 06/08/2025 - AFTERNOON",
+    o: [
+      "(a) स्वतंत्र न्यायपालिका",
+      "(b) लिखित संविधान",
+      "(c) दोहरी नागरिकता",
+      "(d) शक्तियों का विभाजन"
+    ],
+    a: 2,
+    e: "दोहरी नागरिकता अमेरिकी संघीय व्यवस्था की विशेषता है, जबकि भारत में एकल नागरिकता का प्रावधान है।"
+  },
+  {
+    q: "Q42. निम्नलिखित में से कौन सा/से कथन भारतीय संविधान की विशेषताओं की तुलना में गलत है/हैं?<br>1. हालांकि भारत में एक संघीय प्रणाली है, संविधान में 'संघ' शब्द का उल्लेख नहीं है。<br>2. संविधान के अनुच्छेद 5 में कहा गया है कि संसद कानून द्वारा एक नया राज्य बना सकती है。<br>3. संघ सूची के विषयों पर, प्रत्येक राज्य विधानमंडल राज्य के लिए कानून बना सकता है。<br>4. संसद और राज्य विधानमंडल दोनों समवर्ती सूची में विषयों पर कानून पारित कर सकते हैं。",
+    tag: "SSC CHSL03/07/2024 (2nd shift)",
+    o: [
+      "(a) 1 और 4",
+      "(b) 2 और 3",
+      "(c) केवल 1",
+      "(d) 1 और 3"
+    ],
+    a: 1,
+    e: "नए राज्य का निर्माण अनुच्छेद 3 के तहत होता है (कथन 2 गलत)। संघ सूची के विषयों पर कानून बनाने का विशेष अधिकार केवल संसद को है (कथन 3 गलत)।"
+  },
+  {
+    q: "Q43. धर्मनिरपेक्षता भारतीय संविधान की एक विशेषता है, जिसका अर्थ है:",
+    tag: "SSC CHSL 04/07/2024 (1st shift)",
+    o: [
+      "(a) राज्य किसी भी धर्म को बढ़ावा नहीं देता।",
+      "(b) राज्य अल्पसंख्यक समुदाय के धर्म को बढ़ावा देता है।",
+      "(c) राज्य बहुसंख्यक समुदाय के धर्म को बढ़ावा देता. है।",
+      "(d) राज्य किसी भी धर्म को बढ़ावा दे सकता है।"
+    ],
+    a: 0,
+    e: "भारतीय संदर्भ में धर्मनिरपेक्षता का अर्थ है कि राज्य का कोई अपना धर्म नहीं है और वह किसी विशेष धर्म को बढ़ावा नहीं देता।"
+  },
+  {
+    q: "Q44. भारतीय संविधान के संदर्भ में निम्नलिखित में से कौन सा कथन सही है?<br>1. सरकार के तीन प्रमुख अंग हैं, अर्थात् विधायिका, कार्यपालिका और न्यायपालिका。<br>2. शक्तियों के बजाय कार्यों के पृथक्करण का पालन किया जाता है。<br>3. सरकार के सभी अंग स्वतंत्र हैं。",
+    tag: "SSC CPO29/06/2024 (2nd shift)",
+    o: [
+      "(a) केवल 1 और 3",
+      "(b) केवल 1 और 2",
+      "(c) केवल 2 और 3",
+      "(d) 1, 2 और 3"
+    ],
+    a: 1,
+    e: "भारत में सरकार के तीन अंग हैं और शक्तियों के पूर्ण पृथक्करण के बजाय कार्यों का पृथक्करण और 'नियंत्रण एवं संतुलन' अपनाया गया है। कार्यपालिका विधायिका का हिस्सा है।"
+  },
+  {
+    q: "Q45. निम्नलिखित में से कौन सी भारतीय संविधान की मूल विशेषता नहीं है?",
+    tag: "SSC CPO28/06/2024 (1st shift)",
+    o: [
+      "(a) संसदीय प्रणाली",
+      "(b) कठोरता और लचीलेपन का मिश्रण",
+      "(c) सबसे लंबा लिखित संविधान",
+      "(d) एक ही स्रोत से लिया गया"
+    ],
+    a: 3,
+    e: "भारतीय संविधान किसी एक स्रोत से नहीं लिया गया है, बल्कि इसके प्रावधान कई अन्य देशों के संविधानों से प्रेरित हैं।"
+  },
+  {
+    q: "Q46. निम्नलिखित में से कौन सी भारतीय संविधान की संघीय विशेषता नहीं है?",
+    tag: "SSC CHSL 27/05/2022 (Morning)",
+    o: [
+      "(a) द्वैध सरकार",
+      "(b) शक्तियों का विभाजन",
+      "(c) अखिल भारतीय सेवाएँ",
+      "(d) लिखित संविधान"
+    ],
+    a: 2,
+    e: "अखिल भारतीय सेवाएँ (All India Services) एक एकात्मक (Unitary) विशेषता है क्योंकि ये केंद्र को राज्यों पर मजबूत नियंत्रण प्रदान करती हैं।"
+  },
+  {
+    q: "Q47. भारत के संविधान की एकात्मक विशेषता कौन सी नहीं है?",
+    tag: "Graduate Level 01/08/2022 (Shift-4)",
+    o: [
+      "(a) द्विसदनीय विधानमंडल",
+      "(b) एकीकृत न्यायिक प्रणाली",
+      "(c) एकल नागरिकता",
+      "(d) राष्ट्रपति द्वारा राज्यपाल की नियुक्ति"
+    ],
+    a: 0,
+    e: "द्विसदनीय विधानमंडल (Bicameral Legislature) एक संघीय विशेषता है, क्योंकि उच्च सदन राज्यों का प्रतिनिधित्व करता है।"
+  },
+  {
+    q: "Q48. निम्नलिखित में से कौन सा विषय राज्य सूची के अंतर्गत आता है?",
+    tag: "SSC STENO 06/08/2025 - MORNING",
+    o: [
+      "(a) बैंकिंग",
+      "(b) लोक व्यवस्था",
+      "(c) रक्षा",
+      "(d) शिक्षा"
+    ],
+    a: 1,
+    e: "'लोक व्यवस्था' (Public Order) सातवीं अनुसूची के तहत राज्य सूची का विषय है।"
+  },
+  {
+    q: "Q49. निम्नलिखित में से कौन सा युग्म भारतीय संविधान की अनुसूचियों के संबंध में सही सुमेलित है?",
+    tag: "SSC STENO 06/08/2025 - MORNING",
+    o: [
+      "(a) ग्यारहवीं अनुसूची- पंचायतों की शक्तियाँ और दायित्व",
+      "(b) बारहवीं अनुसूची - राष्ट्रपति और उपराष्ट्रपति का चुनाव",
+      "(c) दसवीं अनुसूची - संविधान द्वारा मान्यता प्राप्त भाषाएँ",
+      "(d) नौवीं अनुसूची - संघ और राज्यों के बीच शक्तियों का आवंटन"
+    ],
+    a: 0,
+    e: "ग्यारहवीं अनुसूची पंचायतों की शक्तियों से संबंधित है। (बारहवीं अनुसूची नगरपालिकाओं, दसवीं दलबदल, और नौवीं भूमि सुधारों से संबंधित है)।"
+  },
+  {
+    q: "Q50. संविधान की किस अनुसूची में दलबदल विरोधी कानून के तहत विधायकों की अयोग्यता के प्रावधान हैं?",
+    tag: "SSC STENO 06/08/2025 - MORNING",
+    o: [
+      "(a) नौवीं अनुसूची",
+      "(b) ग्यारहवीं अनुसूची",
+      "(c) दसवीं अनुसूची",
+      "(d) आठवीं अनुसूची"
+    ],
+    a: 2,
+    e: "52वें संशोधन (1985) द्वारा जोड़ी गई दसवीं अनुसूची में दलबदल विरोधी कानून के तहत अयोग्यता के प्रावधान हैं।"
+  },
+  {
+    q: "Q51. संघ सूची प्रविष्टियों के आधार पर निम्नलिखित में से कौन सा/से कथन सही है/हैं?<br>1. संसद के पास केंद्र और राज्य दोनों सरकारों द्वारा आयोजित लॉटरी पर कानून बनाने की विशेष शक्ति है。<br>2. सहकारी समितियों के निगमन और विनियमन से संबंधित मामलों को संघ सूची में शामिल किया गया है。<br>3. भारतीय रिज़र्व बैंक, विदेशी मुद्रा और मुद्रा सभी संघ के विधायी डोमेन के अंतर्गत हैं。<br>4. संसद उन निगमों के संबंध में कानून बना सकती है जिनकी गतिविधियां विश्वविद्यालयों को छोड़कर एक राज्य तक सीमित नहीं हैं。",
+    tag: "SSC STENO 06/08/2025 - AFTERNOON",
+    o: [
+      "(a) केवल 1, 3 और 4",
+      "(b) केवल 2 और 3",
+      "(c) केवल 1 और 4",
+      "(d) सभी चार कथन 1, 2, 3 और 4 सही हैं"
+    ],
+    a: 0,
+    e: "'सहकारी समितियां' राज्य सूची का विषय है, संघ सूची का नहीं। इसलिए कथन 2 गलत है।"
+  },
+  {
+    q: "Q52. भारत की कौन सी संवैधानिक विशेषताएँ आस्ट्रेलियाई संविधान से जुड़ी हैं?",
+    tag: "SSC STENO 07/08/2025 - MORNING",
+    o: [
+      "(a) व्यापार और वाणिज्य की स्वतंत्रता",
+      "(b) दोनों सदनों की संयुक्त बैठक तंत्रता",
+      "(c) मजबूत केंद्र के साथ संघीय ढांचा",
+      "(d) सर्वोच्च न्यायालय का सलाहकार क्षेत्राधिकार"
+    ],
+    a: 0,
+    e: "दिए गए विकल्पों और उत्तर कुंजी के आधार पर 'व्यापार और वाणिज्य की स्वतंत्रता' आस्ट्रेलियाई संविधान से प्रेरित है (संयुक्त बैठक भी वहीं से ली गई है, लेकिन उत्तर कुंजी विकल्प a को सही मानती है)।"
+  },
+  {
+    q: "Q53. नीचे दिए गए कथनों को पढ़ें:<br>कथन 1: भारत का संविधान विधायी विषयों को तीन सूचियों में विभाजित करता है: केंद्र, राज्य और समवर्ती सूची。<br>कथन 2: 42वें संशोधन अधिनियम द्वारा 'वन्य पशु और पक्षियों का संरक्षण' विषय राज्य सूची से समवर्ती सूची में स्थानांतरित कर दिया गया है。<br>कथन 3: समवर्ती सूची के अंतर्गत आने वाले विषयों पर केवल भारत की संसद ही कानून बना सकती है।<br>ऊपर दिए गए निम्नलिखित कथनों में से कौन सा/से सही है/हैं?",
+    tag: "SSC STENO 06/08/2025 - AFTERNOON",
+    o: [
+      "(a) केवल कथन 1 और 3 सही हैं",
+      "(b) सभी तीन कथन 1, 2 और 3 सही हैं",
+      "(c) केवल कथन 2 सही है",
+      "(d) केवल कथन 1 और 2 सही हैं"
+    ],
+    a: 3,
+    e: "समवर्ती सूची के विषयों पर संसद और राज्य विधानमंडल दोनों कानून बना सकते हैं। इसलिए कथन 3 गलत है।"
+  },
+  {
+    q: "Q54. निम्नलिखित कथनों पर विचार कीजिए:<br>कथन I: भूमि और कृषि राज्य सूची के अंतर्गत आते हैं。<br>कथन II: विवाह कानून और दत्तक ग्रहण समवर्ती सूची के अंतर्गत आते हैं。<br>उपर्युक्त कथनों में से कौन सा/से सही है/हैं?",
+    tag: "SSC STENO 07/08/2025 - MORNING",
+    o: [
+      "(a) केवल कथन I सही है",
+      "(b) केवल कथन II सही है",
+      "(c) कथन I और II दोनों सही हैं",
+      "(d) न तो कथन I और न ही II सही है"
+    ],
+    a: 2,
+    e: "भूमि और कृषि 7वीं अनुसूची की राज्य सूची में हैं। विवाह और दत्तक ग्रहण समवर्ती सूची में हैं। दोनों कथन सही हैं।"
+  },
+  {
+    q: "Q55. निम्नलिखित कथनों पर विचार कीजिए:<br>1. संघ और राज्यों के लिए सामान्य अखिल भारतीय सेवाएँ。<br>2. केवल राज्य सरकारों द्वारा नियंत्रित。<br>उपरोक्त में से कौन सा/से कथन सत्य है/हैं?",
+    tag: "SSC STENO 07/08/2025 - AFTERNOON",
+    o: [
+      "(a) 1 और 2 दोनों",
+      "(b) केवल 2",
+      "(c) न तो 1 और न ही 2",
+      "(d) केवल 1"
+    ],
+    a: 1,
+    e: "दिए गए उत्तर कुंजी के आधार पर विकल्प (b) सही है, जो अखिल भारतीय सेवाओं पर राज्यों के तात्कालिक नियंत्रण को दर्शाता है।"
+  },
+  {
+    q: "Q56. 'संवैधानिक पदाधिकारियों की उपलब्धियां, भत्ते और विशेषाधिकार' भारतीय संविधान की किस अनुसूची के अंतर्गत शासित होते हैं?",
+    tag: "SSC STENO 07/08/2025 - EVENING",
+    o: [
+      "(a) पाँचवीं अनुसूची",
+      "(b) सातवीं अनुसूची",
+      "(c) ग्यारहवीं अनुसूची",
+      "(d) दूसरी अनुसूची"
+    ],
+    a: 3,
+    e: "संविधान की दूसरी अनुसूची संवैधानिक पदाधिकारियों (राष्ट्रपति, राज्यपाल, न्यायाधीश आदि) के वेतन, भत्ते और विशेषाधिकारों से संबंधित है।"
+  },
+  {
+    q: "Q57. किस मामले में सर्वोच्च न्यायालय ने माना कि न्यायिक समीक्षा संविधान की एक बुनियादी विशेषता है?",
+    tag: "RRB NTPC UG 20/08/2025 - EVENING",
+    o: [
+      "(a) शाह बानो केस",
+      "(b) शंकरी प्रसाद मामला",
+      "(c) केशवानंद भारती मामला",
+      "(d) गोलकनाथ केस"
+    ],
+    a: 2,
+    e: "1973 के केशवानंद भारती मामले में सर्वोच्च न्यायालय ने 'मूल संरचना' (Basic Structure) का सिद्धांत दिया और न्यायिक समीक्षा को इसका हिस्सा माना।"
+  },
+  {
+    q: "Q58. कौन सी सूची केंद्र और राज्य दोनों को एक ही विषय पर कानून बनाने की अनुमति देती है?",
+    tag: "SSC STENO 08/08/2025 - MORNING",
+    o: [
+      "(a) आरक्षित सूची",
+      "(b) संघ सूची",
+      "(c) समवर्ती सूची",
+      "(d) राज्य सूची"
+    ],
+    a: 2,
+    e: "समवर्ती सूची (Concurrent List) में शामिल विषयों पर केंद्र सरकार और राज्य सरकार दोनों कानून बना सकते हैं।"
+  },
+  {
+    q: "Q59. समवर्ती सूची कानूनों से संबंधित नीचे दिए गए कथनों को पढ़िए:<br>1. संघ कानून संघर्ष में राज्य के कानून को ओवरराइड करता है。<br>2. राज्य का कानून प्रबल हो सकता है यदि राष्ट्रपति द्वारा आरक्षित और सहमति दी जाती है。<br>कौन सा सही है/हैं?",
+    tag: "SSC STENO 08/08/2025 - MORNING",
+    o: [
+      "(a) केवल 2",
+      "(b) केवल 1",
+      "(c) 1 और 2 दोनों",
+      "(d) न तो 1 और न ही 2"
+    ],
+    a: 2,
+    e: "सामान्यतः समवर्ती सूची में केंद्र का कानून राज्य के कानून पर हावी होता है। लेकिन यदि राज्य के कानून को राष्ट्रपति की सहमति मिल गई हो, तो वह प्रबल हो सकता. है। दोनों कथन सही हैं।"
+  },
+  {
+    q: "Q60. भारत में संघवाद की प्रणाली शक्तियों को निम्नलिखित के बीच विभाजित करती है:",
+    tag: "SSC STENO 08/08/2025 - AFTERNOON",
+    o: [
+      "(a) केंद्र और राज्य",
+      "(b) लोकसभा और राज्यसभा",
+      "(c) राष्ट्रपति और राज्यपाल",
+      "(d) कार्यपालिका और न्यायपालिका"
+    ],
+    a: 0,
+    e: "संघवाद (Federalism) सरकार की एक प्रणाली है जिसमें शक्तियों का विभाजन केंद्रीय प्राधिकरण (केंद्र) और इसकी घटक इकाइयों (राज्यों) के बीच होता है।"
+  },
+  {
+    q: "Q61. 'अवशिष्ट विषयों' (तीनों सूचियों में से किसी में भी सूचीबद्ध न किए गए मामले) पर कानून बनाने की शक्ति विशेष रूप से इसके पास है",
+    tag: "SSC STENO 08/08/2025 - EVENING",
+    o: [
+      "(a) भारत के राष्ट्रपति",
+      "(b) संसद",
+      "(c) सर्वोच्च न्यायालय",
+      "(d) राज्य विधानमंडल"
+    ],
+    a: 1,
+    e: "भारतीय संविधान के अनुच्छेद 248 के अनुसार अवशिष्ट विषयों पर कानून बनाने की विशेष शक्ति संसद के पास है।"
+  },
+  {
+    q: "Q62. विधानमंडल के सदस्यों द्वारा 'शपथ या प्रतिज्ञान' का प्रावधान भारतीय संविधान की किस अनुसूची में उल्लिखित है?",
+    tag: "SSC STENO 08/08/2025 - EVENING",
+    o: [
+      "(a) दूसरी अनुसूची",
+      "(b) चौथी अनुसूची",
+      "(c) पाँचवीं अनुसूची",
+      "(d) तीसरी अनुसूची"
+    ],
+    a: 3,
+    e: "भारत के संविधान की तीसरी अनुसूची में विभिन्न संवैधानिक पदों और विधानमंडल के सदस्यों के लिए शपथ या प्रतिज्ञान के प्रारूप दिए गए हैं।"
+  },
+  {
+    q: "Q63. भारतीय संविधान के अनुसार, निम्नलिखित में से कौन सी अनुसूची सरकार की शक्तियों के पृथक्करण से संबंधित है?",
+    tag: "SSC GD 07/02/2025 - AFTERNOON",
+    o: [
+      "(a) छठी अनुसूची",
+      "(b) पाँचवीं अनुसूची",
+      "(c) आठवीं अनुसूची",
+      "(d) सातवीं अनुसूची"
+    ],
+    a: 3,
+    e: "सातवीं अनुसूची केंद्र और राज्यों के बीच विधायी शक्तियों के विभाजन (संघ सूची, राज्य सूची, समवर्ती सूची) से संबंधित है।"
+  },
+  {
+    q: "Q64. समवर्ती सूची के विषय पर केन्द्रीय और राज्य कानून के बीच टकराव की स्थिति में, राज्य कानून तभी मान्य होगा जबः",
+    tag: "SSC PHASE XIII 24/07/2025 Shift-1",
+    o: [
+      "(a) यह दो-तिहाई बहुमत से पारित हो चुका है",
+      "(b) इसे राष्ट्रपति स्वीकृति मिल चुकी है",
+      "(c) इसे सर्वोच्च न्यायालय के एक फैसले का समर्थन प्राप्त है",
+      "(d) राज्यसभा इसे पारित कर चुकी है"
+    ],
+    a: 1,
+    e: "समवर्ती सूची पर विवाद की स्थिति में राज्य का कानून तभी मान्य होता है जब उसे अधिनियमित होने से पहले राष्ट्रपति की सहमति (Presidential assent) प्राप्त हो गई हो।"
+  },
+  {
+    q: "Q65. निम्नलिखित कथनों पर विचार कीजिए:<br>1. अनुसूची VI असम और त्रिपुरा के आदिवासी क्षेत्रों पर लागू होती है。<br>2. अनुसूची VI के अंतर्गत स्वायत्त परिषदें वन प्रबंधन पर कानून बना सकती हैं。<br>3. अनुसूची VI झारखंड पर लागू है。<br>उपर्युक्त में से कौन सा/से सही है/हैं?",
+    tag: "SSC PHASE XIII 24/07/2025 Shift-1",
+    o: [
+      "(a) केवल 1 और 2",
+      "(b) केवल 2 और 3",
+      "(c) केवल 1 और 3",
+      "(d) 1, 2 और 3"
+    ],
+    a: 0,
+    e: "छठी अनुसूची असम, मेघालय, त्रिपुरा और मिजोरम पर लागू होती है (झारखंड पर नहीं)। इसके तहत स्वायत्त जिला परिषदों को वन प्रबंधन आदि पर कानून बनाने का अधिकार है।"
+  },
+  {
+    q: "Q66. भारतीय संविधान में कितनी अनुसूचियाँ हैं?",
+    tag: "SSC PHASE XIII 28/07/2025 Shift-1",
+    o: [
+      "(a) 10",
+      "(b) 12",
+      "(c) 11",
+      "(d) 9"
+    ],
+    a: 1,
+    e: "मूल संविधान में 8 अनुसूचियाँ थीं, लेकिन वर्तमान भारतीय संविधान में कुल 12 अनुसूचियाँ हैं।"
+  },
+  {
+    q: "Q67. भारत में संघवाद के बारे में निम्नलिखित में से कौन सा कथन सत्य है?",
+    tag: "SSC PHASE XIII 29/07/2025 Shift-1",
+    o: [
+      "(a) राज्यों को संघ से अलग होने का अधिकार है",
+      "(b) शक्तियों का कठोर विभाजन है",
+      "(c) संघ के पास सर्वोच्च अधिकार हैं",
+      "(d) राज्य संप्रभु संस्थाएँ हैं"
+    ],
+    a: 2,
+    e: "भारतीय संघवाद में 'विनाशी राज्यों का अविनाशी संघ' है, जहाँ एक मजबूत केंद्र (Union has overriding authority) की व्यवस्था की गई है।"
+  },
+  {
+    q: "Q68. समवर्ती सूची के किसी विषय पर संघ और राज्य के कानूनों के बीच टकराव की स्थिति में कौन सा कानून लागू होता है?",
+    tag: "SSC PHASE XIII 31/07/2025 Shift-1",
+    o: [
+      "(a) संघ कानून",
+      "(b) राज्य कानून",
+      "(c) नवीनतम कानून",
+      "(d) सर्वोच्च न्यायालय हर बार निर्णय देता है"
+    ],
+    a: 0,
+    e: "संविधान के अनुच्छेद 254 के अनुसार, समवर्ती सूची के विषय पर टकराव होने की स्थिति में सामान्यतः संघ (संसद) द्वारा बनाया गया कानून लागू होता है।"
+  },
+  {
+    q: "Q69. निम्नलिखित में से कौन से विषय भारतीय संविधान में 'संघ सूची/केन्द्र सूची' में शामिल हैं?",
+    tag: "SSC PHASE XIII 30/07/2025 Shift-1",
+    o: [
+      "(a) पुलिस और सार्वजनिक व्यवस्था",
+      "(b) राष्ट्रीय रक्षा और विदेश मामले",
+      "(c) शिक्षा और स्थानीय सरकार",
+      "(d) कृषि और ग्रामीण विकास"
+    ],
+    a: 1,
+    e: "राष्ट्रीय रक्षा और विदेश मामले (National defense and foreign affairs) राष्ट्रीय महत्व के विषय होने के कारण 7वीं अनुसूची की 'संघ सूची' में शामिल हैं।"
+  },
+  {
+    q: "Q70. भारतीय संविधान की आठवीं अनुसूची निम्नलिखित से संबंधित है:",
+    tag: "IB SA MTS 2025",
+    o: [
+      "(a) भारत की आधिकारिक भाषाएँ",
+      "(b) राज्यसभा में सीटों का आवंटन",
+      "(c) पंचायती राज",
+      "(d) दलबदल विरोधी कानून"
+    ],
+    a: 0,
+    e: "संविधान की आठवीं अनुसूची भारत की 22 आधिकारिक भाषाओं को मान्यता प्रदान करने से संबंधित है।"
+  },
+  {
+    q: "Q71. भारत में विधायी शक्तियों को तीन सूचियों में विभाजित किया गया है: संघ सूची, राज्य सूची और _______",
+    tag: "IB MTS 2025",
+    o: [
+      "(a) समवर्ती सूची",
+      "(b) संघीय सूची",
+      "(c) क्षेत्रीय सूची",
+      "(d) अनन्य सूची"
+    ],
+    a: 0,
+    e: "भारत के संविधान की 7वीं अनुसूची में विधायी शक्तियों को तीन सूचियों में बांटा गया है: संघ सूची, राज्य सूची और समवर्ती सूची।"
+  },
+  {
+    q: "Q72. निम्नलिखित में से किस पूर्वोत्तर राज्य के क्षेत्र छठी अनुसूची के अंतर्गत शासित हैं?",
+    tag: "SSC STENO 06/08/2025 - EVENING",
+    o: [
+      "(a) त्रिपुरा",
+      "(b) मणिपुर",
+      "(c) नगालैंड",
+      "(d) अरुणाचल प्रदेश"
+    ],
+    a: 0,
+    e: "छठी अनुसूची पूर्वोत्तर के चार राज्यों- असम, मेघालय, त्रिपुरा और मिज़ोरम के जनजातीय क्षेत्रों के प्रशासन से संबंधित है।"
+  },
+  {
+    q: "Q73. भारतीय संविधान की निम्नलिखित अनुसूचियों को उनकी संबंधित विशेषताओं के साथ सुमेलित करें:<br>कॉलम ए (अनुसूची) - कॉलम बी (फ़ीचर)<br>1. पहली अनुसूची - a. संघ और राज्यों के बीच शक्तियों और जिम्मेदारियों का आवंटन<br>2. तीसरी अनुसूची - b. शपथ या प्रतिज्ञान के रूप<br>3. तीसरी अनुसूची - c. अनुसूचित क्षेत्रों और जनजातियों का प्रशासन और नियंत्रण (पूर्वोत्तर राज्यों को छोड़कर)<br>4. सातवीं अनुसूची - d. राज्यों और केंद्र शासित प्रदेशों के नाम और उनके क्षेत्रीय अधिकार क्षेत्र",
+    tag: "SSC STENO 07/08/2025 - EVENING",
+    o: [
+      "(a) 1-c, 2-а, 3-d, 4-b",
+      "(b) 1-d, 2-b, 3-c, 4-a",
+      "(c) 1-b, 2-d, 3-a, 4-c",
+      "(d) 1-a, 2-c, 3-b, 4-d"
+    ],
+    a: 1,
+    e: "पहली अनुसूची में राज्यों के नाम हैं (1-d)। दूसरी अनुसूची (यहाँ तीसरी दिया है) शपथ से (2-b)। पांचवीं अनुसूची (यहाँ तीसरी छपा है) अनुसूचित क्षेत्रों से (3-c)। सातवीं अनुसूची शक्तियों के आवंटन से है (4-a)।"
+  },
+  {
+    q: "Q74. भारतीय संविधान की दूसरी अनुसूची में क्या प्रावधान है?",
+    tag: "RPF CONSTABLE 11/03/2025 - AFETRNOON",
+    o: [
+      "(a) राज्य सभा में सीटों का आवंटन",
+      "(b) शपथ या प्रतिज्ञान के प्रकार",
+      "(c) नगरपालिकाओं की शक्तियाँ",
+      "(d) राष्ट्रपति, राज्यपालों और अन्य पदाधिकारियों से संबंधित प्रावधान"
+    ],
+    a: 3,
+    e: "दूसरी अनुसूची संवैधानिक पदाधिकारियों (जैसे राष्ट्रपति, राज्यपाल, न्यायाधीश आदि) के वेतन, भत्तों और विशेषाधिकारों से संबंधित प्रावधान करती है।"
+  },
+  {
+    q: "Q75. 52वें संशोधन द्वारा सम्मिलित भारतीय संविधान की 10वीं अनुसूची निम्नलिखित से संबंधित है:",
+    tag: "IB SA MTS 2025",
+    o: [
+      "(a) आपातकालीन प्रावधान",
+      "(b) राजस्व वितरण",
+      "(c) दलबदल विरोधी कानून",
+      "(d) राज्यसभा में राज्यों का प्रतिनिधित्व"
+    ],
+    a: 2,
+    e: "1985 के 52वें संशोधन द्वारा जोड़ी गई 10वीं अनुसूची 'दलबदल विरोधी कानून' के आधार पर सदस्यों की अयोग्यता का प्रावधान करती है।"
+  },
+  {
+    q: "Q76. आठवीं अनुसूची में किन भाषाओं को शामिल किया जाए, यह निर्धारित करने के लिए किन समितियों ने मानदंड बनाने का प्रयास किया?",
+    tag: "IB ACIO - II - 16/09/2025 - AFTERNOON",
+    o: [
+      "(a) सेन और पटेल समितियाँ",
+      "(b) मंडल और शाह समितियाँ",
+      "(c) वर्मा और कृष्णन समितियाँ",
+      "(d) पाहवा और सीताकांत महापात्र समिति"
+    ],
+    a: 3,
+    e: "पाहवा (1996) और सीताकांत महापात्र (2003) समितियों का गठन आठवीं अनुसूची में भाषाओं को शामिल करने के लिए उद्देश्यपरक मानदंड विकसित करने के लिए किया गया था।"
+  },
+  {
+    q: "Q77. निम्नलिखित में से किस विषय का भारतीय संविधान की सातवीं अनुसूची की राज्य सूची में कोई उल्लेख नहीं है?",
+    tag: "IB ACIO - II - 16/09/2025 - AFTERNOON",
+    o: [
+      "(a) रेलवे",
+      "(b) कब्रिस्तान और कब्रिस्तान",
+      "(c) police",
+      "(d) विकलांगों और बेरोजगारों की सहायता"
+    ],
+    a: 0,
+    e: "'रेलवे' संघ सूची (Union List) का विषय है, जबकि पुलिस, कब्रिस्तान, और विकलांगों/बेरोजगारों की सहायता राज्य सूची के विषय हैं।"
+  },
+  {
+    q: "Q78. आठवीं अनुसूची के संबंध में निम्नलिखित में से कौन सा कथन सत्य है?",
+    tag: "IB ACIO II - 18/09/2025 - AFTERNOON",
+    o: [
+      "(a) इसमें उन भाषाओं को शामिल किया गया है जिन्हें उन्नति और संवर्धन के लिए अनुमोदित किया गया है।",
+      "(b) यह हिंदी को राष्ट्रीय भाषा का दर्जा प्रदान करता है।",
+      "(c) यह भारत में क्षेत्रीय भाषाओं के प्रयोग को सीमित करता है।",
+      "(d) यह राज्य विधानमंडलों में अंग्रेजी के प्रयोग को नियंत्रित करता है।"
+    ],
+    a: 0,
+    e: "आठवीं अनुसूची उन 22 भाषाओं को सूचीबद्ध करती है जिन्हें भारत सरकार द्वारा उन्नति और विकास के लिए मान्यता दी गई है।"
+  },
+  {
+    q: "Q79. भारतीय संविधान में संस्कृत को आधुनिक भारतीय भाषाओं में क्यों गिना गया है?",
+    tag: "RRB NTPC UG 08/09/2025 - EVENING",
+    o: [
+      "(a) चूँकि यह सभी समकालीन भारतीय भाषाओं का भाषाई मूल है",
+      "(b) इसे भारत की राष्ट्रीय भाषा का दर्जा दिया गया है",
+      "(c) इसे सबसे प्राचीन शास्त्रीय भाषा का दर्जा प्राप्त है",
+      "(d) क्योंकि इसका सक्रिय रूप से प्रयोग जारी है"
+    ],
+    a: 3,
+    e: "संस्कृत को आठवीं अनुसूची में शामिल किया गया है क्योंकि अपनी प्राचीनता के बावजूद, इसका अभी भी सक्रिय रूप से उपयोग किया जाता है।"
+  },
+  {
+    q: "Q80. निम्नलिखित में से कौन से राज्य भारतीय संविधान की पांचवीं अनुसूची के अंतर्गत आते हैं?",
+    tag: "RRB NTPC UG 20/08/2025 - EVENING",
+    o: [
+      "(a) असम और त्रिपुरा",
+      "(b) मिज़ोरम और मणिपुर",
+      "(c) झारखंड और छत्तीसगढ़",
+      "(d) नागालैंड और मेघालय"
+    ],
+    a: 2,
+    e: "झारखंड और छत्तीसगढ़ उन 10 राज्यों में शामिल हैं जो पाँचवीं अनुसूची के तहत अनुसूचित क्षेत्रों वाले राज्य हैं।"
+  },
+  {
+    q: "Q81. नागरिकता अधिनियम, 1955 की किस अनुसूची में प्राकृतिककरण के लिए योग्यताएं शामिल हैं?",
+    tag: "RRB NTPC UG 01/09/2025 - EVENING",
+    o: [
+      "(a) दसवीं अनुसूची",
+      "(b) दूसरी अनुसूची",
+      "(c) पहली अनुसूची",
+      "(d) तीसरी अनुसूची"
+    ],
+    a: 3,
+    e: "नागरिकता अधिनियम, 1955 की तीसरी अनुसूची में प्राकृतिककरण (Naturalisation) के द्वारा नागरिकता प्राप्त करने की योग्यताएं दी गई हैं।"
+  },
+  {
+    q: "Q82. भारतीय संविधान का ________ न्यायिक समीक्षा के तहत कानूनों को अदालतों में चुनौती दिए जाने से बचाता है।",
+    tag: "RRB NTPC UG 09/09/2025 - MORNING",
+    o: [
+      "(a) नौवीं अनुसूची",
+      "(b) तीसरी अनुसूची",
+      "(c) ग्यारहवीं अनुसूची",
+      "(d) पाँचवीं अनुसूची"
+    ],
+    a: 0,
+    e: "प्रथम संविधान संशोधन (1951) द्वारा जोड़ी गई नौवीं अनुसूची में शामिल कानूनों को न्यायिक समीक्षा से संरक्षण प्राप्त था।"
+  },
+  {
+    q: "Q83. विभिन्न संवैधानिक पदों के लिए शपथ और प्रतिज्ञान के स्वरूप किस अनुसूची में निर्दिष्ट हैं?",
+    tag: "RRB NTPC UG 09/09/2025 - MORNING",
+    o: [
+      "(a) दसवीं अनुसूची",
+      "(b) तीसरी अनुसूची",
+      "(c) पाँचवीं अनुसूची",
+      "(d) चौथी अनुसूची"
+    ],
+    a: 1,
+    e: "तीसरी अनुसूची (Third Schedule) में केंद्रीय मंत्रियों, सांसदों, सर्वोच्च न्यायालय के न्यायाधीशों आदि के लिए शपथ और प्रतिज्ञान के प्रारूप शामिल हैं।"
+  },
+  {
+    q: "Q84. भारतीय संविधान की ग्यारहवीं अनुसूची निम्नलिखित में से किससे संबंधित है?",
+    tag: "RRB NTPC UG 12/08/2025 - EVENING",
+    o: [
+      "(a) राज्य सूची के विषय",
+      "(b) नगरपालिकाओं के कार्य",
+      "(c) पंचायतों की शक्तियाँ और जिम्मेदारियाँ",
+      "(d) दलबदल विरोधी कानून"
+    ],
+    a: 0,
+    e: "दिए गए उत्तर कुंजी के अनुसार विकल्प (a) सही है। ग्यारहवीं अनुसूची में पंचायतों के 29 विषय हैं, जो मूलतः राज्य सूची के विषयों से संबंधित हैं।"
+  },
+  {
+    q: "Q85. निम्नलिखित में से कौन सा कार्य संविधान की बारहवीं अनुसूची के अंतर्गत नहीं है?",
+    tag: "RRB NTPC UG 22/08/2025 - AFTERNOON",
+    o: [
+      "(a) शहरी नियोजन",
+      "(b) विदेशी व्यापार संवर्धन",
+      "(c) सार्वजनिक स्वास्थ्य",
+      "(d) शहरी गरीबी उन्मूलन"
+    ],
+    a: 1,
+    e: "बारहवीं अनुसूची में नगरपालिकाओं के 18 विषय शामिल हैं। इसमें 'विदेशी व्यापार संवर्धन' शामिल नहीं है, क्योंकि यह संघ सूची का विषय है।"
+  },
+  {
+    q: "Q86. अप्रैल 2025 तक, भारतीय संविधान की आठवीं अनुसूची में कितनी भाषाएँ सूचीबद्ध हैं?",
+    tag: "RRB NTPC 14/06/2025 - AFTERNOON",
+    o: [
+      "(a) 20",
+      "(b) 22",
+      "(c) 14",
+      "(d) 18"
+    ],
+    a: 1,
+    e: "भारतीय संविधान की आठवीं अनुसूची में वर्तमान में 22 भाषाएँ सूचीबद्ध हैं। मूल संविधान में 14 भाषाएँ थीं।"
+  },
+  {
+    q: "Q87. भारत के संविधान में सहकारी समितियों के विधायी आवंटन के संबंध में निम्नलिखित में से कौन सा कथन सही है?",
+    tag: "RRB NTPC UG 18/08/2025 - EVENING",
+    o: [
+      "(a) यह राज्य सूची का विषय है।",
+      "(b) यह संघ सूची का विषय है।",
+      "(c) यह अवशिष्ट (संघ) सूची के अंतर्गत आता है।",
+      "(d) यह समवर्ती सूची का विषय है।"
+    ],
+    a: 0,
+    e: "'सहकारी समितियां' भारतीय संविधान की सातवीं अनुसूची के तहत 'राज्य सूची' का विषय हैं।"
+  },
+  {
+    q: "Q88. निम्नलिखित में से कौन सी मणिपुर राज्य की आधिकारिक भाषा है?",
+    tag: "RRB NTPC UG 18/08/2025 - MORNING",
+    o: [
+      "(a) मैतेई",
+      "(b) बोडो",
+      "(c) खासी",
+      "(d) मिज़ो"
+    ],
+    a: 0,
+    e: "मैतेई (मणिपुरी) भाषा मणिपुर राज्य की प्रमुख और आधिकारिक भाषा है, जिसे आठवीं अनुसूची में भी मान्यता प्राप्त है।"
+  },
+  {
+    q: "Q89. कौन सा उदाहरण दैनिक जीवन में संविधान की आवश्यकता को सबसे अच्छी तरह दर्शाता है?",
+    tag: "RRB NTPC UG 01/09/2025 - MORNING",
+    o: [
+      "(a) पारिवारिक विवाद सुलझाना",
+      "(b) स्थानीय दुकान से किराने का सामान खरीदना",
+      "(c) प्रतिनिधित्व और संसाधन साझा करने के लिए कक्षा द्वारा नियम तय करना",
+      "(d) राष्ट्रीय त्योहार मनाना"
+    ],
+    a: 2,
+    e: "एक कक्षा द्वारा प्रतिनिधित्व और संसाधन साझा करने के लिए नियम बनाना संविधान के मूल उद्देश्य (नियम, शक्ति का आवंटन) को सबसे अच्छी तरह दर्शाता है।"
+  },
+  {
+    q: "Q90. भारतीय संविधान में समवर्ती सूची की प्रकृति क्या है?",
+    tag: "RRB NTPC UG 09/09/2025 - MORNING",
+    o: [
+      "(a) केवल राज्यों के लिए",
+      "(b) केवल संघ के लिए",
+      "(c) केंद्र और राज्य दोनों कानून बना सकते हैं",
+      "(d) केवल आपात स्थिति में"
+    ],
+    a: 2,
+    e: "समवर्ती सूची (Concurrent List) में ऐसे विषय शामिल होते हैं जिन पर संसद और राज्य विधानमंडल दोनों कानून बना सकते हैं।"
+  }
+];
+
+
+
+
+
+
+
+
+function formatContent(txt){
+ if(txt==null) return "";
+ txt=String(txt);
+ txt=txt.replace(/\\n/g,"<br>");
+ while(/\\text\{([^{}]*)\}/.test(txt)){ txt=txt.replace(/\\text\{([^{}]*)\}/g,"$1"); }
+ txt=txt.replace(/\^\{([^}]+)\}/g,"<sup>$1</sup>");
+ txt=txt.replace(/_\{([^}]+)\}/g,"<sub>$1</sub>");
+ txt=txt.replace(/([A-Za-z0-9\)\]])\^(-?\d+)/g,"$1<sup>$2</sup>");
+ txt=txt.replace(/([A-Za-z])_([A-Za-z0-9]+)/g,"$1<sub>$2</sub>");
+ txt=txt.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'<span style="display:inline-block;vertical-align:middle;text-align:center;"><span style="display:block;border-bottom:1px solid #000;padding:0 2px;">$1</span><span style="display:block;">$2</span></span>');
+ txt=txt.replace(/\\sqrt\{([^{}]+)\}/g,"√($1)");
+ txt=txt.replace(/\^\\circ/g,"°").replace(/\\circ/g,"°").replace(/\\Omega/g,"Ω").replace(/\\lambda/g,"λ").replace(/\\alpha/g,"α").replace(/\\beta/g,"β").replace(/\\gamma/g,"γ").replace(/\\times/g,"×").replace(/\\cdot/g,"·").replace(/\\div/g,"÷").replace(/\\pm/g,"±").replace(/\\approx/g,"≈").replace(/\\neq/g,"≠").replace(/\\geq?/g,"≥").replace(/\\leq?/g,"≤").replace(/\\Rightarrow/g,"⇒").replace(/\\rightarrow/g,"→").replace(/\\leftarrow/g,"←").replace(/\\%/g,"%");
+
+ txt=txt.replace(/\\sin\b/g,"sin");
+ txt=txt.replace(/\\cos\b/g,"cos");
+ txt=txt.replace(/\\tan\b/g,"tan");
+ txt=txt.replace(/\\cot\b/g,"cot");
+ txt=txt.replace(/\\sec\b/g,"sec");
+ txt=txt.replace(/\\csc\b/g,"csc");
+ txt=txt.replace(/\\pi\b/g,"π");
+ txt=txt.replace(/\\theta\b/g,"θ");
+ txt=txt.replace(/\\rho\b/g,"ρ");
+ txt=txt.replace(/\\phi\b/g,"φ");
+ txt=txt.replace(/\\mu\b/g,"μ");
+ txt=txt.replace(/\\sigma\b/g,"σ");
+ txt=txt.replace(/\\omega\b/g,"ω");
+ txt=txt.replace(/\\Delta\b/g,"Δ");
+ txt=txt.replace(/\\propto\b/g,"∝");
+ txt=txt.replace(/MATH_BLOCK_[0-9_]+/g,"");
+ txt = txt.replace(/\\\{/g, "{");
+txt = txt.replace(/\\\}/g, "}");
+// Chemical ion superscript fix
+txt=txt.replace(/([A-Za-z\)])\^\+/g,'$1<sup>+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\-/g,'$1<sup>−</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\+\}/g,'$1<sup>$2+</sup>');
+txt=txt.replace(/([A-Za-z\)])\^\{([0-9]+)\-\}/g,'$1<sup>$2−</sup>');
+
+
+// Auto-render fixes
+txt=txt.replace(/\\,/g,"");
+txt=txt.replace(/\\Omega/g,"Ω");
+txt=txt.replace(/\\omega/g,"ω");
+txt=txt.replace(/\\implies/g,"⇒");
+txt=txt.replace(/\\therefore/g,"∴");
+txt=txt.replace(/\\because/g,"∵");
+txt=txt.replace(/\$/g,"");
+txt=txt.replace(/\\\{/g,"{").replace(/\\\}/g,"}");
+txt=txt.replace(/([A-Za-z])_([0-9]+)/g,"$1<sub>$2</sub>");
+txt=txt.replace(/([A-Za-z\)])\^\+/g,"$1<sup>+</sup>");
+txt=txt.replace(/([A-Za-z\)])\^\-/g,"$1<sup>−</sup>");
+return txt;
+}
+
+
+
+let elapsed=0,timerRunning=true,isPaused=false;
+const timer=setInterval(()=>{if(timerRunning){elapsed++;const m=String(Math.floor(elapsed/60)).padStart(2,'0');const s=String(elapsed%60).padStart(2,'0');const t=document.getElementById('liveTimer');if(t)t.textContent=m+':'+s;const pt=document.getElementById('popupTime');if(pt)pt.textContent=m+':'+s;}},1000);
+
+let qElapsed=0;
+let questionTimes=new Array(data.length).fill(0);
+setInterval(()=>{if(timerRunning){
+ questionTimes[currentQ]++;
+ qElapsed=questionTimes[currentQ];
+ const m=String(Math.floor(qElapsed/60)).padStart(2,'0');
+ const s=String(qElapsed%60).padStart(2,'0');
+ const qt=document.getElementById('qTimer');
+ if(qt){
+   qt.textContent=m+':'+s;
+   const icon=document.getElementById('qTimerIcon');
+   if(qElapsed<=30){qt.style.color='#4caf50'; }
+   else if(qElapsed<=60){qt.style.color='#ff9800'; }
+   else{qt.style.color='#f44336'; }
+ }
+}},1000);
+function resetQuestionTimer(){qElapsed=questionTimes[currentQ];const qt=document.getElementById('qTimer');if(qt){const m=String(Math.floor(qElapsed/60)).padStart(2,'0');const s=String(qElapsed%60).padStart(2,'0');qt.textContent=m+':'+s; const icon=document.getElementById('qTimerIcon'); if(qElapsed<=30){qt.style.color='#4caf50'; }else if(qElapsed<=60){qt.style.color='#ff9800'; }else{qt.style.color='#f44336'; }}}
+
+window.addEventListener('load',()=>{
+ const b=document.getElementById('pauseBtn');
+ if(b){
+  b.onclick=function(e){
+   e.preventDefault();
+   timerRunning=!timerRunning;
+   isPaused=!timerRunning;
+   this.innerHTML=timerRunning?'<span style="font-size:10px;letter-spacing:-1px;">❚❚</span> Pause':'<span style="font-size:10px;">▶</span> Resume';
+   const fade=document.getElementById('pauseFade');
+   if(fade){ fade.classList.toggle('show', !timerRunning); }
+   const ids=['backBtn','nextBtn','jumpBox','.custom-header-panel'];
+   ids.forEach(id=>{
+      const el=document.querySelector(id) || document.getElementById(id);
+      if(el && id !== '.custom-header-panel') el.style.opacity=timerRunning?'1':'0.45';
+   });
+   const pm=document.getElementById('pauseModal');
+   if(pm) pm.classList.toggle('show',isPaused);
+   ['backBtn','nextBtn','jumpBox'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){
+        el.style.opacity=isPaused?'0.45':'1';
+        el.style.pointerEvents=isPaused?'none':'auto';
+      }
+   });
+   ['backBtn','nextBtn','jumpNo'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.disabled=isPaused;
+   });
+   const goBtn=document.querySelector('#jumpBox .nav-btn');
+   if(goBtn) goBtn.disabled=isPaused;
+  };
+ }
+});
+
+let currentQ = 0, score = 0; // score can be fractional due to -1/3 marking
+let currentStreak=0,maxStreak=0;
+let answered = new Array(data.length).fill(false);
+let selectedAnswers=new Array(data.length).fill(null);
+let answerCorrect=new Array(data.length).fill(null);
+function showQ() {
+document.getElementById('q-text').innerHTML = formatContent(data[currentQ].q);
+const tagBox=document.getElementById('exam-tag');
+if(data[currentQ].tag){tagBox.innerHTML=formatContent(data[currentQ].tag);tagBox.style.display='block';}else{tagBox.innerText='';tagBox.style.display='none';}
+let oBox = document.getElementById('options');
+oBox.innerHTML = "";
+document.getElementById('feedback').style.display = "none";
+const prevSel=selectedAnswers[currentQ];
+data[currentQ].o.forEach((opt, idx) => {
+let btn = document.createElement("button");
+btn.innerHTML = formatContent(opt);
+btn.onclick = () => {
+if(isPaused) return;
+let btns = oBox.getElementsByTagName("button");
+for(let b of btns) b.disabled = true;
+if(idx === data[currentQ].a) {
+btn.style.borderColor = "#388e3c";
+btn.style.background = "#e8f5e9";
+if(!answered[currentQ]) score += 1;
+} else {
+btn.style.borderColor = "#d32f2f";
+btn.style.background = "#ffebee";
+btns[data[currentQ].a].style.borderColor = "#388e3c";
+btns[data[currentQ].a].style.background = "#e8f5e9";
+if(!answered[currentQ]) score -= (1/3);
+}
+if(idx === data[currentQ].a){
+currentStreak++;
+if(currentStreak>maxStreak) maxStreak=currentStreak;
+let msg="";
+if(currentStreak===3) msg="🔥 3 Correct Streak!";
+else if(currentStreak===5) msg="🚀 5 Correct Streak!";
+else if(currentStreak===10) msg="💎 10 Correct Streak!";
+else if(currentStreak===15) msg="👑 15 Correct Streak!";
+else if(currentStreak===20) msg="🏆 20 Correct Streak!";
+else if(currentStreak===30) msg="⚡ 30 Correct Streak!";
+else if(currentStreak===50) msg="🌟 50 Correct Streak!";
+else if(currentStreak===100) msg="💯 100 Correct Streak!";
+if(msg){
+celebrate(
+msg,
+currentStreak===3?'Keep Going!':
+currentStreak===5?'Awesome!':
+currentStreak===10?'Excellent!':
+currentStreak===15?'Outstanding!':
+currentStreak===20?'Champion!':
+currentStreak===30?'Master!':
+currentStreak===50?'Super Legend!':
+'GOAT!'
+);
+}
+}else{
+currentStreak=0;
+}
+selectedAnswers[currentQ]=idx;
+answerCorrect[currentQ]=(idx===data[currentQ].a);
+answered[currentQ] = true;
+document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+document.getElementById('feedback').style.display = "block";
+};
+oBox.appendChild(btn);
+});
+if(prevSel!==null){
+ const btns=oBox.getElementsByTagName("button");
+ for(let b of btns) b.disabled=true;
+ btns[data[currentQ].a].style.borderColor="#388e3c";
+ btns[data[currentQ].a].style.background="#e8f5e9";
+ if(prevSel!==data[currentQ].a){
+   btns[prevSel].style.borderColor="#d32f2f";
+   btns[prevSel].style.background="#ffebee";
+ }
+ document.getElementById("feedback").innerHTML="<b>व्याख्या:</b> "+formatContent(data[currentQ].e);
+ document.getElementById('feedback').style.display="block";
+}
+}
+
+
+function celebrate(msg,sub){
+ const p=document.getElementById('streakPopup');
+ document.getElementById('streakTitle').innerText=msg;
+ document.getElementById('streakSub').innerText=sub;
+ p.classList.add('show');
+ for(let i=0;i<28;i++){
+   const b=document.createElement('div');
+   b.className='burst';
+   const r=document.getElementById('streakCard').getBoundingClientRect();
+   b.style.left=(r.left+r.width/2)+'px';
+   b.style.top=(r.top+r.height/2)+'px';
+   b.style.setProperty('--x',(Math.random()*220-110)+'px');
+   b.style.setProperty('--y',(Math.random()*140-70)+'px');
+   p.appendChild(b);
+   setTimeout(()=>b.remove(),1600);
+ }
+ setTimeout(()=>p.classList.remove('show'),1500);
+}
+function showScore(){
+const __fade=document.getElementById('pauseFade');
+if(__fade){__fade.classList.remove('show');}
+timerRunning=true;
+
+document.getElementById('quiz-box').style.display='none';
+document.getElementById('controls').style.display='none';
+document.getElementById('jumpBox').style.display='none';
+let attempted=answered.filter(v=>v).length;
+let correct=0;
+for(let i=0;i<data.length;i++){
+  if(answered[i]){
+    // recompute from score impossible, inspect disabled state not available, so use score formula below
+  }
+}
+let finalScore=score;
+let wrong=Math.round((attempted-finalScore)*3/4);
+correct=attempted-wrong;
+let unattempted=data.length-attempted;
+let accuracy=attempted?((correct/attempted)*100).toFixed(2):"0.00";
+document.getElementById('score').innerText=finalScore.toFixed(2);
+document.getElementById('total').innerText=data.length;
+document.getElementById('correct').innerText=correct;
+document.getElementById('wrong').innerText=wrong;
+document.getElementById('attempted').innerText=attempted;
+document.getElementById('unattempted').innerText=unattempted;
+document.getElementById('accuracy').innerText=accuracy;
+clearInterval(timer);
+const minutes=Math.floor(elapsed/60);
+const seconds=elapsed%60;
+document.getElementById('timeTaken').innerText=
+`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+const avg=Math.floor(elapsed/Math.max(1,attempted));
+document.getElementById('avgTime').innerText=`${String(Math.floor(avg/60)).padStart(2,'0')}:${String(avg%60).padStart(2,'0')}`;
+document.getElementById('highestStreak').innerText=maxStreak;
+const avgSec=attempted?Math.round(elapsed/attempted):0;
+document.getElementById('avgTime').innerText=`${String(Math.floor(avgSec/60)).padStart(2,'0')}:${String(avgSec%60).padStart(2,'0')}`;
+const overallPercent=(Math.max(0,finalScore)/data.length)*100;
+let badge='NEEDS PRACTICE',bg='#c62828';
+if(overallPercent>=90){badge='EXCELLENT';bg='#2e7d32';}
+else if(overallPercent>=75){badge='VERY GOOD';bg='#1565c0';}
+else if(overallPercent>=60){badge='GOOD';bg='#ef6c00';}
+else if(overallPercent>=40){badge='AVERAGE';bg='#8d6e63';}
+const pb=document.getElementById('perfBadge');
+pb.innerText=badge;pb.style.background=bg;
+document.getElementById('score-card').style.display='block';
+document.querySelector('.custom-header-panel').style.display='none';
+}
+function nextQ() {
+ if(isPaused) return;
+ if(currentQ < data.length - 1){
+   currentQ++;
+   showQ();resetQuestionTimer();
+ }else{
+   confirmSubmit();
+ }
+}
+function prevQ() {
+ if(isPaused) return; if(currentQ > 0) { currentQ--; showQ(); resetQuestionTimer(); } }
+function confirmSubmit(){ if(confirm('Do you want to submit the test?')) showScore(); }
+showQ();
+
+function goToQuestion(qNo){
+  if(isPaused) return;
+  qNo = parseInt(qNo,10);
+  if(!Number.isFinite(qNo)) return;
+  if(qNo<1 || qNo>data.length){
+    alert("Valid range: 1 to "+data.length);
+    return;
+  }
+  currentQ=qNo-1;
+  showQ();
+  resetQuestionTimer();
+  var j=document.getElementById('jumpNo'); if(j) j.value='';
+}
+
+document.getElementById("jumpNo").addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    e.preventDefault();
+    goToQuestion(this.value);
+    this.blur(); // Hide keyboard
+  }
+});
+
+
+document.getElementById('resumePopupBtn')?.addEventListener('click',()=>{
+  if(isPaused) document.getElementById('pauseBtn').click();
+});
+document.getElementById('submitPopupBtn')?.addEventListener('click',()=>{
+  confirmSubmit();
+});
+
+</script>
+
+<script>
+(function(){
+function upd(){
+ var b=document.getElementById('qBadge');
+ if(!b)return;
+ var total=(typeof data!=='undefined'&&data)?data.length:0;
+ var cur=1;
+ if(typeof currentQuestion!=='undefined')cur=currentQuestion+1;
+ else if(typeof currentQ!=='undefined')cur=currentQ+1;
+ else if(typeof index!=='undefined')cur=index+1;
+ b.textContent='Q '+cur+'/'+total;
+}
+document.addEventListener('DOMContentLoaded',function(){
+ upd();
+});
+const __oldShowQ=showQ;
+showQ=function(){
+  __oldShowQ();
+  upd();
+};
+})();
+</script>
+
+</body>
+</html>
