@@ -97,54 +97,6 @@ button:active{transform:scale(.94);filter:brightness(.88)}
     font-size:clamp(16px,4.2vw,20px);
   }
 }
-
-/* iPad Web App fallback: floating timer inside the page */
-.pip-fallback{
-  position:fixed;
-  right:14px;
-  bottom:14px;
-  z-index:10000;
-  display:none;
-  width:min(310px,calc(100vw - 28px));
-  background:rgba(20,20,20,.96);
-  border:1px solid #555;
-  border-radius:16px;
-  padding:12px 14px;
-  box-shadow:0 12px 40px rgba(0,0,0,.45);
-  touch-action:none;
-}
-.pip-fallback.show{display:block}
-.pip-fallback-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:7px;
-}
-.pip-fallback-title{font-size:14px;font-weight:700;color:#ddd}
-.pip-fallback-close{
-  min-width:34px!important;
-  width:34px;
-  height:30px;
-  padding:0!important;
-  border-radius:9px!important;
-  background:#444;
-  color:#fff;
-  font-size:18px!important;
-}
-.pip-fallback-time{
-  font-variant-numeric:tabular-nums;
-  font-size:25px;
-  font-weight:700;
-  line-height:1.25;
-  white-space:nowrap;
-}
-.pip-fallback-sub{
-  margin-top:3px;
-  color:#aaa;
-  font-size:12px;
-}
-
 </style>
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#111111">
@@ -194,16 +146,6 @@ button:active{transform:scale(.94);filter:brightness(.88)}
 </div>
 
 <video id="pipVideo" playsinline autoplay muted></video>
-
-<div id="pipFallback" class="pip-fallback" aria-hidden="true">
-  <div class="pip-fallback-head">
-    <div class="pip-fallback-title">📚 Study · 🌅 Awake</div>
-    <button id="pipFallbackClose" class="pip-fallback-close" aria-label="Close">×</button>
-  </div>
-  <div id="pipFallbackTime" class="pip-fallback-time">00:00:00 · 00:00:00</div>
-  <div class="pip-fallback-sub">Native PiP is unavailable in this iPad Web App.</div>
-</div>
-
 
 <script>
 const KEY="wake_study_stopwatch_v1";
@@ -322,9 +264,6 @@ function render(){
   studyToggle.className="toggle "+(state.study.running?"stop":"start");
 
   drawPiP();
-  if(pipFallback.classList.contains("show")){
-    pipFallbackTime.textContent=fmt(elapsed(state.study))+" · "+fmt(elapsed(state.wake));
-  }
 }
 
 function drawPiP(){
@@ -356,20 +295,12 @@ function drawPiP(){
 
 let streamReady=false;
 let syncingVideo=false;
-let nativePipOpened=false;
-
-const pipFallback=$("pipFallback");
-const pipFallbackTime=$("pipFallbackTime");
-const pipFallbackClose=$("pipFallbackClose");
 
 /*
-  PiP behavior:
-  1) Try native Safari/iPad PiP first.
-  2) If the page is running as a Home Screen Web App (PWA) and
-     native PiP is unavailable, show an in-page floating timer instead.
-  3) Study/Awake timer logic remains unchanged.
+ Native PiP center Play/Pause controls STUDY TIME.
+ Both timers remain visible in the PiP display.
+ The two timers can always be independently controlled from the webpage.
 */
-
 video.addEventListener("pause",()=>{
   if(syncingVideo)return;
   stopTimer(state.study);
@@ -382,112 +313,49 @@ video.addEventListener("play",()=>{
   render();
 });
 
-function isStandaloneWebApp(){
-  return window.matchMedia("(display-mode: standalone)").matches ||
-         window.navigator.standalone === true;
-}
-
-function showPipFallback(){
-  pipFallback.classList.add("show");
-  pipFallback.setAttribute("aria-hidden","false");
-  statusEl.textContent=isStandaloneWebApp()
-    ? "iPad Web App me native PiP available nahi hai • Floating Timer opened"
-    : "Native PiP unavailable • Floating Timer opened";
-  render();
-}
-
-function hidePipFallback(){
-  pipFallback.classList.remove("show");
-  pipFallback.setAttribute("aria-hidden","true");
-}
-
-pipFallbackClose.addEventListener("click",hidePipFallback);
-
-/* Make the fallback movable by touch/mouse. */
-let dragActive=false,dragX=0,dragY=0,startLeft=0,startTop=0;
-
-pipFallback.addEventListener("pointerdown",(e)=>{
-  if(e.target===pipFallbackClose)return;
-  dragActive=true;
-  pipFallback.setPointerCapture?.(e.pointerId);
-  const r=pipFallback.getBoundingClientRect();
-  dragX=e.clientX; dragY=e.clientY;
-  startLeft=r.left; startTop=r.top;
-  pipFallback.style.left=r.left+"px";
-  pipFallback.style.top=r.top+"px";
-  pipFallback.style.right="auto";
-  pipFallback.style.bottom="auto";
-});
-
-pipFallback.addEventListener("pointermove",(e)=>{
-  if(!dragActive)return;
-  const maxLeft=Math.max(0,window.innerWidth-pipFallback.offsetWidth);
-  const maxTop=Math.max(0,window.innerHeight-pipFallback.offsetHeight);
-  const left=Math.min(maxLeft,Math.max(0,startLeft+(e.clientX-dragX)));
-  const top=Math.min(maxTop,Math.max(0,startTop+(e.clientY-dragY)));
-  pipFallback.style.left=left+"px";
-  pipFallback.style.top=top+"px";
-});
-
-pipFallback.addEventListener("pointerup",()=>{dragActive=false;});
-pipFallback.addEventListener("pointercancel",()=>{dragActive=false;});
-
 async function preparePiP(){
   render();
 
   if(!streamReady){
-    if(!canvas.captureStream)
-      throw new Error("Canvas captureStream is not supported");
-
+    if(!canvas.captureStream)throw new Error("Canvas captureStream is not supported");
     const stream=canvas.captureStream(10);
     video.srcObject=stream;
     video.muted=true;
     video.playsInline=true;
     video.setAttribute("playsinline","");
     video.setAttribute("autoplay","");
-    video.disablePictureInPicture=false;
 
     syncingVideo=true;
-    try{
-      await video.play();
-    }finally{
-      syncingVideo=false;
-    }
+    try{await video.play();}finally{syncingVideo=false;}
 
-    await new Promise(r=>setTimeout(r,300));
+    await new Promise(r=>setTimeout(r,1000));
     streamReady=true;
   }
 
-  /* Safari/WebKit PiP */
   if(video.webkitSupportsPresentationMode &&
      video.webkitSupportsPresentationMode("picture-in-picture") &&
      typeof video.webkitSetPresentationMode==="function"){
     video.webkitSetPresentationMode("picture-in-picture");
-    nativePipOpened=true;
-    return true;
+    return;
   }
 
-  /* Standard PiP */
   if(document.pictureInPictureEnabled &&
      typeof video.requestPictureInPicture==="function"){
     await video.requestPictureInPicture();
-    nativePipOpened=true;
-    return true;
+    return;
   }
 
-  throw new Error("The video element does not support the Picture-in-Picture mode.");
+  throw new Error("PiP is not available in this browser");
 }
 
 pipBtn.addEventListener("click",async()=>{
   statusEl.textContent="Opening PiP…";
-
   try{
     await preparePiP();
     statusEl.textContent="PiP opened • Study ऊपर, Awake नीचे";
   }catch(e){
-    console.warn("Native PiP unavailable:",e);
-    nativePipOpened=false;
-    showPipFallback();
+    console.error(e);
+    statusEl.textContent="PiP failed: "+(e.message||e.name);
   }
 });
 
