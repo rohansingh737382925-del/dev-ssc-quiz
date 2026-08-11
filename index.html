@@ -507,26 +507,17 @@ function splitSessions(until=Date.now()){
   for(const s of sessionLog){
     if(!s||!s.type||!Number.isFinite(s.start))continue;
 
-    const rawEnd=s.end===null?until:Math.min(s.end,until);
-    if(rawEnd<=s.start)continue;
+    const end=s.end===null?until:Math.min(s.end,until);
+    if(end<=s.start)continue;
 
-    // If this timer was reset today, any part of an older running session
-    // that falls on today's date must NOT be counted. The part belonging
-    // to previous dates is still preserved.
-    let end=rawEnd;
+    // After a same-day Reset, today's upload represents only the
+    // sessions started after that Reset. Historical dates remain unchanged.
+    const sessionReset=Number(s.resetAt)||0;
+    if(dayKey(s.start)===today && sessionReset < latestReset[s.type]) continue;
+
     let cur=s.start;
-
     while(cur<end){
-      const k=dayKey(cur);
-      const next=dayStart(k)+86400000;
-      let piece=Math.min(end,next);
-
-      if(k===today && Number(s.start)<latestReset[s.type]){
-        // Today's portion of this pre-reset session is discarded.
-        cur=piece;
-        continue;
-      }
-
+      const k=dayKey(cur), next=dayStart(k)+86400000, piece=Math.min(end,next);
       if(!totals[k])totals[k]={studyMs:0,awakeMs:0};
       if(s.type==="study")totals[k].studyMs+=piece-cur;
       if(s.type==="wake")totals[k].awakeMs+=piece-cur;
