@@ -525,10 +525,17 @@ async function uploadDueDays(){
     // Page open at 11:59 PM: upload today's live snapshot too.
     if(d.getUTCHours()===23&&d.getUTCMinutes()===59)due.push(dayKey(now));
     const list=[...new Set(due)], totals=splitSessions(now), done=uploaded();
+    const todayKey=dayKey(now);
+
     for(const k of list){
-      if(done.includes(k))continue;
+      // Today's record may need to be uploaded again after a Reset/restart.
+      // Past dates remain permanently marked after a successful upload.
+      if(k!==todayKey && done.includes(k))continue;
+
       await sendDay(k,totals);
-      done.push(k);
+
+      if(k!==todayKey) done.push(k);
+
       statusEl.textContent="Daily record uploaded • "+dayLabel(k);
     }
     saveUploaded(done);
