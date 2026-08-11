@@ -271,14 +271,22 @@ function stopTimer(t,name){
   }
 }
 
-function resetTimer(name){
-  if(state[name].running){
-    state[name].elapsed=elapsed(state[name]);
-    closeSession(name);
-  }
-  state[name]={running:false,startTime:null,elapsed:0};
-  save();
-}
+    const list=[...new Set(due)], totals=splitSessions(now), done=uploaded();
+    const todayKey=dayKey(now);
+
+    for(const k of list){
+      // The current day can be reset and restarted multiple times before
+      // midnight. Always upload its current real-time snapshot at 11:59.
+      // Only completed/past days are permanently marked as uploaded.
+      if(k!==todayKey && done.includes(k))continue;
+
+      await sendDay(k,totals);
+
+      if(k!==todayKey) done.push(k);
+
+      statusEl.textContent="Daily record uploaded • "+dayLabel(k);
+    }
+    saveUploaded(done);
 
 const resetModal=$("resetModal");
 const resetYes=$("resetYes");
