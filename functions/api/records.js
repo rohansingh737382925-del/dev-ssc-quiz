@@ -14,31 +14,20 @@ function validDate(date) {
   return /^\d{4}-\d{2}-\d{2}$/.test(date);
 }
 
-// GET /api/records
-// Track Record ke liye saare daily records laata hai.
 export async function onRequestGet(context) {
   try {
     const kv = context.env.STOPWATCH_RECORDS;
-
     const result = await kv.list({ prefix: "day:" });
-
     const records = [];
 
     for (const key of result.keys) {
       const value = await kv.get(key.name, "json");
-
-      if (value) {
-        records.push(value);
-      }
+      if (value) records.push(value);
     }
 
     records.sort((a, b) => b.date.localeCompare(a.date));
 
-    return json({
-      ok: true,
-      records
-    });
-
+    return json({ ok: true, records });
   } catch (error) {
     return json({
       ok: false,
@@ -47,21 +36,14 @@ export async function onRequestGet(context) {
   }
 }
 
-// POST /api/records
-// Current day's Study + Awake time KV mein save/update karta hai.
 export async function onRequestPost(context) {
   try {
     const kv = context.env.STOPWATCH_RECORDS;
-
     const body = await context.request.json();
 
     const date = String(body.date || "");
-
     if (!validDate(date)) {
-      return json({
-        ok: false,
-        error: "Invalid date"
-      }, 400);
+      return json({ ok: false, error: "Invalid date" }, 400);
     }
 
     const studyMs = Number(body.studyMs);
@@ -73,31 +55,39 @@ export async function onRequestPost(context) {
       studyMs < 0 ||
       awakeMs < 0
     ) {
-      return json({
-        ok: false,
-        error: "Invalid timer values"
-      }, 400);
+      return json({ ok: false, error: "Invalid timer values" }, 400);
     }
 
-    const record = {
+    const incoming = {
       date,
       studyMs: Math.floor(studyMs),
       awakeMs: Math.floor(awakeMs),
       uploadedAt: new Date().toISOString()
     };
 
-    // Same date par dobara upload hone par
-    // purana record update ho jayega, duplicate nahi banega.
-    await kv.put(
-      `day:${date}`,
-      JSON.stringify(record)
-    );
+    // Multiple devices can upload the same date.
+    // Keep the record with the highest Study Time.
+    const key = `day:${date}`;
+    const existing = await kv.get(key, "json");
+
+    let record = incoming;
+
+    if (
+      existing &&
+      Number.isFinite(Number(existing.studyMs)) &&
+      Number(existing.studyMs) >= incoming.studyMs
+    ) {
+      // Existing record wins when its Study Time is equal or higher.
+      record = existing;
+    }
+
+    await kv.put(key, JSON.stringify(record));
 
     return json({
       ok: true,
-      record
+      record,
+      selected: record === incoming ? "incoming" : "existing"
     });
-
   } catch (error) {
     return json({
       ok: false,
