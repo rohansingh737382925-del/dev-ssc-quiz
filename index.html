@@ -192,9 +192,12 @@ let state;
 try { state=JSON.parse(localStorage.getItem(KEY)||"null"); } catch(e) {}
 if(!state){
   state={
-    wake:{running:false,startTime:null,elapsed:0},
-    study:{running:false,startTime:null,elapsed:0}
+    wake:{running:false,startTime:null,elapsed:0,resetAt:0},
+    study:{running:false,startTime:null,elapsed:0,resetAt:0}
   };
+}
+for(const name of ["wake","study"]){
+  if(!Number.isFinite(state[name].resetAt)) state[name].resetAt=0;
 }
 
 const SESSION_KEY="wake_study_sessions_v1";
@@ -209,7 +212,8 @@ function saveSessions(){
 }
 
 function openSession(type,start){
-  sessionLog.push({type,start,end:null});
+  const resetAt=Number(state[type]?.resetAt)||0;
+  sessionLog.push({type,start,end:null,resetAt});
   saveSessions();
 }
 
@@ -250,6 +254,29 @@ function fmt(ms){
   const h=Math.floor(s/3600); s%=3600;
   const m=Math.floor(s/60), sec=s%60;
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+}
+
+function resetTimer(name){
+  const t=state[name];
+
+  // If currently running, close the old session at the exact reset moment.
+  if(t.running){
+    t.elapsed=elapsed(t);
+    t.running=false;
+    t.startTime=null;
+    closeSession(name);
+  }
+
+  // Reset starts a new generation for today's upload.
+  // Old same-day sessions remain safely stored but are ignored for today's
+  // upload after this reset.
+  t.elapsed=0;
+  t.startTime=null;
+  t.running=false;
+  t.resetAt=Date.now();
+
+  save();
+  saveSessions();
 }
 
 function startTimer(t,name){
@@ -471,10 +498,23 @@ function dayLabel(key){
 }
 function splitSessions(until=Date.now()){
   const totals={};
+  const today=dayKey(until);
+  const latestReset={
+    study:Number(state.study?.resetAt)||0,
+    wake:Number(state.wake?.resetAt)||0
+  };
+
   for(const s of sessionLog){
     if(!s||!s.type||!Number.isFinite(s.start))continue;
+
     const end=s.end===null?until:Math.min(s.end,until);
     if(end<=s.start)continue;
+
+    // After a same-day Reset, today's upload represents only the
+    // sessions started after that Reset. Historical dates remain unchanged.
+    const sessionReset=Number(s.resetAt)||0;
+    if(dayKey(s.start)===today && sessionReset < latestReset[s.type]) continue;
+
     let cur=s.start;
     while(cur<end){
       const k=dayKey(cur), next=dayStart(k)+86400000, piece=Math.min(end,next);
