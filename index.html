@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Wake & Study Stopwatch</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.wrap{width:min(470px,94vw);padding:24px 14px}
+h1{text-align:center;font-size:22px;margin:0 0 18px}
+.box{background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:18px;margin:12px 0}
+.title{font-size:17px;font-weight:600;margin-bottom:8px}
+.time{font-variant-numeric:tabular-nums;font-size:42px;font-weight:600;letter-spacing:-1px;margin:8px 0 14px}
+.row{display:flex;align-items:center;justify-content:space-between;width:100%}
+button{border:0;border-radius:13px;padding:12px 16px;font-size:15px;font-weight:600;min-width:92px;transition:transform .08s ease,filter .08s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.94);filter:brightness(.88)}
+.start{background:#fff;color:#111}.stop{background:#ff6868;color:#111}.reset{background:#ddd;color:#111;margin-left:18px}.toggle{margin-right:18px}.pip{background:#4ade80;color:#111;width:100%;margin-top:12px}
+.status{text-align:center;color:#aaa;font-size:13px;min-height:20px;margin-top:10px}
+.hint{text-align:center;color:#999;font-size:12px;line-height:1.45;margin-top:14px}
+#pipCanvas{position:fixed;left:4px;bottom:4px;width:2px;height:1px;opacity:.02;pointer-events:none}
+#pipVideo{position:fixed;left:8px;bottom:8px;width:2px;height:1px;opacity:.02;pointer-events:none}
+
+.reset-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.58);
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+}
+.reset-modal.show{display:flex}
+.reset-card{
+  width:min(500px,84vw);
+  background:#fff;
+  color:#14213d;
+  border-radius:22px;
+  padding:21px 23px 19px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  text-align:center;
+}
+.reset-question{
+  font-size:clamp(18px,3.5vw,26px);
+  line-height:1.18;
+  font-weight:700;
+  letter-spacing:-.2px;
+  margin:0 0 19px;
+}
+.reset-actions{
+  display:flex;
+  gap:14px;
+  width:100%;
+}
+.reset-actions button{
+  flex:1;
+  min-width:0;
+  height:56px;
+  border-radius:15px;
+  font-size:clamp(17px,2.9vw,22px);
+  font-weight:700;
+  border:0;
+  padding:0 12px;
+}
+.reset-yes{
+  background:#1670e8;
+  color:#fff;
+}
+.reset-no{
+  background:#9aabba;
+  color:#fff;
+}
+.reset-actions button:active{
+  transform:scale(.97);
+  filter:brightness(.94);
+}
+@media(max-width:480px){
+  .reset-modal{padding:14px}
+  .reset-card{
+    width:calc(100vw - 92px);
+    max-width:500px;
+    border-radius:20px;
+    padding:19px 17px 17px;
+  }
+  .reset-question{
+    font-size:clamp(17px,4.7vw,23px);
+    margin-bottom:17px;
+    white-space:nowrap;
+  }
+  .reset-actions{gap:11px}
+  .reset-actions button{
+    height:52px;
+    border-radius:14px;
+    font-size:clamp(16px,4.2vw,20px);
+  }
+}
+</style>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#111111">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+</head>
+<body>
+<div class="wrap">
+<h1>Wake & Study Stopwatch</h1>
+
+<div class="box">
+  <div class="title">📚 Study Time</div>
+  <div id="studyTime" class="time">00:00:00</div>
+  <div class="row">
+    <button id="studyReset" class="reset">Reset</button>
+    <button id="studyToggle" class="toggle start">Start</button>
+  </div>
+</div>
+
+<div class="box">
+  <div class="title">🌅 Awake Time</div>
+  <div id="wakeTime" class="time">00:00:00</div>
+  <div class="row">
+    <button id="wakeReset" class="reset">Reset</button>
+    <button id="wakeToggle" class="toggle start">Start</button>
+  </div>
+</div>
+
+<button id="pip" class="pip">Open PiP</button>
+<div id="status" class="status"></div>
+<div class="hint">
+  Awake Time can run continuously from the moment you wake up.<br>
+  Study Time can be started/stopped for each study session and accumulates total study time.
+</div>
+</div>
+
+<canvas id="pipCanvas" width="1400" height="788"></canvas>
+
+<!-- Custom Reset Confirmation -->
+<div id="resetModal" class="reset-modal" aria-hidden="true">
+  <div class="reset-card" role="dialog" aria-modal="true" aria-labelledby="resetQuestion">
+    <div id="resetQuestion" class="reset-question">Are you sure you want to reset?</div>
+    <div class="reset-actions">
+      <button id="resetYes" class="reset-yes">Yes</button>
+      <button id="resetNo" class="reset-no">No</button>
+    </div>
+  </div>
+</div>
+
+<video id="pipVideo" playsinline autoplay muted></video>
+
+<script>
+const KEY="wake_study_stopwatch_v1";
+
+let state;
+try { state=JSON.parse(localStorage.getItem(KEY)||"null"); } catch(e) {}
+if(!state){
+  state={
+    wake:{running:false,startTime:null,elapsed:0},
+    study:{running:false,startTime:null,elapsed:0}
+  };
+}
+
+const $=id=>document.getElementById(id);
+const wakeTime=$("wakeTime"),studyTime=$("studyTime");
+const wakeToggle=$("wakeToggle"),wakeReset=$("wakeReset");
+const studyToggle=$("studyToggle"),studyReset=$("studyReset");
+const pipBtn=$("pip"),statusEl=$("status"),canvas=$("pipCanvas"),video=$("pipVideo");
+const ctx=canvas.getContext("2d");
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+
+function elapsed(t){
+  if(t.running && t.startTime) return t.elapsed+(Date.now()-t.startTime);
+  return t.elapsed;
+}
+
+function fmt(ms){
+  let s=Math.floor(ms/1000);
+  const h=Math.floor(s/3600); s%=3600;
+  const m=Math.floor(s/60), sec=s%60;
+  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+}
+
+function startTimer(t){
+  if(!t.running){
+    t.running=true;
+    t.startTime=Date.now();
+    save();
+  }
+}
+
+function stopTimer(t){
+  if(t.running){
+    t.elapsed=elapsed(t);
+    t.running=false;
+    t.startTime=null;
+    save();
+  }
+}
+
+function resetTimer(name){
+  state[name]={running:false,startTime:null,elapsed:0};
+  save();
+}
+
+const resetModal=$("resetModal");
+const resetYes=$("resetYes");
+const resetNo=$("resetNo");
+let resetTarget=null;
+
+function openResetConfirm(name){
+  resetTarget=name;
+  resetModal.classList.add("show");
+  resetModal.setAttribute("aria-hidden","false");
+}
+
+function closeResetConfirm(){
+  resetTarget=null;
+  resetModal.classList.remove("show");
+  resetModal.setAttribute("aria-hidden","true");
+}
+
+resetYes.addEventListener("click",()=>{
+  if(resetTarget){
+    resetTimer(resetTarget);
+    render();
+  }
+  closeResetConfirm();
+});
+
+resetNo.addEventListener("click",closeResetConfirm);
+
+resetModal.addEventListener("click",(e)=>{
+  if(e.target===resetModal) closeResetConfirm();
+});
+
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape" && resetModal.classList.contains("show")){
+    closeResetConfirm();
+  }
+});
+
+
+wakeToggle.addEventListener("click",()=>{
+  if(state.wake.running) stopTimer(state.wake);
+  else startTimer(state.wake);
+  render();
+});
+wakeReset.addEventListener("click",()=>openResetConfirm("wake"));
+
+studyToggle.addEventListener("click",()=>{
+  if(state.study.running) stopTimer(state.study);
+  else startTimer(state.study);
+  render();
+});
+studyReset.addEventListener("click",()=>openResetConfirm("study"));
+
+function render(){
+  wakeTime.textContent=fmt(elapsed(state.wake));
+  studyTime.textContent=fmt(elapsed(state.study));
+
+  wakeToggle.textContent=state.wake.running?"Stop":"Start";
+  wakeToggle.className="toggle "+(state.wake.running?"stop":"start");
+  studyToggle.textContent=state.study.running?"Stop":"Start";
+  studyToggle.className="toggle "+(state.study.running?"stop":"start");
+
+  drawPiP();
+}
+
+function drawPiP(){
+  ctx.fillStyle="#111";
+  ctx.fillRect(0,0,1400,788);
+
+  /* Each timer is centered vertically in its own half.
+     The divider stays exactly between the two sections. */
+  const mid=394;
+
+  ctx.fillStyle="#aaa";
+  ctx.font='600 58px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif';
+  ctx.textAlign="left";
+  ctx.textBaseline="middle";
+  ctx.fillText("STUDY",56,mid-130);
+  ctx.fillText("AWAKE",56,mid+130);
+
+  ctx.font='600 124px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif';
+  ctx.textAlign="right";
+  ctx.fillStyle="#fff";
+  ctx.fillText(fmt(elapsed(state.study)),1344,mid-130);
+  ctx.fillStyle="#888";
+  ctx.fillText(fmt(elapsed(state.wake)),1344,mid+130);
+
+  /* One divider exactly between the two timer sections. */
+  ctx.fillStyle="#777";
+  ctx.fillRect(56,mid,1288,4);
+}
+
+let streamReady=false;
+let syncingVideo=false;
+
+/*
+ Native PiP center Play/Pause controls STUDY TIME.
+ Both timers remain visible in the PiP display.
+ The two timers can always be independently controlled from the webpage.
+*/
+video.addEventListener("pause",()=>{
+  if(syncingVideo)return;
+  stopTimer(state.study);
+  render();
+});
+
+video.addEventListener("play",()=>{
+  if(syncingVideo)return;
+  startTimer(state.study);
+  render();
+});
+
+async function preparePiP(){
+  render();
+
+  if(!streamReady){
+    if(!canvas.captureStream)throw new Error("Canvas captureStream is not supported");
+    const stream=canvas.captureStream(10);
+    video.srcObject=stream;
+    video.muted=true;
+    video.playsInline=true;
+    video.setAttribute("playsinline","");
+    video.setAttribute("autoplay","");
+
+    syncingVideo=true;
+    try{await video.play();}finally{syncingVideo=false;}
+
+    await new Promise(r=>setTimeout(r,1000));
+    streamReady=true;
+  }
+
+  if(video.webkitSupportsPresentationMode &&
+     video.webkitSupportsPresentationMode("picture-in-picture") &&
+     typeof video.webkitSetPresentationMode==="function"){
+    video.webkitSetPresentationMode("picture-in-picture");
+    return;
+  }
+
+  if(document.pictureInPictureEnabled &&
+     typeof video.requestPictureInPicture==="function"){
+    await video.requestPictureInPicture();
+    return;
+  }
+
+  throw new Error("PiP is not available in this browser");
+}
+
+pipBtn.addEventListener("click",async()=>{
+  statusEl.textContent="Opening PiP…";
+  try{
+    await preparePiP();
+    statusEl.textContent="PiP opened • Study ऊपर, Awake नीचे";
+  }catch(e){
+    console.error(e);
+    statusEl.textContent="PiP failed: "+(e.message||e.name);
+  }
+});
+
+setInterval(render,250);
+render();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.error);
+  });
+}
+</script>
+</body>
+</html>

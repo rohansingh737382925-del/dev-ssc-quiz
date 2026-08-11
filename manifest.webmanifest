@@ -2,7 +2,7 @@
   "name": "Wake & Study Stopwatch",
   "short_name": "Study Timer",
   "description": "Wake and Study Stopwatch",
-  "start_url": "./Stopwatch.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

@@ -1,45 +1,28 @@
-# Wake & Study Stopwatch — GitHub Pages PWA
+# Wake & Study Stopwatch — PWA
 
-## Upload this folder to your GitHub repository
+## GitHub upload structure
 
-Keep this exact structure:
+Upload these items to the repository root:
 
-    Stopwatch.html
+    index.html
     manifest.webmanifest
     sw.js
     icons/
       icon-192.png
       icon-512.png
 
-## Important
+The main file is now **index.html**.
 
-The main HTML file is intentionally named `Stopwatch.html`.
-
-Do not rename it to `index.html`.
-
-The PWA manifest already points to:
-
-    ./Stopwatch.html
+The existing stopwatch HTML/design and timer logic are retained; only the PWA manifest/service-worker connection was added.
 
 ## GitHub Pages
 
-1. Upload all files/folders from this ZIP to the repository.
-2. Commit the changes.
-3. Enable GitHub Pages for the repository if it is not already enabled.
-4. Open the GitHub Pages HTTPS address.
-5. Android: Chrome menu → Install app / Add to Home screen.
-6. iPhone/iPad: Safari Share → Add to Home Screen.
+Enable GitHub Pages for the repository and open the HTTPS Pages URL.
 
-## If you later replace Stopwatch.html
+Android:
+Chrome → menu → Install app / Add to Home screen
 
-Keep the filename exactly:
+iPhone/iPad:
+Safari → Share → Add to Home Screen
 
-    Stopwatch.html
-
-The manifest and service worker do not need to be renamed.
-
-## PWA files
-
-- manifest.webmanifest = install/app metadata
-- sw.js = offline cache/service worker
-- icons/ = app icons
+The PWA requires HTTPS for service-worker installation (GitHub Pages provides HTTPS).
