@@ -514,16 +514,24 @@ async function uploadDueDays(){
   try{
     const now=Date.now(),d=new Date(now+IST);
     const due=completedKeys(now);
-    // Page open at 11:59 PM: upload today's live snapshot too.
-    if(d.getUTCHours()===23&&d.getUTCMinutes()===59)due.push(dayKey(now));
+    const todayKey=dayKey(now);
+    // Page open at 11:59:59 PM: upload today's live snapshot too.
+    // This is NOT marked done below — it's a partial/safety snapshot only.
+    // Tomorrow, once today is a genuinely completed day, its final/accurate
+    // total must still be allowed to upload (backend keeps whichever
+    // upload has the higher Study Time, so the final one wins).
+    const isSnapshot=d.getUTCHours()===23&&d.getUTCMinutes()===59&&d.getUTCSeconds()===59;
+    if(isSnapshot)due.push(todayKey);
     const list=[...new Set(due)], totals=splitSessions(now), done=uploaded();
     for(const k of list){
       if(done.includes(k))continue;
       await sendDay(k,totals);
-      done.push(k);
+      if(!(isSnapshot&&k===todayKey)){
+        done.push(k);
+        saveUploaded(done);
+      }
       statusEl.textContent="Daily record uploaded • "+dayLabel(k);
     }
-    saveUploaded(done);
   }catch(e){
     console.error(e);
     statusEl.textContent="Daily upload pending";
