@@ -1,4 +1,4 @@
-const CACHE_NAME = "wake-study-stopwatch-v4";
+const CACHE_NAME = "wake-study-stopwatch-v5";
 
 const APP_SHELL = [
   "./",
@@ -35,6 +35,15 @@ self.addEventListener("fetch", event => {
 
   const request = event.request;
   const url = new URL(request.url);
+
+  // Track Record API must NEVER be served from the service-worker cache.
+  // Always fetch the latest KV-backed response from Cloudflare.
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" })
+    );
+    return;
+  }
 
   // HTML/page हमेशा network से नया version लेने की कोशिश करेगा.
   if (
