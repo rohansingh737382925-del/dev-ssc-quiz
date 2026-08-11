@@ -22,142 +22,25 @@ button:active{transform:scale(.94);filter:brightness(.88)}
 #pipVideo{position:fixed;left:8px;bottom:8px;width:2px;height:1px;opacity:.02;pointer-events:none}
 
 
-.menu-btn{
-  position:fixed;
-  top:14px;
-  left:14px;
-  z-index:10001;
-  width:46px;
-  height:46px;
-  min-width:46px;
-  padding:0;
-  border-radius:13px;
-  background:#1b1b1b;
-  color:#fff;
-  border:1px solid #333;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
-}
-.menu-btn span{display:block;line-height:1;transform:translateY(-1px)}
-.drawer-backdrop{
-  position:fixed;
-  inset:0;
-  z-index:10000;
-  display:none;
-  background:rgba(0,0,0,.58);
-  -webkit-backdrop-filter:blur(2px);
-  backdrop-filter:blur(2px);
-}
+.menu-btn{position:fixed;top:12px;left:12px;z-index:10001;width:46px;height:46px;min-width:46px;padding:0;border-radius:13px;background:#1b1b1b;color:#fff;border:1px solid #333;font-size:24px}
+.drawer-backdrop{position:fixed;inset:0;z-index:10000;display:none;background:rgba(0,0,0,.58);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .drawer-backdrop.show{display:block}
-.drawer{
-  position:absolute;
-  top:0;
-  left:0;
-  width:min(330px,82vw);
-  height:100%;
-  background:#171717;
-  border-right:1px solid #333;
-  box-shadow:20px 0 60px rgba(0,0,0,.35);
-  padding:76px 16px 20px;
-  transform:translateX(-102%);
-  transition:transform .22s ease;
-}
+.drawer{position:absolute;top:0;left:0;width:min(330px,82vw);height:100%;background:#171717;border-right:1px solid #333;padding:76px 16px 20px;transform:translateX(-102%);transition:transform .22s ease}
 .drawer-backdrop.show .drawer{transform:translateX(0)}
-.drawer-title{
-  font-size:20px;
-  font-weight:700;
-  margin:0 8px 18px;
-}
-.drawer-item{
-  width:100%;
-  min-width:0;
-  margin:0;
-  padding:14px 15px;
-  text-align:left;
-  background:#242424;
-  color:#fff;
-  border:1px solid #3a3a3a;
-  border-radius:14px;
-  font-size:16px;
-}
-.history-modal{
-  position:fixed;
-  inset:0;
-  z-index:10002;
-  display:none;
-  background:#111;
-  overflow:auto;
-}
+.drawer-title{font-size:20px;font-weight:700;margin:0 8px 18px}
+.drawer-item{width:100%;min-width:0;margin:0;padding:14px 15px;text-align:left;background:#242424;color:#fff;border:1px solid #3a3a3a;border-radius:14px;font-size:16px}
+.history-modal{position:fixed;inset:0;z-index:10002;display:none;background:#111;overflow:auto}
 .history-modal.show{display:block}
-.history-head{
-  position:sticky;
-  top:0;
-  z-index:2;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:14px 16px;
-  background:rgba(17,17,17,.96);
-  border-bottom:1px solid #333;
-}
-.history-close{
-  width:44px;
-  height:44px;
-  min-width:44px;
-  padding:0;
-  margin:0;
-  border-radius:12px;
-  background:#242424;
-  color:#fff;
-  border:1px solid #3a3a3a;
-  font-size:25px;
-}
+.history-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(17,17,17,.96);border-bottom:1px solid #333}
+.history-close{width:44px;height:44px;min-width:44px;padding:0;margin:0;border-radius:12px;background:#242424;color:#fff;border:1px solid #3a3a3a;font-size:25px}
 .history-title{font-size:20px;font-weight:700}
-.history-body{
-  width:min(620px,94vw);
-  margin:0 auto;
-  padding:18px 0 30px;
-}
-.history-status{
-  text-align:center;
-  color:#999;
-  font-size:13px;
-  min-height:20px;
-  margin:4px 0 12px;
-}
-.history-card{
-  background:#1b1b1b;
-  border:1px solid #333;
-  border-radius:18px;
-  padding:16px;
-  margin:12px 0;
-}
-.history-date{
-  font-size:17px;
-  font-weight:700;
-  margin-bottom:12px;
-}
-.history-row{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:9px 0;
-  border-top:1px solid #2d2d2d;
-  font-variant-numeric:tabular-nums;
-}
-.history-label{color:#aaa}
-.history-value{font-weight:700}
-.history-empty{
-  text-align:center;
-  color:#999;
-  padding:40px 12px;
-}
-@media(max-width:480px){
-  .menu-btn{top:10px;left:10px;width:44px;height:44px;min-width:44px}
-}
-
+.history-body{width:min(620px,94vw);margin:0 auto;padding:18px 0 30px}
+.history-status{text-align:center;color:#999;font-size:13px;min-height:20px;margin:4px 0 12px}
+.history-card{background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:16px;margin:12px 0}
+.history-date{font-size:17px;font-weight:700;margin-bottom:12px}
+.history-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #2d2d2d;font-variant-numeric:tabular-nums}
+.history-label{color:#aaa}.history-value{font-weight:700}
+.history-empty{text-align:center;color:#999;padding:40px 12px}
 .reset-modal{
   position:fixed;
   inset:0;
@@ -240,17 +123,13 @@ button:active{transform:scale(.94);filter:brightness(.88)}
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head>
 <body>
-<button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false">
-  <span>☰</span>
-</button>
-
+<button id="menuBtn" class="menu-btn" aria-label="Open menu">☰</button>
 <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true">
-  <aside class="drawer" aria-label="Menu">
+  <aside class="drawer">
     <div class="drawer-title">Menu</div>
     <button id="trackRecordBtn" class="drawer-item">Track Record</button>
   </aside>
 </div>
-
 <div id="historyModal" class="history-modal" aria-hidden="true">
   <div class="history-head">
     <button id="historyClose" class="history-close" aria-label="Close">‹</button>
@@ -318,12 +197,46 @@ if(!state){
   };
 }
 
+const SESSION_KEY="wake_study_sessions_v1";
+let sessionLog=[];
+try{
+  sessionLog=JSON.parse(localStorage.getItem(SESSION_KEY)||"[]");
+  if(!Array.isArray(sessionLog))sessionLog=[];
+}catch(e){sessionLog=[];}
+
+function saveSessions(){
+  localStorage.setItem(SESSION_KEY,JSON.stringify(sessionLog));
+}
+
+function openSession(type,start){
+  sessionLog.push({type,start,end:null});
+  saveSessions();
+}
+
+function closeSession(type,end=Date.now()){
+  for(let i=sessionLog.length-1;i>=0;i--){
+    if(sessionLog[i].type===type&&sessionLog[i].end===null){
+      sessionLog[i].end=end;
+      saveSessions();
+      return;
+    }
+  }
+}
+
 const $=id=>document.getElementById(id);
 const wakeTime=$("wakeTime"),studyTime=$("studyTime");
 const wakeToggle=$("wakeToggle"),wakeReset=$("wakeReset");
 const studyToggle=$("studyToggle"),studyReset=$("studyReset");
 const pipBtn=$("pip"),statusEl=$("status"),canvas=$("pipCanvas"),video=$("pipVideo");
 const ctx=canvas.getContext("2d");
+
+for(const name of ["wake","study"]){
+  const t=state[name];
+  if(t&&t.running&&t.startTime&&!sessionLog.some(s=>s.type===name&&s.end===null)){
+    sessionLog.push({type:name,start:t.startTime,end:null});
+  }
+}
+saveSessions();
 
 function save(){localStorage.setItem(KEY,JSON.stringify(state));}
 
@@ -339,24 +252,30 @@ function fmt(ms){
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
 
-function startTimer(t){
+function startTimer(t,name){
   if(!t.running){
     t.running=true;
     t.startTime=Date.now();
+    openSession(name,t.startTime);
     save();
   }
 }
 
-function stopTimer(t){
+function stopTimer(t,name){
   if(t.running){
     t.elapsed=elapsed(t);
     t.running=false;
     t.startTime=null;
+    closeSession(name);
     save();
   }
 }
 
 function resetTimer(name){
+  if(state[name].running){
+    state[name].elapsed=elapsed(state[name]);
+    closeSession(name);
+  }
   state[name]={running:false,startTime:null,elapsed:0};
   save();
 }
@@ -392,17 +311,6 @@ resetModal.addEventListener("click",(e)=>{
   if(e.target===resetModal) closeResetConfirm();
 });
 
-
-document.addEventListener("keydown", e => {
-  if(e.key === "Escape"){
-    if(drawerBackdrop.classList.contains("show")) closeDrawer();
-    if(historyModal.classList.contains("show")){
-      historyModal.classList.remove("show");
-      historyModal.setAttribute("aria-hidden","true");
-    }
-  }
-});
-
 document.addEventListener("keydown",(e)=>{
   if(e.key==="Escape" && resetModal.classList.contains("show")){
     closeResetConfirm();
@@ -411,15 +319,15 @@ document.addEventListener("keydown",(e)=>{
 
 
 wakeToggle.addEventListener("click",()=>{
-  if(state.wake.running) stopTimer(state.wake);
-  else startTimer(state.wake);
+  if(state.wake.running) stopTimer(state.wake,"wake");
+  else startTimer(state.wake,"wake");
   render();
 });
 wakeReset.addEventListener("click",()=>openResetConfirm("wake"));
 
 studyToggle.addEventListener("click",()=>{
-  if(state.study.running) stopTimer(state.study);
-  else startTimer(state.study);
+  if(state.study.running) stopTimer(state.study,"study");
+  else startTimer(state.study,"study");
   render();
 });
 studyReset.addEventListener("click",()=>openResetConfirm("study"));
@@ -473,13 +381,13 @@ let syncingVideo=false;
 */
 video.addEventListener("pause",()=>{
   if(syncingVideo)return;
-  stopTimer(state.study);
+  stopTimer(state.study,"study");
   render();
 });
 
 video.addEventListener("play",()=>{
   if(syncingVideo)return;
-  startTimer(state.study);
+  startTimer(state.study,"study");
   render();
 });
 
@@ -534,214 +442,142 @@ render();
 </script>
 
 <script>
-/* =========================
-   Cloud History / Daily Upload
-   ========================= */
+const HISTORY_API="./api/records";
+const IST=5.5*60*60*1000;
+const menuBtn=$("menuBtn"),drawerBackdrop=$("drawerBackdrop");
+const trackRecordBtn=$("trackRecordBtn"),historyModal=$("historyModal");
+const historyClose=$("historyClose"),historyList=$("historyList"),historyStatus=$("historyStatus");
 
-const HISTORY_API = "./api/records";
-const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
-
-const menuBtn = $("menuBtn");
-const drawerBackdrop = $("drawerBackdrop");
-const trackRecordBtn = $("trackRecordBtn");
-const historyModal = $("historyModal");
-const historyClose = $("historyClose");
-const historyList = $("historyList");
-const historyStatus = $("historyStatus");
-
-let lastUploadKey = localStorage.getItem("wake_study_last_daily_upload") || "";
-
-function istParts(ms = Date.now()){
-  const d = new Date(ms + IST_OFFSET_MS);
-  return {
-    year: d.getUTCFullYear(),
-    month: d.getUTCMonth() + 1,
-    day: d.getUTCDate(),
-    hour: d.getUTCHours(),
-    minute: d.getUTCMinutes(),
-    second: d.getUTCSeconds()
-  };
+function dayKey(ms=Date.now()){
+  const d=new Date(ms+IST);
+  return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");
+}
+function dayStart(key){
+  const [y,m,d]=key.split("-").map(Number);
+  return Date.UTC(y,m-1,d)-IST;
+}
+function dayLabel(key){
+  const [y,m,d]=key.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-IN",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"})
+    .format(new Date(Date.UTC(y,m-1,d)));
+}
+function splitSessions(until=Date.now()){
+  const totals={};
+  for(const s of sessionLog){
+    if(!s||!s.type||!Number.isFinite(s.start))continue;
+    const end=s.end===null?until:Math.min(s.end,until);
+    if(end<=s.start)continue;
+    let cur=s.start;
+    while(cur<end){
+      const k=dayKey(cur), next=dayStart(k)+86400000, piece=Math.min(end,next);
+      if(!totals[k])totals[k]={studyMs:0,awakeMs:0};
+      if(s.type==="study")totals[k].studyMs+=piece-cur;
+      if(s.type==="wake")totals[k].awakeMs+=piece-cur;
+      cur=piece;
+    }
+  }
+  return totals;
+}
+function completedKeys(now=Date.now()){
+  const today=dayKey(now);
+  const yesterday=dayKey(dayStart(today)-1000);
+  const first=sessionLog.filter(s=>s&&Number.isFinite(s.start))
+    .reduce((m,s)=>{const k=dayKey(s.start);return !m||k<m?k:m},null);
+  if(!first||first>yesterday)return[];
+  const out=[];let t=dayStart(first),last=dayStart(yesterday);
+  while(t<=last){out.push(dayKey(t));t+=86400000}
+  return out;
+}
+function uploaded(){
+  try{
+    const x=JSON.parse(localStorage.getItem("wake_study_uploaded_dates_v2")||"[]");
+    return Array.isArray(x)?x:[];
+  }catch(e){return[]}
+}
+function saveUploaded(x){
+  localStorage.setItem("wake_study_uploaded_dates_v2",JSON.stringify([...new Set(x)].slice(-1000)));
+}
+async function sendDay(k,totals){
+  const r=totals[k]||{studyMs:0,awakeMs:0};
+  const res=await fetch(HISTORY_API,{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({date:k,studyMs:Math.floor(r.studyMs),awakeMs:Math.floor(r.awakeMs)}),
+    cache:"no-store"
+  });
+  const data=await res.json();
+  if(!res.ok||!data.ok)throw new Error(data.error||"Upload failed");
+}
+let uploading=false;
+async function uploadDueDays(){
+  if(uploading)return;
+  uploading=true;
+  try{
+    const now=Date.now(),d=new Date(now+IST);
+    const due=completedKeys(now);
+    // Page open at 11:59 PM: upload today's live snapshot too.
+    if(d.getUTCHours()===23&&d.getUTCMinutes()===59)due.push(dayKey(now));
+    const list=[...new Set(due)], totals=splitSessions(now), done=uploaded();
+    for(const k of list){
+      if(done.includes(k))continue;
+      await sendDay(k,totals);
+      done.push(k);
+      statusEl.textContent="Daily record uploaded • "+dayLabel(k);
+    }
+    saveUploaded(done);
+  }catch(e){
+    console.error(e);
+    statusEl.textContent="Daily upload pending";
+  }finally{uploading=false}
 }
 
-function istDateKey(ms = Date.now()){
-  const p = istParts(ms);
-  return p.year + "-" +
-    String(p.month).padStart(2,"0") + "-" +
-    String(p.day).padStart(2,"0");
-}
-
-function formatDateKey(key){
-  const [y,m,d] = key.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d));
-  return new Intl.DateTimeFormat("en-IN", {
-    day:"numeric",
-    month:"long",
-    year:"numeric",
-    timeZone:"UTC"
-  }).format(dt);
-}
-
-function openDrawer(){
-  drawerBackdrop.classList.add("show");
-  drawerBackdrop.setAttribute("aria-hidden","false");
-  menuBtn.setAttribute("aria-expanded","true");
-}
-
-function closeDrawer(){
-  drawerBackdrop.classList.remove("show");
-  drawerBackdrop.setAttribute("aria-hidden","true");
-  menuBtn.setAttribute("aria-expanded","false");
-}
-
-menuBtn.addEventListener("click", () => {
-  if(drawerBackdrop.classList.contains("show")) closeDrawer();
-  else openDrawer();
+menuBtn.addEventListener("click",()=>{
+  drawerBackdrop.classList.toggle("show");
 });
-
-drawerBackdrop.addEventListener("click", e => {
-  if(e.target === drawerBackdrop) closeDrawer();
+drawerBackdrop.addEventListener("click",e=>{
+  if(e.target===drawerBackdrop)drawerBackdrop.classList.remove("show");
 });
-
-historyClose.addEventListener("click", () => {
+historyClose.addEventListener("click",()=>{
   historyModal.classList.remove("show");
   historyModal.setAttribute("aria-hidden","true");
 });
-
-async function loadTrackRecord(){
+trackRecordBtn.addEventListener("click",async()=>{
+  drawerBackdrop.classList.remove("show");
   historyModal.classList.add("show");
   historyModal.setAttribute("aria-hidden","false");
-  historyStatus.textContent = "Loading…";
-  historyList.innerHTML = "";
-
+  historyStatus.textContent="Loading…";
+  historyList.innerHTML="";
   try{
-    const res = await fetch(HISTORY_API, {
-      method:"GET",
-      cache:"no-store"
-    });
-
-    const data = await res.json();
-
-    if(!res.ok || !data.ok) {
-      throw new Error(data.error || "Could not load records");
-    }
-
-    const records = Array.isArray(data.records) ? data.records : [];
-
+    const res=await fetch(HISTORY_API,{cache:"no-store"});
+    const data=await res.json();
+    if(!res.ok||!data.ok)throw new Error(data.error||"Load failed");
+    const records=Array.isArray(data.records)?data.records:[];
     if(!records.length){
-      historyStatus.textContent = "";
-      historyList.innerHTML =
-        '<div class="history-empty">No track records yet.</div>';
+      historyStatus.textContent="";
+      historyList.innerHTML='<div class="history-empty">No track records yet.</div>';
       return;
     }
-
-    historyStatus.textContent = records.length + " day" + (records.length === 1 ? "" : "s");
-
-    historyList.innerHTML = records.map(record => {
-      const study = fmt(Number(record.studyMs) || 0);
-      const awake = fmt(Number(record.awakeMs) || 0);
-
-      return `
-        <div class="history-card">
-          <div class="history-date">📅 ${formatDateKey(record.date)}</div>
-          <div class="history-row">
-            <span class="history-label">📚 Study Time</span>
-            <span class="history-value">${study}</span>
-          </div>
-          <div class="history-row">
-            <span class="history-label">🌅 Awake Time</span>
-            <span class="history-value">${awake}</span>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-  }catch(error){
-    console.error(error);
-    historyStatus.textContent = "";
-    historyList.innerHTML =
-      '<div class="history-empty">Track Record load nahi ho saka.<br>Please check your internet connection.</div>';
+    historyStatus.textContent=records.length+" day"+(records.length===1?"":"s");
+    historyList.innerHTML=records.map(r=>`
+      <div class="history-card">
+        <div class="history-date">📅 ${dayLabel(r.date)}</div>
+        <div class="history-row"><span class="history-label">📚 Study Time</span><span class="history-value">${fmt(Number(r.studyMs)||0)}</span></div>
+        <div class="history-row"><span class="history-label">🌅 Awake Time</span><span class="history-value">${fmt(Number(r.awakeMs)||0)}</span></div>
+      </div>`).join("");
+  }catch(e){
+    historyStatus.textContent="";
+    historyList.innerHTML='<div class="history-empty">Track Record load nahi ho saka.</div>';
   }
-}
-
-trackRecordBtn.addEventListener("click", () => {
-  closeDrawer();
-  loadTrackRecord();
 });
 
-async function uploadDailySnapshot(forceKey = null){
-  const now = Date.now();
-  const key = forceKey || istDateKey(now);
+setInterval(uploadDueDays,10000);
+uploadDueDays();
 
-  // Same date ko baar-baar upload nahi karna.
-  if(!forceKey && lastUploadKey === key) return false;
-
-  const studyMs = Math.max(0, elapsed(state.study));
-  const awakeMs = Math.max(0, elapsed(state.wake));
-
-  try{
-    const res = await fetch(HISTORY_API, {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        date:key,
-        studyMs,
-        awakeMs
-      }),
-      cache:"no-store"
-    });
-
-    const data = await res.json();
-
-    if(!res.ok || !data.ok){
-      throw new Error(data.error || "Upload failed");
-    }
-
-    if(!forceKey){
-      lastUploadKey = key;
-      localStorage.setItem("wake_study_last_daily_upload", key);
-    }
-
-    statusEl.textContent = "Daily record uploaded • " + formatDateKey(key);
-
-    // Agar Track Record already open hai to fresh data dikhao.
-    if(historyModal.classList.contains("show")){
-      loadTrackRecord();
-    }
-
-    return true;
-
-  }catch(error){
-    console.error("Daily upload failed:", error);
-    statusEl.textContent = "Daily upload pending";
-    return false;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    drawerBackdrop.classList.remove("show");
+    historyModal.classList.remove("show");
   }
-}
-
-function checkDailyUpload(){
-  const p = istParts();
-
-  // 11:59 PM IST ke dauran ek baar snapshot upload.
-  if(p.hour === 23 && p.minute === 59){
-    uploadDailySnapshot();
-  }
-}
-
-// Page khulte hi agar aaj ka record upload nahi hua hai,
-// aur ab 11:59 PM ho chuka hai, to current screen snapshot save kar do.
-// Timer ko reset ya modify nahi kiya jayega.
-function recoverMissedUpload(){
-  const today = istDateKey();
-  const p = istParts();
-
-  if(lastUploadKey !== today && p.hour === 23 && p.minute >= 59){
-    uploadDailySnapshot();
-  }
-}
-
-setInterval(checkDailyUpload, 1000);
-recoverMissedUpload();
+});
 </script>
 
 <script>
