@@ -13,6 +13,7 @@ h1{text-align:center;font-size:22px;margin:0 0 18px}
 .box{background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:18px;margin:12px 0}
 .title{font-size:17px;font-weight:600;margin-bottom:8px}
 .time{font-variant-numeric:tabular-nums;font-size:42px;font-weight:600;letter-spacing:-1px;margin:8px 0 14px}
+.time .ms{font-size:.48em;font-weight:600;color:#999;letter-spacing:-.5px}
 .row{display:flex;align-items:center;justify-content:space-between;width:100%}
 button{border:0;border-radius:13px;padding:12px 16px;font-size:15px;font-weight:600;min-width:92px;transition:transform .08s ease,filter .08s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.94);filter:brightness(.88)}
@@ -253,6 +254,22 @@ function fmt(ms){
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
 
+// Display-only helper: HH:MM:SS + milliseconds, for on-screen reference.
+// Never used for history/upload — those still call fmt() and stay
+// whole-second accurate, so this does not change what gets sent to the server.
+function fmtMs(ms){
+  const total=Math.max(0,Math.floor(ms));
+  const centis=String(Math.floor((total%1000)/10)).padStart(2,"0");
+  return fmt(total)+'<span class="ms">.'+centis+'</span>';
+}
+
+// Plain-text version (no HTML) for drawing on the PiP canvas.
+function fmtCanvas(ms){
+  const total=Math.max(0,Math.floor(ms));
+  const centis=String(Math.floor((total%1000)/10)).padStart(2,"0");
+  return fmt(total)+"."+centis;
+}
+
 function startTimer(t,name){
   if(!t.running){
     t.running=true;
@@ -334,8 +351,8 @@ studyToggle.addEventListener("click",()=>{
 studyReset.addEventListener("click",()=>openResetConfirm("study"));
 
 function render(){
-  wakeTime.textContent=fmt(elapsed(state.wake));
-  studyTime.textContent=fmt(elapsed(state.study));
+  wakeTime.innerHTML=fmtMs(elapsed(state.wake));
+  studyTime.innerHTML=fmtMs(elapsed(state.study));
 
   wakeToggle.textContent=state.wake.running?"Stop":"Start";
   wakeToggle.className="toggle "+(state.wake.running?"stop":"start");
@@ -360,12 +377,24 @@ function drawPiP(){
   ctx.fillText("STUDY",56,mid-130);
   ctx.fillText("AWAKE",56,mid+130);
 
-  ctx.font='600 124px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif';
-  ctx.textAlign="right";
-  ctx.fillStyle="#fff";
-  ctx.fillText(fmt(elapsed(state.study)),1344,mid-130);
-  ctx.fillStyle="#888";
-  ctx.fillText(fmt(elapsed(state.wake)),1344,mid+130);
+  // Same HH:MM:SS.cc text, same 124px size as before — shrink only if it
+  // would overflow the panel width (keeps it as large as the old HH:MM:SS).
+  const maxWidth=1288;
+  const baseSize=124;
+  function drawValue(text,y,color){
+    let size=baseSize;
+    ctx.font=`600 ${size}px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif`;
+    while(ctx.measureText(text).width>maxWidth && size>60){
+      size-=2;
+      ctx.font=`600 ${size}px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif`;
+    }
+    ctx.textAlign="right";
+    ctx.fillStyle=color;
+    ctx.fillText(text,1344,y);
+  }
+
+  drawValue(fmtCanvas(elapsed(state.study)),mid-130,"#fff");
+  drawValue(fmtCanvas(elapsed(state.wake)),mid+130,"#888");
 
   /* One divider exactly between the two timer sections. */
   ctx.fillStyle="#777";
@@ -374,6 +403,25 @@ function drawPiP(){
 
 let streamReady=false;
 let syncingVideo=false;
+let wantedPiP=false;      // true = user asked PiP to stay open; we keep re-opening it until they stop it
+let wakeLock=null;
+let reopening=false;
+
+async function requestWakeLock(){
+  try{
+    if("wakeLock" in navigator){
+      wakeLock=await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release",()=>{ wakeLock=null; });
+    }
+  }catch(e){ /* wake lock not critical, ignore failures silently */ }
+}
+
+document.addEventListener("visibilitychange",()=>{
+  // Screen may have re-locked and dropped the wake lock; grab it again.
+  if(document.visibilityState==="visible" && wantedPiP && !wakeLock){
+    requestWakeLock();
+  }
+});
 
 /*
  Native PiP center Play/Pause controls STUDY TIME.
@@ -390,6 +438,32 @@ video.addEventListener("play",()=>{
   if(syncingVideo)return;
   startTimer(state.study,"study");
   render();
+});
+
+function isPiPActive(){
+  if(document.pictureInPictureElement===video)return true;
+  if(video.webkitPresentationMode&&video.webkitPresentationMode==="picture-in-picture")return true;
+  return false;
+}
+
+// If the OS/browser force-closes PiP (low memory, backgrounding, etc.)
+// and the user hasn't pressed Stop PiP, try to reopen it automatically.
+// NOTE (iOS 26): Safari now requires PiP to be (re)opened from a direct
+// user tap — a script-triggered reopen with no tap will be rejected. So if
+// the automatic attempt fails, we don't keep silently retrying; instead we
+// flip the button to "Resume PiP" so getting it back only takes one tap.
+video.addEventListener("leavepictureinpicture",()=>{
+  if(!wantedPiP||reopening)return;
+  reopening=true;
+  statusEl.textContent="PiP band ho gaya tha • dobara khol raha hoon…";
+  preparePiP().then(()=>{
+    pipBtn.textContent="Stop PiP";
+    statusEl.textContent="PiP wapas open ho gaya";
+  }).catch(e=>{
+    console.error(e);
+    pipBtn.textContent="Resume PiP";
+    statusEl.textContent="PiP band ho gaya — 'Resume PiP' pe tap karein (iOS ko ek tap chahiye)";
+  }).finally(()=>{ reopening=false; });
 });
 
 async function preparePiP(){
@@ -428,9 +502,24 @@ async function preparePiP(){
 }
 
 pipBtn.addEventListener("click",async()=>{
-  statusEl.textContent="Opening PiP…";
+  if(isPiPActive()){
+    // Currently open: this tap means Stop PiP (end auto-reopen too).
+    wantedPiP=false;
+    try{ if(document.pictureInPictureElement) await document.exitPictureInPicture(); }catch(e){}
+    if(video.webkitSupportsPresentationMode) { try{ video.webkitSetPresentationMode("inline"); }catch(e){} }
+    if(wakeLock){ try{ await wakeLock.release(); }catch(e){} wakeLock=null; }
+    pipBtn.textContent="Open PiP";
+    statusEl.textContent="PiP band kar diya";
+    return;
+  }
+  // Not currently open (either first time, or resuming after an
+  // auto-reopen failure) — this tap carries the user gesture Safari needs.
+  statusEl.textContent=wantedPiP?"Resuming PiP…":"Opening PiP…";
   try{
     await preparePiP();
+    wantedPiP=true;
+    pipBtn.textContent="Stop PiP";
+    requestWakeLock();
     statusEl.textContent="PiP opened • Study ऊपर, Awake नीचे";
   }catch(e){
     console.error(e);
@@ -438,7 +527,7 @@ pipBtn.addEventListener("click",async()=>{
   }
 });
 
-setInterval(render,250);
+setInterval(render,30);
 render();
 </script>
 
@@ -601,7 +690,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=5");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=10");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
