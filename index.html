@@ -438,34 +438,6 @@ pipBtn.addEventListener("click",async()=>{
   }
 });
 
-// When the screen is unlocked or the app returns to the foreground,
-// iOS may have fully ended/killed the canvas MediaStream track while
-// the app was suspended (not just skipped some frames) — a plain
-// redraw isn't enough to fix that, since the stream feeding the PiP
-// window is already dead. So: force an immediate redraw AND rebuild
-// the capture stream from scratch, reattaching it to the same video
-// element. Since the PiP window (if still open) keeps showing that
-// same <video>, refreshing its stream should restore the feed without
-// needing a new user-gesture-triggered PiP request.
-async function recoverPiPStream(){
-  render();
-  try{
-    if(!canvas.captureStream)return;
-    const stream=canvas.captureStream(10);
-    video.srcObject=stream;
-    syncingVideo=true;
-    try{await video.play();}finally{syncingVideo=false;}
-  }catch(e){
-    console.error("PiP stream recovery failed:",e);
-  }
-}
-
-document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible")recoverPiPStream();
-});
-window.addEventListener("pageshow",recoverPiPStream);
-window.addEventListener("focus",recoverPiPStream);
-
 setInterval(render,250);
 render();
 </script>
@@ -629,7 +601,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=7");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=5");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
