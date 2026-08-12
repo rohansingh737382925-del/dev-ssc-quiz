@@ -263,11 +263,10 @@ function fmtMs(ms){
   return fmt(total)+'<span class="ms">.'+centis+'</span>';
 }
 
-// Plain-text version (no HTML) for drawing on the PiP canvas.
-function fmtCanvas(ms){
+// Plain-text centisecond-only piece, used to draw ms in its own fixed slot on canvas.
+function centisPart(ms){
   const total=Math.max(0,Math.floor(ms));
-  const centis=String(Math.floor((total%1000)/10)).padStart(2,"0");
-  return fmt(total)+"."+centis;
+  return String(Math.floor((total%1000)/10)).padStart(2,"0");
 }
 
 function startTimer(t,name){
@@ -377,24 +376,38 @@ function drawPiP(){
   ctx.fillText("STUDY",56,mid-130);
   ctx.fillText("AWAKE",56,mid+130);
 
-  // Same HH:MM:SS.cc text, same 124px size as before — shrink only if it
-  // would overflow the panel width (keeps it as large as the old HH:MM:SS).
+  // Main HH:MM:SS is drawn at a fixed right-edge anchor, and the
+  // centiseconds get their own reserved fixed-width slot right after it.
+  // This way, no matter what the .cc digits are (00–99), the main time
+  // never shifts left/right — only the ms text updates inside its own box.
   const maxWidth=1288;
   const baseSize=124;
-  function drawValue(text,y,color){
+  const fontAt=size=>`600 ${size}px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif`;
+
+  function drawValue(mainText,centisText,y,color){
     let size=baseSize;
-    ctx.font=`600 ${size}px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif`;
-    while(ctx.measureText(text).width>maxWidth && size>60){
+    ctx.font=fontAt(size);
+    // Reserve enough width for the widest possible ms text ("." + 2 digits).
+    let msSlot=ctx.measureText(".99").width;
+    while(ctx.measureText(mainText).width+msSlot>maxWidth && size>60){
       size-=2;
-      ctx.font=`600 ${size}px -apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif`;
+      ctx.font=fontAt(size);
+      msSlot=ctx.measureText(".99").width;
     }
-    ctx.textAlign="right";
+
+    const mainRightX=1344-msSlot;   // fixed anchor for the main time's right edge
     ctx.fillStyle=color;
-    ctx.fillText(text,1344,y);
+
+    ctx.textAlign="right";
+    ctx.fillText(mainText,mainRightX,y);
+
+    ctx.textAlign="left";
+    ctx.fillText("."+centisText,mainRightX,y);
   }
 
-  drawValue(fmtCanvas(elapsed(state.study)),mid-130,"#fff");
-  drawValue(fmtCanvas(elapsed(state.wake)),mid+130,"#888");
+  const studyMs=elapsed(state.study), wakeMs=elapsed(state.wake);
+  drawValue(fmt(studyMs),centisPart(studyMs),mid-130,"#fff");
+  drawValue(fmt(wakeMs),centisPart(wakeMs),mid+130,"#888");
 
   /* One divider exactly between the two timer sections. */
   ctx.fillStyle="#777";
@@ -690,7 +703,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=10");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=11");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
