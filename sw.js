@@ -1,4 +1,4 @@
-const CACHE_NAME = "wake-study-stopwatch-v5";
+const CACHE_NAME = "wake-study-stopwatch-v6";
 
 const APP_SHELL = [
   "./",
