@@ -578,7 +578,7 @@ body{
 .tr-days-title:after{background:linear-gradient(90deg,#7138de,transparent)}
 .tr-days-title span{padding:8px 26px;border:1px solid #8a3cff;border-radius:25px;background:rgba(37,17,77,.55);font-size:22px;font-weight:800;white-space:nowrap}
 .tr-days{max-width:1100px;margin:0 auto}
-.tr-day{display:grid;grid-template-columns:92px 1.35fr 1fr 1fr 105px 26px;align-items:center;gap:12px;padding:11px 16px;margin:8px 0;border:1px solid rgba(71,81,130,.55);border-radius:18px;background:linear-gradient(90deg,rgba(22,26,55,.95),rgba(10,15,36,.95));min-height:76px}
+.tr-day{display:grid;grid-template-columns:92px 1.35fr 1fr 1fr 105px;align-items:center;gap:12px;padding:11px 16px;margin:8px 0;border:1px solid rgba(71,81,130,.55);border-radius:18px;background:linear-gradient(90deg,rgba(22,26,55,.95),rgba(10,15,36,.95));min-height:76px}
 .tr-calendar{width:62px;height:62px;border-radius:10px;overflow:hidden;text-align:center;background:#f7f7f7;color:#151925;font-weight:800;line-height:1}
 .tr-calendar .mon{background:#c9354a;color:#fff;font-size:12px;padding:4px 0}.tr-calendar .num{font-size:25px;padding-top:5px}.tr-calendar .dow{font-size:11px;padding-top:2px}
 .tr-date{font-size:17px;font-weight:800}.tr-today{display:inline-block;font-size:11px;padding:4px 9px;border-radius:12px;background:#0d8d52;color:#baffdd;margin-left:6px;vertical-align:2px}
@@ -587,7 +587,7 @@ body{
 .tr-ring{width:57px;height:57px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(#24df88 var(--pct),#20263e 0)}
 .tr-ring:after{content:"";position:absolute;inset:7px;border-radius:50%;background:#10152b}
 .tr-ring span{position:relative;z-index:1;font-size:11px;color:#d0a4ff;font-weight:800}
-.tr-arrow{font-size:28px;color:#fff}
+.tr-arrow{font-size:28px;color:#fff;display:none}
 .tr-empty{padding:40px;text-align:center;color:#9ca7c8;border:1px dashed #424b70;border-radius:18px}
 .tr-chart-modal{position:fixed;inset:0;z-index:10010;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.74);backdrop-filter:blur(7px)}
 .tr-chart-modal.show{display:flex}
@@ -922,10 +922,10 @@ body.goal-settings-locked .tr-settings-modal{
   .tr-settings-tip-icon{width:40px;height:40px;flex-basis:40px;font-size:23px}
 }
 @media(max-width:800px){
-  .tr-dashboard{padding:12px 12px 32px}.tr-topbar{gap:8px}.tr-back,.tr-icon-btn,.tr-range-btn{width:43px;height:43px;min-width:43px;border-radius:13px}.tr-brand-icon{width:43px;height:43px;font-size:24px}.tr-brand-title{font-size:21px}.tr-brand-title span{font-size:12px}.tr-range-btn{font-size:0;padding:0}.tr-range-btn:after{content:"";font-size:19px}.tr-actions{gap:6px}.tr-stat-grid{grid-template-columns:repeat(2,1fr)}.tr-all-grid{grid-template-columns:repeat(2,1fr)}.tr-all-item:nth-child(2){border-right:0}.tr-all-item:nth-child(-n+2){border-bottom:1px solid rgba(91,103,150,.38)}.tr-goal-grid{grid-template-columns:repeat(2,1fr)}.tr-day{grid-template-columns:70px 1fr 1fr 70px 20px;gap:8px;padding:9px 10px}.tr-day .tr-metric.awake{display:none}.tr-calendar{width:55px;height:55px}.tr-date{font-size:14px}.tr-ring{width:50px;height:50px}.tr-heading h2{font-size:23px}.tr-sub{font-size:13px}.tr-pill{font-size:11px;padding:7px 10px}.tr-days-title span{font-size:17px;padding:7px 18px}
+  .tr-dashboard{padding:12px 12px 32px}.tr-topbar{gap:8px}.tr-back,.tr-icon-btn,.tr-range-btn{width:43px;height:43px;min-width:43px;border-radius:13px}.tr-brand-icon{width:43px;height:43px;font-size:24px}.tr-brand-title{font-size:21px}.tr-brand-title span{font-size:12px}.tr-range-btn{font-size:0;padding:0}.tr-range-btn:after{content:"";font-size:19px}.tr-actions{gap:6px}.tr-stat-grid{grid-template-columns:repeat(2,1fr)}.tr-all-grid{grid-template-columns:repeat(2,1fr)}.tr-all-item:nth-child(2){border-right:0}.tr-all-item:nth-child(-n+2){border-bottom:1px solid rgba(91,103,150,.38)}.tr-goal-grid{grid-template-columns:repeat(2,1fr)}.tr-day{grid-template-columns:70px 1fr 1fr 70px;gap:8px;padding:9px 10px}.tr-day .tr-metric.awake{display:none}.tr-calendar{width:55px;height:55px}.tr-date{font-size:14px}.tr-ring{width:50px;height:50px}.tr-heading h2{font-size:23px}.tr-sub{font-size:13px}.tr-pill{font-size:11px;padding:7px 10px}.tr-days-title span{font-size:17px;padding:7px 18px}
 }
 @media(max-width:520px){
-  .tr-topbar .tr-icon-btn{display:none}.tr-brand{gap:7px}.tr-stat{min-height:126px}.tr-stat-label{font-size:14px}.tr-stat-value{font-size:23px}.tr-stat-note{font-size:11px}.tr-heading{margin-bottom:13px}.tr-section{padding:13px;border-radius:21px}.tr-all-value{font-size:clamp(18px,5.2vw,22px);margin-left:35px;max-width:calc(100% - 35px)}.tr-all-note{margin-left:35px;max-width:calc(100% - 35px)}.tr-all-top{font-size:13px;line-height:1.15}.tr-goal{padding:12px 7px;gap:4px}.tr-goal-icon{font-size:23px}.tr-goal-value{font-size:17px}.tr-goal-label{font-size:11px;line-height:1.18}.tr-goal-note{font-size:10px;line-height:1.2}.tr-day{grid-template-columns:60px 1fr 72px 18px}.tr-day .tr-metric{gap:5px}.tr-day .tr-metric-icon{font-size:20px}.tr-day .tr-metric-label{font-size:10px}.tr-day .tr-metric-value{font-size:13px}.tr-date{font-size:13px}.tr-today{display:block;width:max-content;margin:3px 0 0}.tr-ring{width:46px;height:46px}.tr-ring:after{inset:6px}.tr-ring span{font-size:10px}.tr-arrow{font-size:23px}.tr-quote{font-size:13px}.tr-heading-left{gap:8px}.tr-heading-icon{font-size:27px}
+  .tr-topbar .tr-icon-btn{display:none}.tr-brand{gap:7px}.tr-stat{min-height:126px}.tr-stat-label{font-size:14px}.tr-stat-value{font-size:23px}.tr-stat-note{font-size:11px}.tr-heading{margin-bottom:13px}.tr-section{padding:13px;border-radius:21px}.tr-all-value{font-size:clamp(18px,5.2vw,22px);margin-left:35px;max-width:calc(100% - 35px)}.tr-all-note{margin-left:35px;max-width:calc(100% - 35px)}.tr-all-top{font-size:13px;line-height:1.15}.tr-goal{padding:12px 7px;gap:4px}.tr-goal-icon{font-size:23px}.tr-goal-value{font-size:17px}.tr-goal-label{font-size:11px;line-height:1.18}.tr-goal-note{font-size:10px;line-height:1.2}.tr-day{grid-template-columns:60px 1fr 72px}.tr-day .tr-metric{gap:5px}.tr-day .tr-metric-icon{font-size:20px}.tr-day .tr-metric-label{font-size:10px}.tr-day .tr-metric-value{font-size:13px}.tr-date{font-size:13px}.tr-today{display:block;width:max-content;margin:3px 0 0}.tr-ring{width:46px;height:46px}.tr-ring:after{inset:6px}.tr-ring span{font-size:10px}.tr-arrow{font-size:23px}.tr-quote{font-size:13px}.tr-heading-left{gap:8px}.tr-heading-icon{font-size:27px}
 }
 
 
@@ -2171,7 +2171,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=43");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=44");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
