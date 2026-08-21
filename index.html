@@ -514,6 +514,23 @@ body{
 .tr-back,.tr-icon-btn{width:50px;height:50px;min-width:50px;padding:0;border-radius:15px;background:rgba(24,27,53,.82);
   color:#fff;border:1px solid rgba(255,255,255,.16);font-size:25px;display:flex;align-items:center;justify-content:center}
 .tr-back{font-size:30px}
+.tr-chart-icon-btn{line-height:0}
+.tr-chart-icon{
+  width:26px;
+  height:26px;
+  display:block;
+  overflow:visible;
+}
+.tr-chart-icon path{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.tr-chart-icon rect{
+  fill:currentColor;
+}
 .tr-brand{display:flex;align-items:center;gap:11px;flex:1;min-width:0}
 .tr-brand-icon{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:28px;line-height:1;
   background:radial-gradient(circle,#7f36ff 0%,#4612a5 55%,#18082f 100%);box-shadow:0 0 22px rgba(157,65,255,.45)}
@@ -1164,7 +1181,14 @@ body.goal-settings-locked .tr-settings-modal{
             <button data-range="all">All Time</button>
           </div>
         </div>
-        <button id="trChartBtn" class="tr-icon-btn" aria-label="Performance">▥</button>
+        <button id="trChartBtn" class="tr-icon-btn tr-chart-icon-btn" aria-label="Performance">
+  <svg class="tr-chart-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 19V5M4 19H21" />
+    <rect x="7" y="11" width="2.8" height="6.5" rx="0.8"></rect>
+    <rect x="11.1" y="7.5" width="2.8" height="10" rx="0.8"></rect>
+    <rect x="15.2" y="4.5" width="2.8" height="13" rx="0.8"></rect>
+  </svg>
+</button>
         <button id="trSettingsBtn" class="tr-icon-btn" aria-label="Settings">⚙</button>
       </div>
     </div>
