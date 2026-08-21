@@ -2196,7 +2196,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=45");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=47");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
@@ -2206,3 +2206,13 @@ if ("serviceWorker" in navigator) {
 </script>
 </body>
 </html>
+
+
+/* Keep Chart + Settings visible on Android/iPhone */
+@media(max-width:800px){
+  .tr-topbar .tr-icon-btn{
+    display:flex !important;
+    align-items:center;
+    justify-content:center;
+  }
+}
