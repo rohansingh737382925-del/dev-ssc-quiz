@@ -594,9 +594,90 @@ body{
 .tr-chart-row{display:grid;grid-template-columns:70px 1fr 65px;gap:10px;align-items:center;margin:12px 0}
 .tr-chart-bar{height:18px;background:#252b48;border-radius:99px;overflow:hidden}.tr-chart-bar i{display:block;height:100%;background:linear-gradient(90deg,#813fff,#22e28a);border-radius:99px}
 .tr-chart-close{float:right}
-.tr-settings-modal{position:fixed;inset:0;z-index:10011;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(5px)}
+/* ================= GOAL SETTINGS — SHARED PREMIUM MODAL ================= */
+.tr-settings-modal{
+  position:fixed;inset:0;z-index:10011;display:none;align-items:center;justify-content:center;
+  padding:20px;background:rgba(3,6,20,.72);
+  -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+}
 .tr-settings-modal.show{display:flex}
-.tr-settings-card{width:min(430px,92vw);background:#121730;border:1px solid #3e4c84;border-radius:22px;padding:20px}.tr-settings-time{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 15px}.tr-time-field{display:flex;flex-direction:column;gap:7px}.tr-time-field label{font-size:12px;color:#aab4d8}.tr-time-select{width:100%;padding:13px;border-radius:12px;border:1px solid #4b5784;background:#080c20;color:#fff;font-size:18px;font-weight:700;outline:none}.tr-time-select:focus{border-color:#8d5cff;box-shadow:0 0 0 2px rgba(141,92,255,.18)}.tr-settings-card button{width:100%;min-width:0;background:#6f36e7;color:#fff}
+.tr-settings-card{
+  width:min(760px,92vw);max-height:92vh;overflow:auto;
+  background:#fff;color:#17213d;border:1px solid rgba(132,96,255,.42);
+  border-radius:28px;padding:0;box-shadow:0 25px 90px rgba(0,0,0,.48),0 0 45px rgba(113,70,255,.22);
+}
+.tr-settings-head{
+  display:flex;align-items:center;gap:18px;padding:24px 28px 22px;
+  background:linear-gradient(135deg,#f4efff 0%,#fbf9ff 100%);
+  border-bottom:1px solid #e4dcfb;
+}
+.tr-settings-icon{
+  width:76px;height:76px;flex:0 0 76px;border-radius:50%;
+  display:grid;place-items:center;font-size:43px;
+  background:#fff;border:1px solid #ddd3fb;box-shadow:0 5px 18px rgba(91,61,190,.12);
+}
+.tr-settings-heading{min-width:0;flex:1}
+.tr-settings-heading h2{margin:0;color:#17213d;font-size:30px;line-height:1.05;font-weight:850;letter-spacing:-.5px}
+.tr-settings-heading p{margin:8px 0 0;color:#5d6680;font-size:17px;font-weight:500}
+.tr-settings-close{
+  width:58px!important;height:58px;min-width:58px!important;padding:0!important;margin:0!important;
+  border-radius:50%!important;background:transparent!important;color:#5135c9!important;
+  border:1px solid #e7e0fb!important;font-size:38px!important;font-weight:400!important;
+  display:grid;place-items:center;box-shadow:none!important;
+}
+.tr-settings-content{padding:30px 44px 28px}
+.tr-settings-divider{
+  display:flex;align-items:center;gap:22px;margin:0 0 28px;color:#17213d;
+}
+.tr-settings-divider:before,.tr-settings-divider:after{
+  content:"";height:1px;flex:1;background:#d9d0f5;
+}
+.tr-settings-divider-icon{
+  width:68px;height:68px;border-radius:50%;display:grid;place-items:center;
+  background:#f2edff;color:#6745d8;font-size:34px;
+}
+.tr-settings-target{text-align:center;font-size:25px;font-weight:800;color:#17213d;margin-bottom:40px}
+.tr-settings-time{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:0 0 30px}
+.tr-time-field{display:flex;flex-direction:column;gap:10px}
+.tr-time-field label{font-size:17px;color:#4c5670;font-weight:700}
+.tr-time-select{
+  width:100%;height:74px;padding:0 24px;border-radius:18px;border:2px solid #a88cf0;
+  background:#fff;color:#17213d;font-size:28px;font-weight:800;outline:none;
+  box-shadow:0 2px 10px rgba(104,69,214,.05);
+}
+.tr-time-select:focus{border-color:#6745d8;box-shadow:0 0 0 4px rgba(103,69,216,.12)}
+.tr-target-save{
+  width:100%!important;min-width:0!important;height:76px!important;border:0!important;
+  border-radius:18px!important;background:linear-gradient(100deg,#7047df,#5b36db)!important;
+  color:#fff!important;font-size:24px!important;font-weight:800!important;
+  box-shadow:0 10px 25px rgba(92,54,219,.25)!important;
+}
+.tr-settings-tip{
+  margin-top:22px;padding:17px 20px;border-radius:17px;background:#f7f3ff;
+  color:#303a54;font-size:16px;display:flex;align-items:center;gap:13px;
+}
+.tr-settings-tip-icon{
+  width:48px;height:48px;flex:0 0 48px;border-radius:50%;display:grid;place-items:center;
+  background:#eee7ff;color:#6745d8;font-size:28px;
+}
+@media(max-width:600px){
+  .tr-settings-card{width:calc(100vw - 28px);border-radius:23px}
+  .tr-settings-head{padding:18px 17px;gap:11px}
+  .tr-settings-icon{width:58px;height:58px;flex-basis:58px;font-size:33px}
+  .tr-settings-heading h2{font-size:24px}
+  .tr-settings-heading p{font-size:14px;margin-top:5px}
+  .tr-settings-close{width:48px!important;height:48px;min-width:48px!important;font-size:31px!important}
+  .tr-settings-content{padding:22px 18px 20px}
+  .tr-settings-divider{gap:12px;margin-bottom:22px}
+  .tr-settings-divider-icon{width:56px;height:56px;font-size:29px}
+  .tr-settings-target{font-size:21px;margin-bottom:27px}
+  .tr-settings-time{gap:12px;margin-bottom:20px}
+  .tr-time-field label{font-size:14px}
+  .tr-time-select{height:62px;padding:0 13px;border-radius:15px;font-size:22px}
+  .tr-target-save{height:62px!important;border-radius:15px!important;font-size:20px!important}
+  .tr-settings-tip{font-size:13px;padding:12px 13px;margin-top:14px}
+  .tr-settings-tip-icon{width:40px;height:40px;flex-basis:40px;font-size:23px}
+}
 @media(max-width:800px){
   .tr-dashboard{padding:12px 12px 32px}.tr-topbar{gap:8px}.tr-back,.tr-icon-btn,.tr-range-btn{width:43px;height:43px;min-width:43px;border-radius:13px}.tr-brand-icon{width:43px;height:43px;font-size:24px}.tr-brand-title{font-size:21px}.tr-brand-title span{font-size:12px}.tr-range-btn{font-size:0;padding:0}.tr-range-btn:after{content:"📅";font-size:19px}.tr-actions{gap:6px}.tr-stat-grid{grid-template-columns:repeat(2,1fr)}.tr-all-grid{grid-template-columns:repeat(2,1fr)}.tr-all-item:nth-child(2){border-right:0}.tr-all-item:nth-child(-n+2){border-bottom:1px solid rgba(91,103,150,.38)}.tr-goal-grid{grid-template-columns:repeat(2,1fr)}.tr-day{grid-template-columns:70px 1fr 1fr 70px 20px;gap:8px;padding:9px 10px}.tr-day .tr-metric.awake{display:none}.tr-calendar{width:55px;height:55px}.tr-date{font-size:14px}.tr-ring{width:50px;height:50px}.tr-heading h2{font-size:23px}.tr-sub{font-size:13px}.tr-pill{font-size:11px;padding:7px 10px}.tr-days-title span{font-size:17px;padding:7px 18px}
 }
@@ -703,12 +784,25 @@ body{
 
 </div>
 
-<!-- Goal Settings is a global modal so it opens at the current page context. -->
-  <div id="trSettingsModal" class="tr-settings-modal">
-    <div class="tr-settings-card">
-      <button id="trSettingsClose" class="tr-icon-btn" style="float:right">×</button>
-      <h2>⚙️ Goal Settings</h2>
-      <div class="tr-sub">Target study time per day</div>
+<!-- Shared Goal Settings modal: opens from whichever page the user clicked Edit Goal. -->
+<div id="trSettingsModal" class="tr-settings-modal">
+  <div class="tr-settings-card" role="dialog" aria-modal="true" aria-labelledby="goalSettingsTitle">
+    <div class="tr-settings-head">
+      <div class="tr-settings-icon">🎯</div>
+      <div class="tr-settings-heading">
+        <h2 id="goalSettingsTitle">Goal Settings</h2>
+        <p>Set your daily study goal</p>
+      </div>
+      <button id="trSettingsClose" class="tr-settings-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="tr-settings-content">
+      <div class="tr-settings-divider">
+        <div class="tr-settings-divider-icon">🗓️</div>
+      </div>
+
+      <div class="tr-settings-target">Target study time per day</div>
+
       <div class="tr-settings-time">
         <div class="tr-time-field">
           <label for="trTargetHours">Hours</label>
@@ -719,9 +813,16 @@ body{
           <select id="trTargetMinutes" class="tr-time-select" aria-label="Target minutes"></select>
         </div>
       </div>
-      <button id="trTargetSave">Save Goal</button>
+
+      <button id="trTargetSave" class="tr-target-save">💾&nbsp; Save Goal</button>
+
+      <div class="tr-settings-tip">
+        <div class="tr-settings-tip-icon">💡</div>
+        <div>Stay consistent and achieve your daily goal!</div>
+      </div>
     </div>
   </div>
+</div>
 
 <div class="wrap">
   <div class="home-head">
@@ -1500,7 +1601,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=24");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=25");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
