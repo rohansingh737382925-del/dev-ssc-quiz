@@ -754,6 +754,105 @@ body.goal-settings-locked .tr-settings-modal{
   .tr-target-save svg{width:24px;height:24px;flex-basis:24px}
 }
 
+
+/* Extra-compact Goal Settings */
+.tr-settings-card{
+  width:min(570px,82vw);
+  border-radius:20px;
+}
+.tr-settings-head{
+  padding:13px 17px;
+  gap:10px;
+}
+.tr-settings-icon{
+  width:48px;height:48px;flex-basis:48px;
+}
+.tr-settings-icon svg{width:31px;height:31px}
+.tr-settings-heading h2{font-size:22px}
+.tr-settings-heading p{font-size:13px;margin-top:3px}
+.tr-settings-close{
+  width:42px!important;height:42px;min-width:42px!important;font-size:27px!important;
+}
+.tr-settings-content{
+  padding:15px 24px 17px;
+}
+.tr-settings-divider{
+  gap:12px;margin-bottom:13px;
+}
+.tr-settings-divider-icon{
+  width:44px;height:44px;
+}
+.tr-settings-divider-icon svg{width:25px;height:25px}
+.tr-settings-target{
+  font-size:18px;
+  margin-bottom:18px;
+}
+.tr-settings-time{
+  gap:14px;
+  margin-bottom:15px;
+}
+.tr-time-field{gap:6px}
+.tr-time-field label{font-size:13px}
+.tr-time-select{
+  height:52px;
+  padding:0 14px;
+  border-radius:13px;
+  font-size:20px;
+}
+.tr-target-save{
+  height:52px!important;
+  border-radius:13px!important;
+  font-size:18px!important;
+  gap:8px;
+}
+.tr-target-save svg{
+  width:21px;height:21px;flex-basis:21px;
+}
+@media(max-width:600px){
+  .tr-settings-card{
+    width:calc(100vw - 70px);
+    max-height:86vh;
+    border-radius:18px;
+  }
+  .tr-settings-head{padding:11px 13px;gap:8px}
+  .tr-settings-icon{
+    width:42px;height:42px;flex-basis:42px;
+  }
+  .tr-settings-icon svg{width:27px;height:27px}
+  .tr-settings-heading h2{font-size:19px}
+  .tr-settings-heading p{font-size:11px}
+  .tr-settings-close{
+    width:37px!important;height:37px;min-width:37px!important;font-size:24px!important;
+  }
+  .tr-settings-content{padding:12px 14px 14px}
+  .tr-settings-divider{margin-bottom:10px}
+  .tr-settings-divider-icon{
+    width:39px;height:39px;
+  }
+  .tr-settings-divider-icon svg{width:22px;height:22px}
+  .tr-settings-target{
+    font-size:16px;
+    margin-bottom:15px;
+  }
+  .tr-settings-time{gap:9px;margin-bottom:12px}
+  .tr-time-field{gap:5px}
+  .tr-time-field label{font-size:12px}
+  .tr-time-select{
+    height:47px;
+    padding:0 10px;
+    border-radius:11px;
+    font-size:18px;
+  }
+  .tr-target-save{
+    height:47px!important;
+    border-radius:11px!important;
+    font-size:16px!important;
+  }
+  .tr-target-save svg{
+    width:19px;height:19px;flex-basis:19px;
+  }
+}
+
 </style>
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#111111">
@@ -1702,7 +1801,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=28");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=29");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
