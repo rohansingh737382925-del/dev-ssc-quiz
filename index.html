@@ -214,7 +214,7 @@ button:active{transform:scale(.94);filter:brightness(.88)}
 .tr-chart-close{float:right}
 .tr-settings-modal{position:fixed;inset:0;z-index:10011;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(5px)}
 .tr-settings-modal.show{display:flex}
-.tr-settings-card{width:min(430px,92vw);background:#121730;border:1px solid #3e4c84;border-radius:22px;padding:20px}.tr-settings-card input{width:100%;padding:13px;border-radius:12px;border:1px solid #4b5784;background:#080c20;color:#fff;font-size:18px;margin:10px 0 15px}.tr-settings-card button{width:100%;min-width:0;background:#6f36e7;color:#fff}
+.tr-settings-card{width:min(430px,92vw);background:#121730;border:1px solid #3e4c84;border-radius:22px;padding:20px}.tr-settings-time{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 15px}.tr-time-field{display:flex;flex-direction:column;gap:7px}.tr-time-field label{font-size:12px;color:#aab4d8}.tr-time-select{width:100%;padding:13px;border-radius:12px;border:1px solid #4b5784;background:#080c20;color:#fff;font-size:18px;font-weight:700;outline:none}.tr-time-select:focus{border-color:#8d5cff;box-shadow:0 0 0 2px rgba(141,92,255,.18)}.tr-settings-card button{width:100%;min-width:0;background:#6f36e7;color:#fff}
 @media(max-width:800px){
   .tr-dashboard{padding:12px 12px 32px}.tr-topbar{gap:8px}.tr-back,.tr-icon-btn,.tr-range-btn{width:43px;height:43px;min-width:43px;border-radius:13px}.tr-brand-icon{width:43px;height:43px;font-size:24px}.tr-brand-title{font-size:21px}.tr-brand-title span{font-size:12px}.tr-range-btn{font-size:0;padding:0}.tr-range-btn:after{content:"📅";font-size:19px}.tr-actions{gap:6px}.tr-stat-grid{grid-template-columns:repeat(2,1fr)}.tr-all-grid{grid-template-columns:repeat(2,1fr)}.tr-all-item:nth-child(2){border-right:0}.tr-all-item:nth-child(-n+2){border-bottom:1px solid rgba(91,103,150,.38)}.tr-goal-grid{grid-template-columns:repeat(2,1fr)}.tr-day{grid-template-columns:70px 1fr 1fr 70px 20px;gap:8px;padding:9px 10px}.tr-day .tr-metric.awake{display:none}.tr-calendar{width:55px;height:55px}.tr-date{font-size:14px}.tr-ring{width:50px;height:50px}.tr-heading h2{font-size:23px}.tr-sub{font-size:13px}.tr-pill{font-size:11px;padding:7px 10px}.tr-days-title span{font-size:17px;padding:7px 18px}
 }
@@ -324,7 +324,16 @@ button:active{transform:scale(.94);filter:brightness(.88)}
       <button id="trSettingsClose" class="tr-icon-btn" style="float:right">×</button>
       <h2>⚙️ Goal Settings</h2>
       <div class="tr-sub">Target study time per day</div>
-      <input id="trTargetInput" type="time" step="60" value="08:00">
+      <div class="tr-settings-time">
+        <div class="tr-time-field">
+          <label for="trTargetHours">Hours</label>
+          <select id="trTargetHours" class="tr-time-select" aria-label="Target hours"></select>
+        </div>
+        <div class="tr-time-field">
+          <label for="trTargetMinutes">Minutes</label>
+          <select id="trTargetMinutes" class="tr-time-select" aria-label="Target minutes"></select>
+        </div>
+      </div>
       <button id="trTargetSave">Save Goal</button>
     </div>
   </div>
@@ -795,6 +804,9 @@ async function trLoadRecords(){
   }catch(e){
     console.error(e);
     trRecords=trMergeData([]);
+  }finally{
+    // Loading indicator is visible only while the records request is in progress.
+    historyStatus.textContent="";
   }
   trRender();
 }
@@ -905,16 +917,30 @@ document.addEventListener("click",e=>{
 $("trChartBtn").addEventListener("click",()=>{$("trChartModal").classList.add("show")});
 $("trChartClose").addEventListener("click",()=>{$("trChartModal").classList.remove("show")});
 $("trChartModal").addEventListener("click",e=>{if(e.target.id==="trChartModal")e.currentTarget.classList.remove("show")});
+const trTargetHours=$("trTargetHours"),trTargetMinutes=$("trTargetMinutes");
+for(let h=0;h<=24;h++){
+  const o=document.createElement("option");
+  o.value=String(h);o.textContent=String(h).padStart(2,"0")+" hr";
+  trTargetHours.appendChild(o);
+}
+for(let m=0;m<60;m++){
+  const o=document.createElement("option");
+  o.value=String(m);o.textContent=String(m).padStart(2,"0")+" min";
+  trTargetMinutes.appendChild(o);
+}
 $("trSettingsBtn").addEventListener("click",()=>{
-  $("trTargetInput").value=trFmt(trGoalMs).slice(0,5);
+  const totalMinutes=Math.floor(trGoalMs/60000);
+  trTargetHours.value=String(Math.min(24,Math.floor(totalMinutes/60)));
+  trTargetMinutes.value=String(totalMinutes%60);
   $("trSettingsModal").classList.add("show");
 });
 $("trEditGoals").addEventListener("click",()=>$("trSettingsBtn").click());
 $("trSettingsClose").addEventListener("click",()=>$("trSettingsModal").classList.remove("show"));
 $("trSettingsModal").addEventListener("click",e=>{if(e.target.id==="trSettingsModal")e.currentTarget.classList.remove("show")});
 $("trTargetSave").addEventListener("click",()=>{
-  const [h,m]=($("trTargetInput").value||"08:00").split(":").map(Number);
-  trGoalMs=((h||0)*60+(m||0))*60000;
+  const h=Math.max(0,Math.min(24,Number(trTargetHours.value)||0));
+  const m=Math.max(0,Math.min(59,Number(trTargetMinutes.value)||0));
+  trGoalMs=(h*60+m)*60000;
   localStorage.setItem("wake_study_goal_ms",String(trGoalMs));
   $("trSettingsModal").classList.remove("show");trRender();
 });
@@ -942,7 +968,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=12");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=11");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
