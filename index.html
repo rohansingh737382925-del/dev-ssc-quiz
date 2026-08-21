@@ -853,6 +853,43 @@ body.goal-settings-locked .tr-settings-modal{
   }
 }
 
+
+/* PiP moved to the top-right of the main header */
+.home-head{
+  position:relative;
+  padding-right:118px;
+}
+.pip-header{
+  position:absolute;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
+  width:auto!important;
+  min-width:0!important;
+  height:42px;
+  margin:0!important;
+  padding:0 12px!important;
+  border:1px solid #20d875!important;
+  border-radius:12px!important;
+  background:rgba(20,42,34,.82)!important;
+  color:#55ee9b!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  box-shadow:0 0 15px rgba(40,230,130,.12);
+}
+.pip-header:active{
+  transform:translateY(-50%) scale(.94)!important;
+}
+@media(max-width:520px){
+  .home-head{padding-right:96px}
+  .pip-header{
+    height:38px;
+    padding:0 9px!important;
+    font-size:11px!important;
+    border-radius:10px!important;
+  }
+}
+
 </style>
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#111111">
@@ -1005,6 +1042,7 @@ body.goal-settings-locked .tr-settings-modal{
 <div class="wrap">
   <div class="home-head">
     <button id="menuBtn" class="menu-btn" aria-label="Open menu">☰</button>
+<button id="pip" class="pip-header" aria-label="Open PiP">▣&nbsp; Open PiP</button>
     <div class="home-brand">
       <div class="home-brand-icon">⏱</div>
       <div>
@@ -1102,7 +1140,7 @@ body.goal-settings-locked .tr-settings-modal{
     <div class="goal-progress-note">Goal Progress (capped at 100%)</div>
   </section>
 
-  <button id="pip" class="pip">▣&nbsp; Open PiP</button>
+  
   <div id="status" class="status"></div>
   <div class="hint">
     Awake Time runs continuously from the moment you wake up.<br>
@@ -1801,7 +1839,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=29");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=30");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
