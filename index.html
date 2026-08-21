@@ -215,35 +215,11 @@ button:active{transform:scale(.94);filter:brightness(.88)}
 .tr-settings-modal{position:fixed;inset:0;z-index:10011;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(5px)}
 .tr-settings-modal.show{display:flex}
 .tr-settings-card{width:min(430px,92vw);background:#121730;border:1px solid #3e4c84;border-radius:22px;padding:20px}.tr-settings-time{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 15px}.tr-time-field{display:flex;flex-direction:column;gap:7px}.tr-time-field label{font-size:12px;color:#aab4d8}.tr-time-select{width:100%;padding:13px;border-radius:12px;border:1px solid #4b5784;background:#080c20;color:#fff;font-size:18px;font-weight:700;outline:none}.tr-time-select:focus{border-color:#8d5cff;box-shadow:0 0 0 2px rgba(141,92,255,.18)}.tr-settings-card button{width:100%;min-width:0;background:#6f36e7;color:#fff}
-
-.tr-analytics{border-color:rgba(74,76,160,.6);background:rgba(8,12,31,.78)}
-.tr-analytics-grid{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(260px,.8fr);gap:14px}
-.tr-trend-card,.tr-insights-card{border:1px solid rgba(72,84,137,.58);border-radius:20px;background:rgba(7,12,30,.72);padding:17px;min-width:0}
-.tr-trend-card h2,.tr-insights-card h2{font-size:20px;margin:0 0 10px}
-.tr-legend{display:flex;gap:28px;color:#c5cbe4;font-size:13px;margin-bottom:8px}.tr-legend span{display:flex;align-items:center;gap:7px}.tr-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}.study-dot{background:#2388ef}.pct-dot{background:#a44cff}
-.tr-trend{height:285px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;align-items:end;padding:15px 4px 0;border-bottom:1px solid rgba(100,112,160,.35);position:relative}
-.tr-trend-col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative;min-width:0}
-.tr-trend-pct{font-size:11px;color:#f0e7ff;margin-bottom:4px;white-space:nowrap}.tr-trend-time{font-size:11px;color:#d8ddef;margin-bottom:5px;white-space:nowrap}.tr-trend-bar{width:min(30px,65%);height:var(--bar);min-height:3px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#39a2ff,#1670d8);box-shadow:0 0 12px rgba(25,128,255,.2)}
-.tr-trend-dot{width:10px;height:10px;border:2px solid #dcb9ff;background:#a44cff;border-radius:50%;position:absolute;top:var(--dot);transform:translateY(-50%);box-shadow:0 0 10px rgba(164,76,255,.45)}
-.tr-trend-date{font-size:11px;color:#b9c1dc;margin-top:8px;white-space:nowrap}.tr-trend-gridline{position:absolute;left:0;right:0;height:1px;background:rgba(91,103,150,.16)}
-.tr-insight{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(83,95,145,.22)}.tr-insight:last-child{border-bottom:0}.tr-insight>span{font-size:23px;line-height:1}.tr-insight b{display:block;font-size:12px;color:#aeb7d4;font-weight:600}.tr-insight strong{display:block;font-size:14px;color:#f6f7ff;margin-top:3px;line-height:1.25}
-.tr-all-detail{display:grid;grid-template-columns:230px 1fr;gap:0;margin-top:13px;border:1px solid rgba(83,96,145,.48);border-radius:20px;background:rgba(7,12,30,.66);overflow:hidden}.tr-circle-wrap{padding:18px;border-right:1px solid rgba(83,96,145,.42);display:flex;flex-direction:column;align-items:center;justify-content:center}.tr-circle{width:150px;height:150px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:conic-gradient(#22e48a var(--pct,0%),#282a50 0);position:relative;box-shadow:0 0 25px rgba(38,226,138,.08)}.tr-circle:after{content:"";position:absolute;inset:12px;border-radius:50%;background:#0a1026}.tr-circle span,.tr-circle small{position:relative;z-index:1}.tr-circle span{font-size:27px;font-weight:850}.tr-circle small{font-size:12px;color:#aab4d8;margin-top:3px}.tr-detail-title{font-size:15px;font-weight:700;color:#f3f5ff;margin-bottom:10px}.tr-circle-wrap .tr-detail-title{margin:13px 0 0}.tr-detail-main{padding:18px}.tr-distribution{display:flex;height:34px;border-radius:8px;overflow:hidden;background:#222844}.tr-distribution .study{background:linear-gradient(90deg,#18d97c,#21e9b9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;min-width:0}.tr-distribution .awake{background:linear-gradient(90deg,#7132d6,#a44cff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;min-width:0}.tr-dist-labels{display:flex;justify-content:space-between;gap:10px;margin:8px 0 14px;font-size:11px;color:#bfc7e1}.tr-mini-stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid rgba(74,91,145,.45);border-radius:14px;overflow:hidden}.tr-mini-stats>div{padding:11px 8px;text-align:center;border-right:1px solid rgba(74,91,145,.4);min-width:0}.tr-mini-stats>div:last-child{border-right:0}.tr-mini-stats span{display:block;font-size:11px;color:#c6cce0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tr-mini-stats b{display:block;font-size:17px;margin-top:7px;font-variant-numeric:tabular-nums}.tr-mini-stats small{display:block;color:#a8b2d1;font-size:10px;margin-top:2px}.tr-goal-progress{width:100%;height:6px;background:#202640;border-radius:99px;overflow:hidden;margin-top:7px}.tr-goal-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#21df7d,#22e5c7);border-radius:99px}
-.tr-goals{border-color:rgba(164,76,255,.55);background:linear-gradient(145deg,rgba(32,16,66,.65),rgba(9,14,37,.86))}.tr-goal:nth-child(1){border-color:rgba(40,151,255,.5)}.tr-goal:nth-child(2){border-color:rgba(42,223,132,.5)}.tr-goal:nth-child(3){border-color:rgba(164,76,255,.5)}.tr-goal:nth-child(4){border-color:rgba(255,166,40,.5)}
-
 @media(max-width:800px){
   .tr-dashboard{padding:12px 12px 32px}.tr-topbar{gap:8px}.tr-back,.tr-icon-btn,.tr-range-btn{width:43px;height:43px;min-width:43px;border-radius:13px}.tr-brand-icon{width:43px;height:43px;font-size:24px}.tr-brand-title{font-size:21px}.tr-brand-title span{font-size:12px}.tr-range-btn{font-size:0;padding:0}.tr-range-btn:after{content:"📅";font-size:19px}.tr-actions{gap:6px}.tr-stat-grid{grid-template-columns:repeat(2,1fr)}.tr-all-grid{grid-template-columns:repeat(2,1fr)}.tr-all-item:nth-child(2){border-right:0}.tr-all-item:nth-child(-n+2){border-bottom:1px solid rgba(91,103,150,.38)}.tr-goal-grid{grid-template-columns:repeat(2,1fr)}.tr-day{grid-template-columns:70px 1fr 1fr 70px 20px;gap:8px;padding:9px 10px}.tr-day .tr-metric.awake{display:none}.tr-calendar{width:55px;height:55px}.tr-date{font-size:14px}.tr-ring{width:50px;height:50px}.tr-heading h2{font-size:23px}.tr-sub{font-size:13px}.tr-pill{font-size:11px;padding:7px 10px}.tr-days-title span{font-size:17px;padding:7px 18px}
 }
 @media(max-width:520px){
   .tr-topbar .tr-icon-btn{display:none}.tr-brand{gap:7px}.tr-stat{min-height:126px}.tr-stat-label{font-size:14px}.tr-stat-value{font-size:23px}.tr-stat-note{font-size:11px}.tr-heading{margin-bottom:13px}.tr-section{padding:13px;border-radius:21px}.tr-all-value{font-size:22px;margin-left:35px}.tr-all-note{margin-left:35px}.tr-all-top{font-size:13px}.tr-goal{padding:12px 7px;gap:4px}.tr-goal-icon{font-size:23px}.tr-goal-value{font-size:17px}.tr-goal-label{font-size:11px;line-height:1.18}.tr-goal-note{font-size:10px;line-height:1.2}.tr-day{grid-template-columns:60px 1fr 72px 18px}.tr-day .tr-metric{gap:5px}.tr-day .tr-metric-icon{font-size:20px}.tr-day .tr-metric-label{font-size:10px}.tr-day .tr-metric-value{font-size:13px}.tr-date{font-size:13px}.tr-today{display:block;width:max-content;margin:3px 0 0}.tr-ring{width:46px;height:46px}.tr-ring:after{inset:6px}.tr-ring span{font-size:10px}.tr-arrow{font-size:23px}.tr-quote{font-size:13px}.tr-heading-left{gap:8px}.tr-heading-icon{font-size:27px}
-}
-
-@media(max-width:800px){
-  .tr-analytics-grid{grid-template-columns:1fr}
-  .tr-all-detail{grid-template-columns:1fr}.tr-circle-wrap{border-right:0;border-bottom:1px solid rgba(83,96,145,.42)}
-  .tr-mini-stats{grid-template-columns:repeat(2,1fr)}.tr-mini-stats>div:nth-child(2){border-right:0}.tr-mini-stats>div:nth-child(-n+2){border-bottom:1px solid rgba(74,91,145,.4)}
-}
-@media(max-width:520px){
-  .tr-trend{height:245px;gap:3px}.tr-trend-bar{width:22px}.tr-trend-date{font-size:9px}.tr-trend-time,.tr-trend-pct{font-size:9px}.tr-trend-card,.tr-insights-card{padding:13px}.tr-insight{padding:9px 0}.tr-insight strong{font-size:12px}.tr-circle{width:135px;height:135px}.tr-circle span{font-size:24px}.tr-dist-labels{font-size:9px}.tr-mini-stats span{font-size:9px}.tr-mini-stats b{font-size:14px}
 }
 
 </style>
@@ -266,7 +242,7 @@ button:active{transform:scale(.94);filter:brightness(.88)}
       <button id="historyClose" class="tr-back" aria-label="Back">‹</button>
       <div class="tr-brand">
         <div class="tr-brand-icon">◷</div>
-        <div class="tr-brand-title">Study Progress Overview<span>Weekly Average + All Time Progress</span></div>
+        <div class="tr-brand-title">Track Record<span>Track • Analyze • Improve</span></div>
       </div>
       <div class="tr-actions">
         <div class="tr-range">
@@ -298,60 +274,33 @@ button:active{transform:scale(.94);filter:brightness(.88)}
       </div>
     </section>
 
-    <section class="tr-section tr-analytics">
-      <div class="tr-analytics-grid">
-        <div class="tr-trend-card">
-          <h2>7 Days Performance Trend</h2>
-          <div class="tr-legend"><span><i class="study-dot"></i> Study Time</span><span><i class="pct-dot"></i> Study %</span></div>
-          <div id="trTrend" class="tr-trend"></div>
-        </div>
-        <div class="tr-insights-card">
-          <h2>Weekly Insights</h2>
-          <div class="tr-insight"><span>🔥</span><div><b>Best Day</b><strong id="trBestDay">—</strong></div></div>
-          <div class="tr-insight"><span>📊</span><div><b>Highest %</b><strong id="trHighestPct">—</strong></div></div>
-          <div class="tr-insight"><span>😴</span><div><b>Avg Sleep</b><strong id="trAvgSleep">—</strong></div></div>
-          <div class="tr-insight"><span>🎯</span><div><b>Consistency</b><strong id="trConsistency">—</strong></div></div>
-        </div>
-      </div>
-    </section>
-
     <section class="tr-section alltime">
       <div class="tr-heading">
         <div class="tr-heading-left"><div class="tr-heading-icon">🚀</div><div><h2>All Time <span class="green">Progress</span></h2><div class="tr-sub">Complete Journey till Now</div></div></div>
         <div class="tr-pill teal">Total Tracked</div>
       </div>
       <div class="tr-all-grid">
-        <div class="tr-all-item"><div class="tr-all-top"><span class="tr-all-icon">🗓️</span>Total Days Tracked</div><div id="trTotalDays" class="tr-all-value">0</div><div class="tr-all-note">Days</div></div>
+        <div class="tr-all-item"><div class="tr-all-top"><span class="tr-all-icon">🗓️</span>Total Days</div><div id="trTotalDays" class="tr-all-value">0</div><div class="tr-all-note">Days Tracked</div></div>
         <div class="tr-all-item"><div class="tr-all-top"><span class="tr-all-icon">📚</span>Total Study Time</div><div id="trTotalStudy" class="tr-all-value green">00:00:00</div><div id="trTotalStudyNote" class="tr-all-note">(0 Hours)</div></div>
         <div class="tr-all-item"><div class="tr-all-top"><span class="tr-all-icon">☀️</span>Total Awake Time</div><div id="trTotalAwake" class="tr-all-value blue">00:00:00</div><div id="trTotalAwakeNote" class="tr-all-note">(0 Hours)</div></div>
-        <div class="tr-all-item"><div class="tr-all-top"><span class="tr-all-icon">◷</span>Overall Study %</div><div id="trOverallPct" class="tr-all-value purple">0.00%</div><div class="tr-all-note">of Awake Time</div></div>
+        <div class="tr-all-item"><div class="tr-all-top"><span class="tr-all-icon">◔</span>Overall Study %</div><div id="trOverallPct" class="tr-all-value purple">0.00%</div><div class="tr-all-note">of Awake Time</div></div>
       </div>
-      <div class="tr-all-detail">
-        <div class="tr-circle-wrap"><div class="tr-circle" id="trCircle"><span id="trCirclePct">0.00%</span><small>Overall</small></div><div class="tr-detail-title">Study % Progress</div></div>
-        <div class="tr-detail-main">
-          <div class="tr-detail-title">Time Distribution</div>
-          <div class="tr-distribution"><div id="trStudyDist" class="study"></div><div id="trAwakeDist" class="awake"></div></div>
-          <div class="tr-dist-labels"><span>🟢 Study Time <b id="trDistStudy">0.00%</b></span><span>🟣 Remaining Awake Time <b id="trDistAwake">0.00%</b></span></div>
-          <div class="tr-mini-stats">
-            <div><span>◷ Daily Avg Study</span><b id="trDailyAvgStudy">00:00:00</b><small>per day</small></div>
-            <div><span>☀️ Daily Avg Awake</span><b id="trDailyAvgAwake">00:00:00</b><small>per day</small></div>
-            <div><span>🔥 Best Streak</span><b id="trBestStreak">0 Days</b><small>Keep it Going!</small></div>
-            <div><span>🎯 Goal Progress</span><b id="trAllGoalProgress">0.0%</b><small>of Daily Goal</small></div>
-          </div>
-        </div>
+      <div class="tr-progress-wrap">
+        <div class="tr-progress-head"><span>Time Used for Study</span><span id="trProgressText">0.00% of Awake Time used for Study</span></div>
+        <div class="tr-progress"><div id="trProgressBar" style="width:0%"></div></div>
       </div>
       <div class="tr-quote">💡 <b><i>“Consistency builds results. Keep going!”</i></b> 🔥</div>
     </section>
 
     <section class="tr-section tr-goals">
       <div class="tr-goal-head">
-        <div class="tr-heading-left"><div class="tr-heading-icon">🎯</div><div><h2>Goals &amp; Today</h2></div></div>
+        <div class="tr-heading-left"><div class="tr-heading-icon">📈</div><div><h2>Goals &amp; Insights</h2></div></div>
         <button id="trEditGoals" class="tr-goal-edit">✎ Edit Goals</button>
       </div>
       <div class="tr-goal-grid">
         <div class="tr-goal"><div class="tr-goal-icon">🎯</div><div><div class="tr-goal-label">Target Study / Day</div><div id="trTarget" class="tr-goal-value">08:00:00</div><div class="tr-goal-note">Your Goal</div></div></div>
-        <div class="tr-goal"><div class="tr-goal-icon">◷</div><div><div class="tr-goal-label">Today Achieved</div><div id="trTodayAvg" class="tr-goal-value">00:00:00</div><div id="trGoalPct" class="tr-goal-note green">0% of Daily Goal</div><div class="tr-goal-progress"><i id="trGoalProgressBar"></i></div></div></div>
-        <div class="tr-goal"><div class="tr-goal-icon">📈</div><div><div class="tr-goal-label">vs Yesterday</div><div id="trImprovement" class="tr-goal-value">+0.0%</div><div class="tr-goal-note">vs Yesterday</div></div></div>
+        <div class="tr-goal"><div class="tr-goal-icon">◷</div><div><div class="tr-goal-label">Today Study</div><div id="trTodayAvg" class="tr-goal-value">00:00:00</div><div id="trGoalPct" class="tr-goal-note green">0% of Daily Goal</div></div></div>
+        <div class="tr-goal"><div class="tr-goal-icon">📈</div><div><div class="tr-goal-label">Daily Improvement</div><div id="trImprovement" class="tr-goal-value">+0.0%</div><div class="tr-goal-note">vs Yesterday</div></div></div>
         <div class="tr-goal"><div class="tr-goal-icon">🔥</div><div><div class="tr-goal-label">Current Streak</div><div id="trStreak" class="tr-goal-value">0 Days</div><div class="tr-goal-note">Keep it Going! 🚀</div></div></div>
       </div>
     </section>
@@ -880,28 +829,6 @@ function trStreak(){
   while(keys.has(trDayKey(d))){count++;d-=86400000}
   return count;
 }
-function trBestStreak(){
-  const keys=[...new Set(trRecords.filter(r=>(r.studyMs||0)>0).map(r=>r.date))].sort();
-  if(!keys.length)return 0;
-  let best=1,cur=1;
-  for(let i=1;i<keys.length;i++){
-    const prev=trDayStart(keys[i-1]), now=trDayStart(keys[i]);
-    if(now-prev===86400000){cur++;best=Math.max(best,cur)}else cur=1;
-  }
-  return best;
-}
-function trTrendData(rows){return rows.slice(-7);}
-function trRenderTrend(rows){
-  const data=trTrendData(rows);
-  const max=Math.max(1,...data.map(r=>r.studyMs||0));
-  const maxPct=Math.max(1,...data.map(r=>trPct(r.studyMs,r.awakeMs)));
-  const cols=data.map(r=>{
-    const bar=Math.max(3,(r.studyMs||0)/max*72);
-    const dot=Math.max(8,100-(trPct(r.studyMs,r.awakeMs)/maxPct*72)-8);
-    return `<div class="tr-trend-col"><div class="tr-trend-pct">${trPct(r.studyMs,r.awakeMs).toFixed(0)}%</div><div class="tr-trend-time">${trFmt(r.studyMs).slice(0,5)}</div><div class="tr-trend-bar" style="--bar:${bar}%;"></div><div class="tr-trend-dot" style="--dot:${dot}%;"></div><div class="tr-trend-date">${r.date.slice(8)}/${r.date.slice(5,7)}</div></div>`;
-  }).join("");
-  $("trTrend").innerHTML=cols||'<div class="tr-empty">No data yet.</div>';
-}
 function trHours(ms){return Math.floor(ms/3600000)}
 function trRangeLabel(){
   if(trRange==="all") return "All recorded days";
@@ -928,31 +855,14 @@ function trRender(){
   $("trProgressText").textContent=total.pct.toFixed(2)+"% of Awake Time used for Study";
   $("trProgressBar").style.width=Math.min(100,Math.max(0,total.pct))+"%";
 
-  const avgDays=Math.max(1,total.days);
-  const todayKey=trDayKey();
-  const todayStudy=elapsed(state.study);
-  const todayGoalPct=trPct(todayStudy,trGoalMs);
-  $("trCircle").style.setProperty("--pct",Math.min(100,Math.max(0,total.pct))+"%");
-  $("trCirclePct").textContent=total.pct.toFixed(2)+"%";
-  const distStudy=total.pct, distAwake=Math.max(0,100-distStudy);
-  $("trStudyDist").style.width=Math.min(100,distStudy)+"%";
-  $("trAwakeDist").style.width=distAwake+"%";
-  $("trStudyDist").textContent=total.study?`${trFmt(total.study)} (${distStudy.toFixed(2)}%)`:"0.00%";
-  $("trAwakeDist").textContent=total.awake?`${trFmt(Math.max(0,total.awake-total.study))} (${distAwake.toFixed(2)}%)`:"0.00%";
-  $("trDistStudy").textContent=distStudy.toFixed(2)+"%";
-  $("trDistAwake").textContent=distAwake.toFixed(2)+"%";
-  $("trDailyAvgStudy").textContent=trFmt(total.study/avgDays);
-  $("trDailyAvgAwake").textContent=trFmt(total.awake/avgDays);
-  $("trBestStreak").textContent=trBestStreak()+" Days";
-  $("trAllGoalProgress").textContent=todayGoalPct.toFixed(1)+"%";
-
   $("trTarget").textContent=trFmt(trGoalMs);
+  const todayKey=trDayKey();
   // Today Achieved is always driven directly by the live Study Timer.
   // This keeps the dashboard in sync with the stopwatch and localStorage
   // instead of waiting for an API refresh.
+  const todayStudy=elapsed(state.study);
   $("trTodayAvg").textContent=trFmt(todayStudy);
   $("trGoalPct").textContent=trPct(todayStudy,trGoalMs).toFixed(1)+"% of Daily Goal";
-  $("trGoalProgressBar").style.width=Math.min(100,Math.max(0,todayGoalPct))+"%";
 
   // Daily improvement: compare today's study time with yesterday's study time.
   // This is intentionally independent of the weekly range selector.
@@ -962,22 +872,6 @@ function trRender(){
   const improvement=yesterdayStudy>0?(todayStudy-yesterdayStudy)/yesterdayStudy*100:(todayStudy>0?100:0);
   $("trImprovement").textContent=(improvement>=0?"+":"")+improvement.toFixed(1)+"%";
   $("trStreak").textContent=trStreak()+" Days";
-
-  const insightRows=trDaysInRange().filter(r=>r.date!==todayKey || (r.studyMs||0)>0);
-  const best=insightRows.reduce((a,r)=>!a||(r.studyMs||0)>=(a.studyMs||0)?r:a,null);
-  const highest=insightRows.reduce((a,r)=>!a||trPct(r.studyMs,r.awakeMs)>trPct(a.studyMs,a.awakeMs)?r:a,null);
-  const insightAwake=insightRows.reduce((a,r)=>a+(r.awakeMs||0),0);
-  const insightStudy=insightRows.reduce((a,r)=>a+(r.studyMs||0),0);
-  const insightCount=insightRows.length||1;
-  const avgAwake=insightAwake/insightCount;
-  const avgSleep=Math.max(0,86400000-avgAwake);
-  $("trBestDay").textContent=best?`${trDayLabel(best.date)} (${trFmt(best.studyMs)})`:"—";
-  $("trHighestPct").textContent=highest?`${trDayLabel(highest.date)} (${trPct(highest.studyMs,highest.awakeMs).toFixed(0)}%)`:"—";
-  $("trAvgSleep").textContent=trFmt(avgSleep)+" per day";
-  const consistencyDen=trRange==="all"?Math.max(1,insightRows.length):Number(trRange)||7;
-  const consistent=insightRows.filter(r=>(r.studyMs||0)>0).length;
-  $("trConsistency").textContent=`${consistent}/${consistencyDen} days`;
-  trRenderTrend(trDaysInRange());
 
   const display=trRecords.slice(-10).reverse();
   $("trListTitle").textContent=`${display.length||10} Days – Daily Records`;
@@ -1089,7 +983,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=16");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=15");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
