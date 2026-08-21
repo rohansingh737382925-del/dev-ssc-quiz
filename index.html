@@ -299,8 +299,8 @@ button:active{transform:scale(.94);filter:brightness(.88)}
       </div>
       <div class="tr-goal-grid">
         <div class="tr-goal"><div class="tr-goal-icon">🎯</div><div><div class="tr-goal-label">Target Study / Day</div><div id="trTarget" class="tr-goal-value">08:00:00</div><div class="tr-goal-note">Your Goal</div></div></div>
-        <div class="tr-goal"><div class="tr-goal-icon">◷</div><div><div class="tr-goal-label">Today Avg / Day</div><div id="trTodayAvg" class="tr-goal-value">00:00:00</div><div id="trGoalPct" class="tr-goal-note green">0% of Goal</div></div></div>
-        <div class="tr-goal"><div class="tr-goal-icon">📈</div><div><div class="tr-goal-label">Improvement</div><div id="trImprovement" class="tr-goal-value">+0.0%</div><div class="tr-goal-note">vs Previous Period</div></div></div>
+        <div class="tr-goal"><div class="tr-goal-icon">◷</div><div><div class="tr-goal-label">Today Study</div><div id="trTodayAvg" class="tr-goal-value">00:00:00</div><div id="trGoalPct" class="tr-goal-note green">0% of Daily Goal</div></div></div>
+        <div class="tr-goal"><div class="tr-goal-icon">📈</div><div><div class="tr-goal-label">Daily Improvement</div><div id="trImprovement" class="tr-goal-value">+0.0%</div><div class="tr-goal-note">vs Yesterday</div></div></div>
         <div class="tr-goal"><div class="tr-goal-icon">🔥</div><div><div class="tr-goal-label">Current Streak</div><div id="trStreak" class="tr-goal-value">0 Days</div><div class="tr-goal-note">Keep it Going! 🚀</div></div></div>
       </div>
     </section>
@@ -856,14 +856,20 @@ function trRender(){
   $("trProgressBar").style.width=Math.min(100,Math.max(0,total.pct))+"%";
 
   $("trTarget").textContent=trFmt(trGoalMs);
-  const todayRow=trRecords.find(r=>r.date===trDayKey());
-  const recent=trRecords.slice(-7);
-  const todayAvg=recent.length?recent.reduce((s,r)=>s+(r.studyMs||0),0)/recent.length:0;
-  $("trTodayAvg").textContent=trFmt(todayAvg);
-  $("trGoalPct").textContent=trPct(todayAvg,trGoalMs).toFixed(1)+"% of Goal";
-  const prev=trRecords.slice(-14,-7);
-  const prevAvg=prev.length?prev.reduce((s,r)=>s+(r.studyMs||0),0)/prev.length:0;
-  const improvement=prevAvg>0?(todayAvg-prevAvg)/prevAvg*100:0;
+  const todayKey=trDayKey();
+  // Today Achieved is always driven directly by the live Study Timer.
+  // This keeps the dashboard in sync with the stopwatch and localStorage
+  // instead of waiting for an API refresh.
+  const todayStudy=elapsed(state.study);
+  $("trTodayAvg").textContent=trFmt(todayStudy);
+  $("trGoalPct").textContent=trPct(todayStudy,trGoalMs).toFixed(1)+"% of Daily Goal";
+
+  // Daily improvement: compare today's study time with yesterday's study time.
+  // This is intentionally independent of the weekly range selector.
+  const yesterdayKey=trDayKey(trDayStart(todayKey)-1000);
+  const yesterdayRow=trRecords.find(r=>r.date===yesterdayKey);
+  const yesterdayStudy=yesterdayRow?(yesterdayRow.studyMs||0):0;
+  const improvement=yesterdayStudy>0?(todayStudy-yesterdayStudy)/yesterdayStudy*100:(todayStudy>0?100:0);
   $("trImprovement").textContent=(improvement>=0?"+":"")+improvement.toFixed(1)+"%";
   $("trStreak").textContent=trStreak()+" Days";
 
@@ -952,6 +958,15 @@ document.addEventListener("keydown",e=>{
     $("trSettingsModal").classList.remove("show");
   }
 });
+// Keep Today Achieved + its goal percentage live with the Study Timer.
+setInterval(()=>{
+  if(historyModal.classList.contains("show")){
+    const todayStudy=elapsed(state.study);
+    $("trTodayAvg").textContent=trFmt(todayStudy);
+    $("trGoalPct").textContent=trPct(todayStudy,trGoalMs).toFixed(1)+"% of Daily Goal";
+  }
+},250);
+
 setInterval(()=>{if(historyModal.classList.contains("show"))trLoadRecords()},30000);
 
 </script>
@@ -968,7 +983,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=13");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=14");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
