@@ -6,25 +6,407 @@
 <title>Wake & Study Stopwatch • Track Record</title>
 <style>
 *{box-sizing:border-box}
-html{touch-action:manipulation}
-body{margin:0;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
-.wrap{width:min(470px,94vw);padding:24px 14px}
-h1{text-align:center;font-size:22px;margin:0 0 18px}
-.box{background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:18px;margin:12px 0}
-.title{font-size:17px;font-weight:600;margin-bottom:8px}
-.time{font-variant-numeric:tabular-nums;font-size:42px;font-weight:600;letter-spacing:-1px;margin:8px 0 14px}
-.time .ms{font-size:.48em;font-weight:600;color:#999;letter-spacing:-.5px}
-.row{display:flex;align-items:center;justify-content:space-between;width:100%}
-button{border:0;border-radius:13px;padding:12px 16px;font-size:15px;font-weight:600;min-width:92px;transition:transform .08s ease,filter .08s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:active{transform:scale(.94);filter:brightness(.88)}
-.start{background:#fff;color:#111}.stop{background:#ff6868;color:#111}.reset{background:#ddd;color:#111;margin-left:18px}.toggle{margin-right:18px}.pip{background:#4ade80;color:#111;width:100%;margin-top:12px}
-.status{text-align:center;color:#aaa;font-size:13px;min-height:20px;margin-top:10px}
-.hint{text-align:center;color:#999;font-size:12px;line-height:1.45;margin-top:14px}
+html{touch-action:manipulation;background:#05070d}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 88% 5%,rgba(106,45,220,.12),transparent 28%),
+    radial-gradient(circle at 8% 42%,rgba(0,180,255,.07),transparent 30%),
+    linear-gradient(180deg,#070910 0%,#05070d 100%);
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  touch-action:manipulation;
+}
+.wrap{
+  width:min(1100px,100%);
+  padding:22px 22px 34px;
+}
+.home-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:0 auto 18px;
+  min-height:56px;
+}
+.menu-btn{
+  position:static;
+  z-index:10001;
+  width:50px;
+  height:50px;
+  min-width:50px;
+  padding:0;
+  border-radius:15px;
+  background:rgba(18,21,32,.88);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.15);
+  font-size:25px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.home-brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+.home-brand-icon{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  font-size:27px;
+  color:#a36aff;
+  background:radial-gradient(circle,rgba(126,53,255,.34),rgba(53,20,112,.5));
+  border:1px solid rgba(151,91,255,.55);
+  box-shadow:0 0 22px rgba(137,64,255,.24);
+}
+.home-brand-title{
+  font-size:27px;
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-.5px;
+}
+.home-brand-sub{
+  display:block;
+  margin-top:5px;
+  color:#9da5bd;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.1px;
+}
+.home-card{
+  position:relative;
+  margin:0 0 18px;
+  padding:22px 22px 24px;
+  border-radius:25px;
+  background:linear-gradient(145deg,rgba(15,18,30,.96),rgba(7,10,18,.96));
+  box-shadow:0 12px 36px rgba(0,0,0,.28),inset 0 0 34px rgba(255,255,255,.015);
+  overflow:hidden;
+}
+.home-card.study-card{border:1px solid rgba(133,65,255,.85)}
+.home-card.awake-card{border:1px solid rgba(255,139,10,.78)}
+.home-card.study-card:before,.home-card.awake-card:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.45;
+}
+.home-card.study-card:before{background:radial-gradient(circle at 9% 15%,rgba(112,48,255,.16),transparent 28%)}
+.home-card.awake-card:before{background:radial-gradient(circle at 9% 15%,rgba(255,132,0,.13),transparent 28%)}
+.home-card-head{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.home-card-title{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-width:0;
+}
+.home-icon{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  font-size:32px;
+}
+.study-card .home-icon{
+  background:radial-gradient(circle,#3c2c75 0%,#24174b 60%,#171026 100%);
+  border:1px solid rgba(154,94,255,.38);
+  box-shadow:inset 0 0 20px rgba(131,72,255,.22);
+}
+.awake-card .home-icon{
+  background:radial-gradient(circle,#6c4310 0%,#3a260c 62%,#20170c 100%);
+  border:1px solid rgba(255,158,30,.34);
+  box-shadow:inset 0 0 20px rgba(255,137,0,.2);
+}
+.home-label{
+  font-size:24px;
+  font-weight:800;
+  line-height:1.1;
+}
+.study-card .home-label{color:#a56cff}
+.awake-card .home-label{color:#ff9a14}
+.home-desc{
+  margin-top:7px;
+  color:#aeb4c5;
+  font-size:15px;
+  line-height:1.25;
+}
+.home-status{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:10px 15px;
+  border-radius:24px;
+  font-size:15px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.study-card .home-status{
+  color:#c58cff;
+  background:rgba(126,50,255,.12);
+  border:1px solid rgba(139,64,255,.45);
+}
+.awake-card .home-status{
+  color:#ff9f22;
+  background:rgba(255,129,0,.11);
+  border:1px solid rgba(255,139,0,.4);
+}
+.home-status-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:currentColor;
+  box-shadow:0 0 10px currentColor;
+}
+.home-time{
+  position:relative;
+  text-align:center;
+  margin:22px 0 23px;
+  font-variant-numeric:tabular-nums;
+  font-size:clamp(58px,8vw,92px);
+  font-weight:750;
+  letter-spacing:-3px;
+  line-height:1;
+  white-space:nowrap;
+}
+.home-time .ms{
+  font-size:.42em;
+  letter-spacing:-1px;
+  font-weight:700;
+  vertical-align:baseline;
+}
+.study-card .home-time .ms{color:#8b4fff}
+.awake-card .home-time .ms{color:#ff8500}
+.home-actions{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.home-btn{
+  height:66px;
+  min-width:0;
+  border-radius:16px;
+  padding:0 20px;
+  font-size:20px;
+  font-weight:750;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.home-btn.reset{
+  margin-left:0;
+  color:#fff;
+  background:rgba(35,37,43,.72);
+  border:1px solid rgba(255,255,255,.15);
+}
+.home-btn.start{
+  color:#fff;
+  background:linear-gradient(135deg,#6b28d9,#5c24cc);
+  border:1px solid rgba(165,100,255,.5);
+  box-shadow:0 8px 24px rgba(94,37,211,.25);
+}
+.home-btn.stop{
+  color:#fff;
+  background:linear-gradient(135deg,#ff4b38,#ff3f2d);
+  border:1px solid rgba(255,111,90,.55);
+  box-shadow:0 8px 24px rgba(255,66,43,.18);
+}
+.home-btn:active{transform:scale(.98);filter:brightness(.9)}
+.goal-card{
+  margin:2px 0 18px;
+  padding:20px 20px 21px;
+  border:1px solid rgba(111,121,151,.42);
+  border-radius:25px;
+  background:linear-gradient(145deg,rgba(14,18,31,.96),rgba(8,11,20,.96));
+  box-shadow:0 12px 34px rgba(0,0,0,.25);
+}
+.goal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:20px;
+}
+.goal-title-wrap{display:flex;align-items:center;gap:12px;min-width:0}
+.goal-icon{
+  font-size:35px;
+  line-height:1;
+  filter:drop-shadow(0 0 8px rgba(40,230,125,.28));
+}
+.goal-title{
+  font-size:25px;
+  font-weight:800;
+  line-height:1.05;
+}
+.goal-sub{
+  color:#aeb5c7;
+  font-size:15px;
+  margin-top:7px;
+}
+.goal-head-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.goal-edit{
+  border:1px solid rgba(112,120,160,.6);
+  border-radius:20px;
+  padding:8px 13px;
+  min-width:0;
+  background:rgba(28,32,57,.9);
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.goal-edit:active{transform:scale(.96);filter:brightness(.92)}
+.goal-date{
+  color:#aeb5c7;
+  font-size:15px;
+  white-space:nowrap;
+  padding-top:5px;
+}
+.goal-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  border-radius:16px;
+  overflow:hidden;
+}
+.goal-stat{
+  min-width:0;
+  padding:2px 15px 4px;
+  border-right:1px solid rgba(104,110,132,.35);
+  text-align:center;
+}
+.goal-stat:last-child{border-right:0}
+.goal-stat-icon{font-size:27px;line-height:1;margin-bottom:7px}
+.goal-stat-label{font-size:15px;color:#e1e5ef;white-space:nowrap}
+.goal-stat-value{
+  margin-top:6px;
+  font-size:clamp(24px,3vw,34px);
+  line-height:1.05;
+  font-weight:850;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.goal-stat:nth-child(1) .goal-stat-value{color:#408cff}
+.goal-stat:nth-child(2) .goal-stat-value{color:#31dd77}
+.goal-stat:nth-child(3) .goal-stat-value{color:#30df78}
+.goal-stat:nth-child(4) .goal-stat-value{color:#ff9719}
+.goal-stat-note{margin-top:7px;color:#aeb4c6;font-size:13px}
+.goal-message{
+  margin:18px 0 12px;
+  color:#e4e7ee;
+  font-size:15px;
+  line-height:1.4;
+}
+.goal-message strong{color:#27e777}
+.goal-progress-head{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  margin-bottom:7px;
+  font-size:14px;
+  font-weight:750;
+}
+.goal-progress{
+  height:19px;
+  border-radius:99px;
+  overflow:hidden;
+  background:#202535;
+}
+.goal-progress > div{
+  height:100%;
+  width:0;
+  max-width:100%;
+  border-radius:99px;
+  background:linear-gradient(90deg,#20d46f,#29e878);
+  box-shadow:0 0 14px rgba(31,226,116,.28);
+  transition:width .18s ease;
+}
+.goal-progress-note{
+  margin-top:8px;
+  text-align:center;
+  color:#9da5b9;
+  font-size:13px;
+}
+.pip{
+  display:block;
+  width:220px;
+  height:58px;
+  margin:4px auto 0;
+  border-radius:17px;
+  background:rgba(6,18,15,.42);
+  color:#31e878;
+  border:1.5px solid rgba(31,226,120,.62);
+  box-shadow:0 0 18px rgba(20,226,120,.08);
+  font-size:18px;
+  font-weight:750;
+}
+.status{text-align:center;color:#a9afc0;font-size:13px;min-height:20px;margin-top:10px}
+.hint{text-align:center;color:#8f96aa;font-size:13px;line-height:1.5;margin:9px auto 0;max-width:760px}
 #pipCanvas{position:fixed;left:4px;bottom:4px;width:2px;height:1px;opacity:.02;pointer-events:none}
 #pipVideo{position:fixed;left:8px;bottom:8px;width:2px;height:1px;opacity:.02;pointer-events:none}
 
+@media(max-width:800px){
+  .wrap{padding:16px 13px 28px}
+  .home-head{gap:9px;margin-bottom:14px}
+  .menu-btn{width:44px;height:44px;min-width:44px;border-radius:13px;font-size:23px}
+  .home-brand-icon{width:44px;height:44px;font-size:24px}
+  .home-brand-title{font-size:21px}
+  .home-brand-sub{font-size:12px}
+  .home-card{padding:17px 15px 18px;border-radius:21px}
+  .home-icon{width:50px;height:50px;font-size:27px}
+  .home-label{font-size:20px}
+  .home-desc{font-size:13px}
+  .home-status{font-size:12px;padding:8px 11px;gap:7px}
+  .home-status-dot{width:8px;height:8px}
+  .home-time{font-size:clamp(46px,11vw,72px);letter-spacing:-2px;margin:20px 0 21px}
+  .home-actions{gap:10px}
+  .home-btn{height:56px;font-size:17px;border-radius:14px}
+  .goal-card{padding:16px 13px 17px;border-radius:21px}
+  .goal-title{font-size:21px}.goal-sub{font-size:12px}.goal-icon{font-size:29px}.goal-date{font-size:12px}
+  .goal-head-actions{gap:7px}.goal-edit{font-size:12px;padding:7px 10px}.goal-date{padding-top:2px}
+  .goal-stats{grid-template-columns:repeat(2,1fr)}
+  .goal-stat{padding:13px 7px;border-right:1px solid rgba(104,110,132,.35);border-bottom:1px solid rgba(104,110,132,.35)}
+  .goal-stat:nth-child(2){border-right:0}
+  .goal-stat:nth-child(n+3){border-bottom:0}
+  .goal-stat:nth-child(3){border-right:1px solid rgba(104,110,132,.35)}
+  .goal-stat-label{font-size:12px}.goal-stat-value{font-size:21px}.goal-stat-note{font-size:11px}
+  .goal-message{font-size:13px;margin-top:15px}.goal-progress{height:15px}.goal-progress-note{font-size:11px}
+  .pip{width:190px;height:52px;font-size:16px}
+}
+@media(max-width:430px){
+  .home-card-head{gap:8px}
+  .home-status{padding:7px 9px}
+  .home-desc{max-width:180px}
+  .home-time{font-size:clamp(39px,12.5vw,55px);letter-spacing:-1.5px}
+  .goal-head{gap:8px}
+  .goal-head-actions{flex-direction:column;align-items:flex-end;gap:5px}
+  .goal-edit{font-size:11px;padding:6px 9px}
+  .goal-date{font-size:11px}
+}
 
-.menu-btn{position:fixed;top:12px;left:12px;z-index:10001;width:46px;height:46px;min-width:46px;padding:0;border-radius:13px;background:#1b1b1b;color:#fff;border:1px solid #333;font-size:24px}
+
 .drawer-backdrop{position:fixed;inset:0;z-index:10000;display:none;background:rgba(0,0,0,.58);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .drawer-backdrop.show{display:block}
 .drawer{position:absolute;top:0;left:0;width:min(330px,82vw);height:100%;background:#171717;border-right:1px solid #333;padding:76px 16px 20px;transform:translateX(-102%);transition:transform .22s ease}
@@ -228,7 +610,6 @@ button:active{transform:scale(.94);filter:brightness(.88)}
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head>
 <body>
-<button id="menuBtn" class="menu-btn" aria-label="Open menu">☰</button>
 <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true">
   <aside class="drawer">
     <div class="drawer-title">Menu</div>
@@ -341,32 +722,111 @@ button:active{transform:scale(.94);filter:brightness(.88)}
 </div>
 
 <div class="wrap">
-<h1>Wake & Study Stopwatch</h1>
-
-<div class="box">
-  <div class="title">📚 Study Time</div>
-  <div id="studyTime" class="time">00:00:00</div>
-  <div class="row">
-    <button id="studyReset" class="reset">Reset</button>
-    <button id="studyToggle" class="toggle start">Start</button>
+  <div class="home-head">
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu">☰</button>
+    <div class="home-brand">
+      <div class="home-brand-icon">⏱</div>
+      <div>
+        <div class="home-brand-title">Wake &amp; Study Stopwatch</div>
+        <span class="home-brand-sub">Track your focus • Build consistency</span>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="box">
-  <div class="title">🌅 Awake Time</div>
-  <div id="wakeTime" class="time">00:00:00</div>
-  <div class="row">
-    <button id="wakeReset" class="reset">Reset</button>
-    <button id="wakeToggle" class="toggle start">Start</button>
+  <div class="home-card study-card">
+    <div class="home-card-head">
+      <div class="home-card-title">
+        <div class="home-icon">📚</div>
+        <div>
+          <div class="home-label">Study Time</div>
+          <div class="home-desc">Track your focused study sessions</div>
+        </div>
+      </div>
+      <div class="home-status"><span class="home-status-dot"></span><span id="studyStatus">Ready</span></div>
+    </div>
+
+    <div id="studyTime" class="home-time">00:00:00</div>
+
+    <div class="home-actions">
+      <button id="studyReset" class="home-btn reset">↻&nbsp; Reset</button>
+      <button id="studyToggle" class="home-btn toggle start">▶&nbsp; Start</button>
+    </div>
   </div>
-</div>
 
-<button id="pip" class="pip">Open PiP</button>
-<div id="status" class="status"></div>
-<div class="hint">
-  Awake Time can run continuously from the moment you wake up.<br>
-  Study Time can be started/stopped for each study session and accumulates total study time.
-</div>
+  <div class="home-card awake-card">
+    <div class="home-card-head">
+      <div class="home-card-title">
+        <div class="home-icon">☀️</div>
+        <div>
+          <div class="home-label">Awake Time</div>
+          <div class="home-desc">Track your total awake duration</div>
+        </div>
+      </div>
+      <div class="home-status"><span class="home-status-dot"></span><span id="awakeStatus">Ready</span></div>
+    </div>
+
+    <div id="wakeTime" class="home-time">00:00:00</div>
+
+    <div class="home-actions">
+      <button id="wakeReset" class="home-btn reset">↻&nbsp; Reset</button>
+      <button id="wakeToggle" class="home-btn toggle start">▶&nbsp; Start</button>
+    </div>
+  </div>
+
+  <section class="goal-card">
+    <div class="goal-head">
+      <div class="goal-title-wrap">
+        <div class="goal-icon">🎯</div>
+        <div>
+          <div class="goal-title">Goal Achieved</div>
+          <div class="goal-sub">Your study goal progress for today</div>
+        </div>
+      </div>
+      <div class="goal-head-actions">
+        <button id="homeEditGoal" class="goal-edit">✎ Edit Goal</button>
+        <div id="goalDate" class="goal-date"></div>
+      </div>
+    </div>
+
+    <div class="goal-stats">
+      <div class="goal-stat">
+        <div class="goal-stat-icon">🎯</div>
+        <div class="goal-stat-label">Daily Study Goal</div>
+        <div id="homeGoal" class="goal-stat-value">08:00:00</div>
+        <div class="goal-stat-note">Target Time</div>
+      </div>
+      <div class="goal-stat">
+        <div class="goal-stat-icon">📖</div>
+        <div class="goal-stat-label">Today's Study</div>
+        <div id="homeTodayStudy" class="goal-stat-value">00:00:00</div>
+        <div class="goal-stat-note">Completed Time</div>
+      </div>
+      <div class="goal-stat">
+        <div class="goal-stat-icon">✓</div>
+        <div class="goal-stat-label">Achievement</div>
+        <div id="homeAchievement" class="goal-stat-value">0.0%</div>
+        <div class="goal-stat-note">of Daily Goal</div>
+      </div>
+      <div class="goal-stat">
+        <div class="goal-stat-icon">⌛</div>
+        <div class="goal-stat-label">Remaining</div>
+        <div id="homeRemaining" class="goal-stat-value">08:00:00</div>
+        <div class="goal-stat-note">Remaining Time</div>
+      </div>
+    </div>
+
+    <div id="goalMessage" class="goal-message">Keep going — your daily study goal is in progress.</div>
+    <div class="goal-progress-head"><span id="homeProgressPct">0%</span></div>
+    <div class="goal-progress"><div id="homeProgressBar"></div></div>
+    <div class="goal-progress-note">Goal Progress (capped at 100%)</div>
+  </section>
+
+  <button id="pip" class="pip">▣&nbsp; Open PiP</button>
+  <div id="status" class="status"></div>
+  <div class="hint">
+    Awake Time runs continuously from the moment you wake up.<br>
+    Study Time can be started/stopped for each study session and accumulates total study time.
+  </div>
 </div>
 
 <canvas id="pipCanvas" width="1400" height="788"></canvas>
@@ -550,10 +1010,29 @@ function render(){
   wakeTime.innerHTML=fmtMs(elapsed(state.wake));
   studyTime.innerHTML=fmtMs(elapsed(state.study));
 
-  wakeToggle.textContent=state.wake.running?"Stop":"Start";
-  wakeToggle.className="toggle "+(state.wake.running?"stop":"start");
-  studyToggle.textContent=state.study.running?"Stop":"Start";
-  studyToggle.className="toggle "+(state.study.running?"stop":"start");
+  wakeToggle.textContent=state.wake.running?"■  Stop":"▶  Start";
+  wakeToggle.className="home-btn toggle "+(state.wake.running?"stop":"start");
+  studyToggle.textContent=state.study.running?"■  Stop":"▶  Start";
+  studyToggle.className="home-btn toggle "+(state.study.running?"stop":"start");
+
+  const homeGoalMs=Number(localStorage.getItem("wake_study_goal_ms")||28800000);
+  const homeTodayStudy=elapsed(state.study);
+  const homeGoalPct=homeGoalMs>0?(homeTodayStudy/homeGoalMs*100):0;
+  const homeRemaining=Math.max(0,homeGoalMs-homeTodayStudy);
+  $("homeGoal").textContent=fmt(homeGoalMs);
+  $("homeTodayStudy").textContent=fmt(homeTodayStudy);
+  $("homeAchievement").textContent=homeGoalPct.toFixed(1)+"%";
+  $("homeRemaining").textContent=fmt(homeRemaining);
+  $("homeProgressPct").textContent=Math.min(100,Math.max(0,homeGoalPct)).toFixed(homeGoalPct>=100?0:1)+"%";
+  $("homeProgressBar").style.width=Math.min(100,Math.max(0,homeGoalPct))+"%";
+  $("goalDate").textContent=new Intl.DateTimeFormat("en-IN",{day:"numeric",month:"short",year:"numeric"}).format(new Date());
+  $("studyStatus").textContent=state.study.running?"Running":"Ready";
+  $("awakeStatus").textContent=state.wake.running?"Running":"Ready";
+  if(homeGoalPct>=100){
+    $("goalMessage").innerHTML='You have <strong>exceeded</strong> your daily goal. Great job! 🎉';
+  }else{
+    $("goalMessage").innerHTML='Keep going — <strong>'+fmt(homeRemaining)+'</strong> remaining to reach your daily goal.';
+  }
 
   drawPiP();
 }
@@ -966,13 +1445,15 @@ for(let m=0;m<60;m++){
   o.value=String(m);o.textContent=String(m).padStart(2,"0")+" min";
   trTargetMinutes.appendChild(o);
 }
-$("trSettingsBtn").addEventListener("click",()=>{
+function openGoalSettings(){
   const totalMinutes=Math.floor(trGoalMs/60000);
   trTargetHours.value=String(Math.min(24,Math.floor(totalMinutes/60)));
   trTargetMinutes.value=String(totalMinutes%60);
   $("trSettingsModal").classList.add("show");
-});
-$("trEditGoals").addEventListener("click",()=>$("trSettingsBtn").click());
+}
+$("trSettingsBtn").addEventListener("click",openGoalSettings);
+$("trEditGoals").addEventListener("click",openGoalSettings);
+$("homeEditGoal").addEventListener("click",openGoalSettings);
 $("trSettingsClose").addEventListener("click",()=>$("trSettingsModal").classList.remove("show"));
 $("trSettingsModal").addEventListener("click",e=>{if(e.target.id==="trSettingsModal")e.currentTarget.classList.remove("show")});
 $("trTargetSave").addEventListener("click",()=>{
@@ -980,7 +1461,9 @@ $("trTargetSave").addEventListener("click",()=>{
   const m=Math.max(0,Math.min(59,Number(trTargetMinutes.value)||0));
   trGoalMs=(h*60+m)*60000;
   localStorage.setItem("wake_study_goal_ms",String(trGoalMs));
-  $("trSettingsModal").classList.remove("show");trRender();
+  $("trSettingsModal").classList.remove("show");
+  render();
+  trRender();
 });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){
