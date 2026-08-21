@@ -277,7 +277,7 @@ button:active{transform:scale(.94);filter:brightness(.88)}
 
     <section class="tr-section alltime">
       <div class="tr-heading">
-        <div class="tr-heading-left"><div class="tr-heading-icon">🚀</div><div><h2>All Time <span class="green">Progress</span></h2><div class="tr-sub">Complete Journey till Now</div></div></div>
+        <div class="tr-heading-left"><div class="tr-heading-icon">🚀</div><div><h2>Total Time <span class="green">Progress</span></h2><div id="trTotalPeriod" class="tr-sub">All recorded days</div></div></div>
         <div class="tr-pill teal">Total Tracked</div>
       </div>
       <div class="tr-all-grid">
@@ -867,9 +867,11 @@ function trRangeLabel(){
 }
 function trRender(){
   const rows=trDaysInRange(), st=trStats(rows);
-  const total=trStats(trRecords);
+  // Total Time Progress uses the same selected range as Time Average.
+  const total=st;
   const denom=trRange==="week"?7:(Number(trRange)||7);
   $("trPeriod").textContent=trRangeLabel();
+  if($("trTotalPeriod")) $("trTotalPeriod").textContent=trRangeLabel();
   $("trAvgStudy").textContent=trFmt(st.study/Math.max(1,st.days));
   $("trAvgAwake").textContent=trFmt(st.awake/Math.max(1,st.days));
   $("trDaysTracked").textContent=`${st.days} / ${trRange==="all"?st.days:denom} ✓`;
@@ -1013,7 +1015,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=20");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=21");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
