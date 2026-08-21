@@ -1151,7 +1151,6 @@ body.goal-settings-locked .tr-settings-modal{
     <div class="tr-topbar">
       <button id="historyClose" class="tr-back" aria-label="Back">‹</button>
       <div class="tr-brand">
-        <div class="tr-brand-icon"><span>◷</span></div>
         <div class="tr-brand-title">Track Record<span>Track • Analyze • Improve</span></div>
       </div>
       <div class="tr-actions">
@@ -1291,7 +1290,6 @@ body.goal-settings-locked .tr-settings-modal{
     <button id="menuBtn" class="menu-btn" aria-label="Open menu">☰</button>
 <button id="pip" class="pip-header" aria-label="Open PiP">▣&nbsp; Open PiP</button>
     <div class="home-brand">
-      <div class="home-brand-icon">⏱</div>
       <div>
         <div class="home-brand-title">Wake &amp; Study Stopwatch</div>
         <span class="home-brand-sub">Track your focus • Build consistency</span>
@@ -2173,7 +2171,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=41");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=42");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
