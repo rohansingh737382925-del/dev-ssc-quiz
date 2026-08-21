@@ -616,6 +616,33 @@ body{
 .tr-insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid rgba(90,103,148,.25)}
 .tr-insight:last-child{border-bottom:0}.tr-insight-icon{font-size:24px;line-height:1.05;text-align:center}.tr-insight-label{font-size:13px;color:#aeb8d4;margin-bottom:4px}.tr-insight-value{font-size:15px;font-weight:800;color:#f0f3fb;line-height:1.35}.tr-insight-value small{display:block;color:#8f9bc2;font-size:12px;font-weight:650;margin-top:2px}
 .tr-insight.good .tr-insight-value{color:#62e99c}.tr-insight.purple .tr-insight-value{color:#dca0ff}
+/* Tablet/iPad layout: keep the same wide card ratio while scaling the inner
+   chart and insights so the complete card always fits vertically. */
+@media (min-width:761px) and (max-width:1100px){
+  .tr-chart-card{width:96vw;aspect-ratio:2.55 / 1;padding:11px;border-radius:22px}
+  .tr-chart-head{gap:10px;margin-bottom:6px}
+  .tr-chart-title{font-size:20px}
+  .tr-chart-sub{font-size:10px;margin-top:3px}
+  .tr-chart-close{width:42px;height:42px}
+  .tr-performance-grid{grid-template-columns:minmax(0,3fr) minmax(220px,1.05fr);gap:9px}
+  .tr-performance-panel{padding:8px 9px 7px}
+  .tr-chart-legend{gap:12px;margin:0 0 2px 2px;font-size:10px}
+  .tr-legend-item{gap:5px}.tr-legend-dot{width:8px;height:8px}
+  .tr-performance-bars{left:5.5%;right:1.5%;top:27%;bottom:18%;gap:1.6%}
+  .tr-performance-bar-wrap{width:70%;height:82%}
+  .tr-performance-time{font-size:9px;bottom:calc(var(--bar-height, 0%) + 5px)}
+  .tr-performance-date{height:20px;margin-top:5px;font-size:9px}
+  .tr-performance-svg{left:5.2%;right:1.2%;top:5%;width:93.6%;height:55%}
+  .tr-performance-svg circle{stroke-width:3;r:5}
+  .tr-performance-svg text{font-size:9px}
+  .tr-insights-panel{padding:8px 10px}
+  .tr-insights-title{font-size:16px;margin-bottom:3px}
+  .tr-insight{grid-template-columns:22px 1fr;gap:6px;padding:4px 0}
+  .tr-insight-icon{font-size:16px}
+  .tr-insight-label{font-size:9px;margin-bottom:1px}
+  .tr-insight-value{font-size:11px;line-height:1.2}
+  .tr-insight-value small{font-size:8px;margin-top:1px}
+}
 @media(max-width:760px){
   .tr-chart-card{width:96vw;aspect-ratio:2.15 / 1;padding:12px;border-radius:22px}
   .tr-chart-title{font-size:20px}.tr-chart-sub{font-size:11px}
@@ -631,6 +658,150 @@ body{
   .tr-insight{grid-template-columns:26px 1fr;gap:6px;padding:5px 0}
   .tr-insight-icon{font-size:18px}.tr-insight-label{font-size:10px;margin-bottom:2px}.tr-insight-value{font-size:12px}.tr-insight-value small{font-size:9px}
 }
+
+/* ================= PERFORMANCE TREND — RESPONSIVE FIT FIX v35 =================
+   The chart card keeps the same wide ratio on every device/orientation, but
+   its inner panels now use the available height correctly so no chart/date/
+   insight content is clipped or pushed outside the card. */
+.tr-chart-modal{
+  padding:14px;
+  overflow:hidden;
+}
+.tr-chart-card{
+  width:min(1400px,calc(100vw - 28px),calc(255vh - 71.4px));
+  aspect-ratio:2.55 / 1;
+  max-width:calc(100vw - 28px);
+  max-height:calc(100vh - 28px);
+  height:auto;
+  min-height:0;
+  overflow:hidden;
+  padding:clamp(10px,1.45vw,20px);
+}
+#trChartRows{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  overflow:hidden;
+}
+.tr-performance-grid{
+  width:100%;
+  height:100%;
+  min-height:0;
+  flex:1 1 auto;
+}
+.tr-performance-panel{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+}
+.tr-chart-legend{
+  flex:0 0 auto;
+  min-height:0;
+}
+.tr-performance-chart{
+  flex:1 1 auto;
+  width:100%;
+  height:auto;
+  min-height:0;
+  overflow:hidden;
+}
+.tr-performance-bars{
+  overflow:visible;
+}
+.tr-performance-col,
+.tr-performance-bar-wrap{
+  min-width:0;
+}
+.tr-performance-time,
+.tr-performance-date{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:clip;
+}
+.tr-insights-panel{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+}
+.tr-insights-title{flex:0 0 auto}
+.tr-insight{
+  flex:1 1 0;
+  min-height:0;
+  overflow:hidden;
+}
+.tr-insight > div:last-child{
+  min-width:0;
+  overflow:hidden;
+}
+.tr-insight-value,
+.tr-insight-value small{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+/* Short landscape screens: fit the same card ratio using viewport height. */
+@media (max-height:560px){
+  .tr-chart-card{
+    width:min(1400px,calc(100vw - 20px),calc(255vh - 51px));
+    max-width:calc(100vw - 20px);
+    max-height:calc(100vh - 20px);
+    padding:8px;
+    border-radius:20px;
+  }
+  .tr-chart-head{gap:8px;margin-bottom:5px}
+  .tr-chart-title{font-size:clamp(16px,2.5vw,21px)}
+  .tr-chart-sub{font-size:clamp(9px,1.35vw,12px);margin-top:2px}
+  .tr-chart-close{width:38px;height:38px;min-width:38px;font-size:21px}
+  .tr-performance-grid{gap:8px}
+  .tr-performance-panel{padding:7px 8px 6px}
+  .tr-chart-legend{font-size:clamp(8px,1.2vw,11px);gap:10px}
+  .tr-legend-dot{width:8px;height:8px}
+  .tr-performance-time{font-size:clamp(7px,1.05vw,10px)}
+  .tr-performance-date{font-size:clamp(7px,1.05vw,10px);height:18px;margin-top:4px}
+  .tr-insights-panel{padding:7px 9px}
+  .tr-insights-title{font-size:clamp(12px,1.8vw,17px);margin-bottom:2px}
+  .tr-insight{grid-template-columns:20px 1fr;gap:5px;padding:3px 0}
+  .tr-insight-icon{font-size:clamp(13px,1.8vw,17px)}
+  .tr-insight-label{font-size:clamp(7px,1.05vw,10px);margin-bottom:1px}
+  .tr-insight-value{font-size:clamp(8px,1.2vw,11px);line-height:1.15}
+  .tr-insight-value small{font-size:clamp(6.5px,.95vw,9px);margin-top:1px}
+}
+
+/* Narrow portrait phones: keep all information inside the card. */
+@media (max-width:430px) and (min-height:561px){
+  .tr-chart-card{
+    width:calc(100vw - 16px);
+    max-width:calc(100vw - 16px);
+    padding:9px;
+    border-radius:19px;
+  }
+  .tr-chart-head{gap:7px;margin-bottom:6px}
+  .tr-chart-title{font-size:clamp(16px,5.1vw,20px)}
+  .tr-chart-sub{font-size:10px;margin-top:2px}
+  .tr-chart-close{width:38px;height:38px;min-width:38px;font-size:22px}
+  .tr-performance-grid{grid-template-columns:minmax(0,2.55fr) minmax(128px,1fr);gap:7px}
+  .tr-performance-panel{padding:7px 7px 6px}
+  .tr-chart-legend{font-size:8px;gap:7px;margin-left:1px}
+  .tr-legend-dot{width:7px;height:7px}
+  .tr-performance-bars{left:7%;right:1%;top:27%;bottom:18%;gap:1.2%}
+  .tr-performance-bar-wrap{width:68%}
+  .tr-performance-time{font-size:7px;bottom:calc(var(--bar-height,0%) + 4px)}
+  .tr-performance-date{font-size:7px;height:17px;margin-top:3px}
+  .tr-performance-svg{left:6.7%;right:.7%;width:92.6%;height:55%}
+  .tr-performance-svg text{font-size:8px}
+  .tr-insights-panel{padding:7px 8px}
+  .tr-insights-title{font-size:13px;margin-bottom:2px}
+  .tr-insight{grid-template-columns:18px 1fr;gap:4px;padding:3px 0}
+  .tr-insight-icon{font-size:14px}
+  .tr-insight-label{font-size:8px;margin-bottom:1px}
+  .tr-insight-value{font-size:9px;line-height:1.12}
+  .tr-insight-value small{font-size:7px;margin-top:1px}
+}
+
 /* Prevent the page behind Goal Settings from scrolling while the modal is open. */
 html.goal-settings-locked,
 body.goal-settings-locked{
@@ -1956,7 +2127,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=33");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=35");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
