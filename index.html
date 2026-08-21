@@ -610,7 +610,7 @@ body{
 .tr-performance-svg{position:absolute;left:5.7%;right:1.7%;top:5%;width:92.6%;height:55%;overflow:visible;pointer-events:none}
 .tr-performance-svg polyline{fill:none;stroke:#c03cff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(192,60,255,.35))}
 .tr-performance-svg circle{fill:#fff;stroke:#c03cff;stroke-width:4;filter:drop-shadow(0 0 6px rgba(192,60,255,.65))}
-.tr-performance-svg text{fill:#e8ddff;font-size:13px;font-weight:800;text-anchor:middle;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+.tr-performance-svg text{fill:#e8ddff;font-size:15px;font-weight:800;text-anchor:middle;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
 .tr-insights-panel{padding:14px 17px;min-width:0;min-height:0}
 .tr-insights-title{font-size:21px;font-weight:850;margin-bottom:9px}
 .tr-insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid rgba(90,103,148,.25)}
@@ -634,7 +634,7 @@ body{
   .tr-performance-date{height:20px;margin-top:5px;font-size:9px}
   .tr-performance-svg{left:5.2%;right:1.2%;top:5%;width:93.6%;height:55%}
   .tr-performance-svg circle{stroke-width:3;r:5}
-  .tr-performance-svg text{font-size:9px}
+  .tr-performance-svg text{font-size:10px}
   .tr-insights-panel{padding:8px 10px}
   .tr-insights-title{font-size:16px;margin-bottom:3px}
   .tr-insight{grid-template-columns:22px 1fr;gap:6px;padding:4px 0}
@@ -653,7 +653,7 @@ body{
   .tr-performance-time{font-size:9px}
   .tr-performance-date{font-size:9px}
   .tr-performance-svg{left:6.7%;right:.7%;width:92.6%;height:56%}
-  .tr-performance-svg text{font-size:9px}
+  .tr-performance-svg text{font-size:10px}
   .tr-insights-title{font-size:18px;margin-bottom:5px}
   .tr-insight{grid-template-columns:26px 1fr;gap:6px;padding:5px 0}
   .tr-insight-icon{font-size:18px}.tr-insight-label{font-size:10px;margin-bottom:2px}.tr-insight-value{font-size:12px}.tr-insight-value small{font-size:9px}
@@ -762,6 +762,7 @@ body{
   .tr-legend-dot{width:8px;height:8px}
   .tr-performance-time{font-size:clamp(7px,1.05vw,10px)}
   .tr-performance-date{font-size:clamp(7px,1.05vw,10px);height:18px;margin-top:4px}
+  .tr-performance-svg text{font-size:clamp(8px,1.15vw,11px)}
   .tr-insights-panel{padding:7px 9px}
   .tr-insights-title{font-size:clamp(12px,1.8vw,17px);margin-bottom:2px}
   .tr-insight{grid-template-columns:20px 1fr;gap:5px;padding:3px 0}
@@ -792,7 +793,7 @@ body{
   .tr-performance-time{font-size:7px;bottom:calc(var(--bar-height,0%) + 4px)}
   .tr-performance-date{font-size:7px;height:17px;margin-top:3px}
   .tr-performance-svg{left:6.7%;right:.7%;width:92.6%;height:55%}
-  .tr-performance-svg text{font-size:8px}
+  .tr-performance-svg text{font-size:9px}
   .tr-insights-panel{padding:7px 8px}
   .tr-insights-title{font-size:13px;margin-bottom:2px}
   .tr-insight{grid-template-columns:18px 1fr;gap:4px;padding:3px 0}
@@ -1803,6 +1804,12 @@ function trFmt(ms){
   const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60),sec=s%60;
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
+function trAvgFmt(ms){
+  let s=Math.max(0,Math.floor(ms/60000))*60;
+  const h=Math.floor(s/3600);
+  const m=Math.floor((s%3600)/60);
+  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+}
 function trPct(a,b){return b>0?(a/b*100):0}
 function trMergeData(server){
   const map=new Map();
@@ -2026,7 +2033,7 @@ function trRenderChart(){
         </div>
         <div class="tr-insight">
           <div class="tr-insight-icon">😴</div>
-          <div><div class="tr-insight-label">Avg Sleep</div><div class="tr-insight-value">${trFmt(avgSleep)}<small>per day</small></div></div>
+          <div><div class="tr-insight-label">Avg Sleep</div><div class="tr-insight-value">${trAvgFmt(avgSleep)}<small>per day</small></div></div>
         </div>
         <div class="tr-insight good">
           <div class="tr-insight-icon">🎯</div>
@@ -2144,7 +2151,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=36");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=37");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
