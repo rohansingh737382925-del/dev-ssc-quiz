@@ -246,7 +246,7 @@ button:active{transform:scale(.94);filter:brightness(.88)}
       </div>
       <div class="tr-actions">
         <div class="tr-range">
-          <button id="trRangeBtn" class="tr-range-btn">📅 This Week⌄</button>
+          <button id="trRangeBtn" class="tr-range-btn">This Week⌄</button>
           <div id="trRangeMenu" class="tr-range-menu">
             <button data-range="week">This Week</button>
             <button data-range="7">Last 7 Days</button>
@@ -1013,7 +1013,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=15");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=20");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
