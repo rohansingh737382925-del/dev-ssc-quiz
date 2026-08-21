@@ -90,7 +90,7 @@ body{
   box-shadow:0 12px 36px rgba(0,0,0,.28),inset 0 0 34px rgba(255,255,255,.015);
   overflow:hidden;
 }
-.home-card.study-card{border:1px solid rgba(133,65,255,.85)}
+.home-card.study-card{border:1px solid rgba(30,144,255,.85)}
 .home-card.awake-card{border:1px solid rgba(255,139,10,.78)}
 .home-card.study-card:before,.home-card.awake-card:before{
   content:"";
@@ -99,7 +99,7 @@ body{
   pointer-events:none;
   opacity:.45;
 }
-.home-card.study-card:before{background:radial-gradient(circle at 9% 15%,rgba(112,48,255,.16),transparent 28%)}
+.home-card.study-card:before{background:radial-gradient(circle at 9% 15%,rgba(20,130,255,.16),transparent 28%)}
 .home-card.awake-card:before{background:radial-gradient(circle at 9% 15%,rgba(255,132,0,.13),transparent 28%)}
 .home-card-head{
   position:relative;
@@ -124,9 +124,9 @@ body{
   font-size:32px;
 }
 .study-card .home-icon{
-  background:radial-gradient(circle,#3c2c75 0%,#24174b 60%,#171026 100%);
-  border:1px solid rgba(154,94,255,.38);
-  box-shadow:inset 0 0 20px rgba(131,72,255,.22);
+  background:radial-gradient(circle,#123a66 0%,#0f2745 60%,#0a1626 100%);
+  border:1px solid rgba(45,150,255,.38);
+  box-shadow:inset 0 0 20px rgba(30,140,255,.22);
 }
 .awake-card .home-icon{
   background:radial-gradient(circle,#6c4310 0%,#3a260c 62%,#20170c 100%);
@@ -138,7 +138,7 @@ body{
   font-weight:800;
   line-height:1.1;
 }
-.study-card .home-label{color:#a56cff}
+.study-card .home-label{color:#4fa8ff}
 .awake-card .home-label{color:#ff9a14}
 .home-desc{
   margin-top:7px;
@@ -158,9 +158,9 @@ body{
   white-space:nowrap;
 }
 .study-card .home-status{
-  color:#c58cff;
-  background:rgba(126,50,255,.12);
-  border:1px solid rgba(139,64,255,.45);
+  color:#7ec4ff;
+  background:rgba(25,130,255,.12);
+  border:1px solid rgba(35,145,255,.45);
 }
 .awake-card .home-status{
   color:#ff9f22;
@@ -189,7 +189,7 @@ body{
   font-weight:700;
   vertical-align:baseline;
 }
-.study-card .home-time .ms{color:#8b4fff}
+.study-card .home-time .ms{color:#2d8fff}
 .awake-card .home-time .ms{color:#ff8500}
 .home-actions{
   position:relative;
@@ -217,9 +217,9 @@ body{
 }
 .home-btn.start{
   color:#fff;
-  background:linear-gradient(135deg,#6b28d9,#5c24cc);
-  border:1px solid rgba(165,100,255,.5);
-  box-shadow:0 8px 24px rgba(94,37,211,.25);
+  background:linear-gradient(135deg,#1f6fe0,#1560c9);
+  border:1px solid rgba(60,160,255,.5);
+  box-shadow:0 8px 24px rgba(20,110,220,.25);
 }
 .home-btn.stop{
   color:#fff;
@@ -2171,7 +2171,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=42");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=43");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
