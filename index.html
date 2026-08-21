@@ -248,6 +248,7 @@ button:active{transform:scale(.94);filter:brightness(.88)}
         <div class="tr-range">
           <button id="trRangeBtn" class="tr-range-btn">📅 This Week⌄</button>
           <div id="trRangeMenu" class="tr-range-menu">
+            <button data-range="week">This Week</button>
             <button data-range="7">Last 7 Days</button>
             <button data-range="30">Last 30 Days</button>
             <button data-range="all">All Time</button>
@@ -748,7 +749,7 @@ const trackRecordBtn=$("trackRecordBtn"),historyModal=$("historyModal");
 const historyClose=$("historyClose"),historyList=$("historyList"),historyStatus=$("historyStatus");
 
 let trRecords=[];
-let trRange=7;
+let trRange="week";
 let trGoalMs=Number(localStorage.getItem("wake_study_goal_ms")||28800000);
 
 function trDayKey(ms=Date.now()){
@@ -813,9 +814,27 @@ async function trLoadRecords(){
 function trDaysInRange(){
   const now=Date.now(), today=trDayKey(now);
   if(trRange==="all") return trRecords.slice();
-  const n=Number(trRange);
-  const start=trDayStart(today)-(n-1)*86400000;
-  return trRecords.filter(r=>r.date>=new Date(start+IST).toISOString().slice(0,10) && r.date<=today);
+
+  // The current day is never included in a completed-period calculation.
+  // This keeps "This Week" and "Last 7 Days" based only on completed days.
+  const yesterday=trDayKey(trDayStart(today)-1000);
+  let startKey,endKey;
+
+  if(trRange==="week") {
+    // Monday-Sunday calendar week. Today is excluded, so the latest
+    // included day is always yesterday.
+    const [y,m,d]=today.split("-").map(Number);
+    const dow=new Date(Date.UTC(y,m-1,d)).getUTCDay(); // Sun=0, Mon=1...
+    const daysSinceMonday=(dow+6)%7;
+    startKey=trDayKey(trDayStart(today)-daysSinceMonday*86400000);
+    endKey=yesterday;
+  } else {
+    const n=Number(trRange);
+    endKey=yesterday;
+    startKey=trDayKey(trDayStart(endKey)-(n-1)*86400000);
+  }
+
+  return trRecords.filter(r=>r.date>=startKey && r.date<=endKey);
 }
 function trStats(rows){
   const study=rows.reduce((s,r)=>s+(r.studyMs||0),0), awake=rows.reduce((s,r)=>s+(r.awakeMs||0),0);
@@ -831,19 +850,28 @@ function trStreak(){
 }
 function trHours(ms){return Math.floor(ms/3600000)}
 function trRangeLabel(){
+  const today=trDayKey();
   if(trRange==="all") return "All recorded days";
-  const n=Number(trRange), end=trDayKey(), start=trDayKey(trDayStart(end)-(n-1)*86400000);
+  if(trRange==="week") {
+    const [y,m,d]=today.split("-").map(Number);
+    const dow=new Date(Date.UTC(y,m-1,d)).getUTCDay();
+    const daysSinceMonday=(dow+6)%7;
+    const start=trDayKey(trDayStart(today)-daysSinceMonday*86400000);
+    const end=trDayKey(trDayStart(today)-86400000);
+    return `This Week (${trDayLabel(start)} – ${trDayLabel(trDayKey(trDayStart(today)+6*86400000))})`;
+  }
+  const n=Number(trRange), end=trDayKey(trDayStart(today)-86400000), start=trDayKey(trDayStart(end)-(n-1)*86400000);
   return `Last ${n} days (${trDayLabel(start)} – ${trDayLabel(end)})`;
 }
 function trRender(){
   const rows=trDaysInRange(), st=trStats(rows);
   const total=trStats(trRecords);
-  const denom=Number(trRange)||7;
+  const denom=trRange==="week"?7:(Number(trRange)||7);
   $("trPeriod").textContent=trRangeLabel();
   $("trAvgStudy").textContent=trFmt(st.study/(trRange==="all"?Math.max(1,st.days):denom));
   $("trAvgAwake").textContent=trFmt(st.awake/(trRange==="all"?Math.max(1,st.days):denom));
   $("trDaysTracked").textContent=`${st.days} / ${trRange==="all"?st.days:denom} ✓`;
-  $("trDaysTracked").nextElementSibling.textContent=trRange==="all"?"100% recorded":`${trPct(st.days,denom).toFixed(0)}% days`;
+  $("trDaysTracked").nextElementSibling.textContent=trRange==="all"?"100% recorded":`${trPct(st.days,denom).toFixed(2)}% days`;
   $("trStudyPct").textContent=st.pct.toFixed(2)+"%";
 
   $("trTotalDays").textContent=total.days;
@@ -912,8 +940,8 @@ trackRecordBtn.addEventListener("click",async()=>{
 });
 $("trRangeBtn").addEventListener("click",()=>$("trRangeMenu").classList.toggle("show"));
 document.querySelectorAll("#trRangeMenu button").forEach(btn=>btn.addEventListener("click",()=>{
-  trRange=btn.dataset.range==="all"?"all":Number(btn.dataset.range);
-  $("trRangeBtn").textContent=btn.dataset.range==="7"?"📅 This Week⌄":btn.textContent+"⌄";
+  trRange=btn.dataset.range==="all"?"all":(btn.dataset.range==="week"?"week":Number(btn.dataset.range));
+  $("trRangeBtn").textContent="📅 "+btn.textContent+"⌄";
   $("trRangeMenu").classList.remove("show");
   trRender();
 }));
@@ -983,7 +1011,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=17");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=18");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
