@@ -515,8 +515,9 @@ body{
   color:#fff;border:1px solid rgba(255,255,255,.16);font-size:25px;display:flex;align-items:center;justify-content:center}
 .tr-back{font-size:30px}
 .tr-brand{display:flex;align-items:center;gap:11px;flex:1;min-width:0}
-.tr-brand-icon{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:28px;
+.tr-brand-icon{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:28px;line-height:1;
   background:radial-gradient(circle,#7f36ff 0%,#4612a5 55%,#18082f 100%);box-shadow:0 0 22px rgba(157,65,255,.45)}
+.tr-brand-icon span{display:block;transform:translateY(-3px)}
 .tr-brand-title{font-size:25px;font-weight:800;line-height:1.05;letter-spacing:-.4px}
 .tr-brand-title span{display:block;font-size:15px;font-weight:500;color:#9ba4ca;letter-spacing:.1px;margin-top:4px}
 .tr-actions{display:flex;gap:10px;align-items:center}
@@ -1150,7 +1151,7 @@ body.goal-settings-locked .tr-settings-modal{
     <div class="tr-topbar">
       <button id="historyClose" class="tr-back" aria-label="Back">‹</button>
       <div class="tr-brand">
-        <div class="tr-brand-icon">◷</div>
+        <div class="tr-brand-icon"><span>◷</span></div>
         <div class="tr-brand-title">Track Record<span>Track • Analyze • Improve</span></div>
       </div>
       <div class="tr-actions">
@@ -2172,7 +2173,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=40");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=41");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
