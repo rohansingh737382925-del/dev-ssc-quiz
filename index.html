@@ -264,7 +264,7 @@ button:active{transform:scale(.94);filter:brightness(.88)}
           <div class="tr-heading-icon">🏆</div>
           <div><h2>Weekly <span class="purple">Average</span></h2><div id="trPeriod" class="tr-sub">Last 7 days</div></div>
         </div>
-        <div class="tr-pill">Last 7 Days Performance</div>
+        
       </div>
       <div class="tr-stat-grid">
         <div class="tr-stat"><div class="tr-stat-icon">📚</div><div class="tr-stat-label">Avg Study Time</div><div id="trAvgStudy" class="tr-stat-value">00:00:00</div><div class="tr-stat-note">per day</div></div>
@@ -983,7 +983,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=15");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=16");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
