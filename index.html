@@ -523,7 +523,8 @@ body{
 .tr-actions{display:flex;gap:10px;align-items:center}
 .tr-range{position:relative}
 .tr-range-btn{height:50px;border-radius:15px;padding:0 16px;background:rgba(24,27,53,.82);color:#fff;border:1px solid rgba(255,255,255,.16);
-  font-size:15px;font-weight:700;white-space:nowrap}
+  font-size:15px;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.tr-range-arrow{display:inline-flex;align-items:center;justify-content:center;line-height:1;font-size:13px;transform:translateY(1px)}
 .tr-range-menu{position:absolute;right:0;top:58px;width:165px;display:none;padding:7px;border-radius:15px;background:#171a31;border:1px solid #454b72;box-shadow:0 18px 50px rgba(0,0,0,.5);z-index:10}
 .tr-range-menu.show{display:block}
 .tr-range-menu button{width:100%;min-width:0;margin:0;padding:11px 12px;background:transparent;color:#fff;text-align:left;border-radius:10px;font-size:14px}
@@ -1155,7 +1156,7 @@ body.goal-settings-locked .tr-settings-modal{
       </div>
       <div class="tr-actions">
         <div class="tr-range">
-          <button id="trRangeBtn" class="tr-range-btn">This Week⌄</button>
+          <button id="trRangeBtn" class="tr-range-btn"><span class="tr-range-label">This Week</span><span class="tr-range-arrow">⌄</span></button>
           <div id="trRangeMenu" class="tr-range-menu">
             <button data-range="week">This Week</button>
             <button data-range="7">Last 7 Days</button>
@@ -2075,7 +2076,7 @@ trackRecordBtn.addEventListener("click",async()=>{
 $("trRangeBtn").addEventListener("click",()=>$("trRangeMenu").classList.toggle("show"));
 document.querySelectorAll("#trRangeMenu button").forEach(btn=>btn.addEventListener("click",()=>{
   trRange=btn.dataset.range==="all"?"all":(btn.dataset.range==="week"?"week":Number(btn.dataset.range));
-  $("trRangeBtn").textContent=btn.textContent+"⌄";
+  $("trRangeBtn").innerHTML=`<span class="tr-range-label">${btn.textContent}</span><span class="tr-range-arrow">⌄</span>`;
   $("trRangeMenu").classList.remove("show");
   trRender();
 }));
@@ -2171,7 +2172,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=44");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=45");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
