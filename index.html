@@ -588,12 +588,47 @@ body{
 .tr-ring span{position:relative;z-index:1;font-size:11px;color:#d0a4ff;font-weight:800}
 .tr-arrow{font-size:28px;color:#fff}
 .tr-empty{padding:40px;text-align:center;color:#9ca7c8;border:1px dashed #424b70;border-radius:18px}
-.tr-chart-modal{position:fixed;inset:0;z-index:10010;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(5px)}
+.tr-chart-modal{position:fixed;inset:0;z-index:10010;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.74);backdrop-filter:blur(7px)}
 .tr-chart-modal.show{display:flex}
-.tr-chart-card{width:min(650px,94vw);max-height:88vh;overflow:auto;border:1px solid #6541d8;border-radius:24px;background:#10152d;padding:20px;box-shadow:0 25px 80px rgba(0,0,0,.5)}
-.tr-chart-row{display:grid;grid-template-columns:70px 1fr 65px;gap:10px;align-items:center;margin:12px 0}
-.tr-chart-bar{height:18px;background:#252b48;border-radius:99px;overflow:hidden}.tr-chart-bar i{display:block;height:100%;background:linear-gradient(90deg,#813fff,#22e28a);border-radius:99px}
-.tr-chart-close{float:right}
+.tr-chart-card{width:min(1180px,96vw);max-height:92vh;overflow:auto;border:1px solid rgba(99,79,220,.72);border-radius:26px;background:linear-gradient(145deg,#071226,#0b1024 58%,#10132c);padding:20px;box-shadow:0 25px 90px rgba(0,0,0,.62),inset 0 0 50px rgba(61,42,170,.08)}
+.tr-chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px;padding-right:2px}
+.tr-chart-title{margin:0;font-size:25px;line-height:1.1;font-weight:850;letter-spacing:-.3px}
+.tr-chart-sub{margin:5px 0 0;color:#8f9bc2;font-size:13px}
+.tr-chart-close{float:none;flex:0 0 auto}
+.tr-performance-grid{display:grid;grid-template-columns:minmax(0,3.2fr) minmax(250px,1fr);gap:14px;align-items:stretch}
+.tr-performance-panel,.tr-insights-panel{border:1px solid rgba(72,91,145,.55);border-radius:20px;background:rgba(4,12,29,.72);overflow:hidden}
+.tr-performance-panel{padding:14px 14px 12px}
+.tr-chart-legend{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin:0 0 6px 4px;color:#d8deef;font-size:13px;font-weight:650}
+.tr-legend-item{display:flex;align-items:center;gap:8px}.tr-legend-dot{width:11px;height:11px;border-radius:50%;display:inline-block}.tr-legend-dot.blue{background:#1599ff;box-shadow:0 0 9px rgba(21,153,255,.5)}.tr-legend-dot.purple{background:#c03cff;box-shadow:0 0 9px rgba(192,60,255,.5)}
+.tr-performance-chart{position:relative;width:100%;height:390px;min-height:330px}
+.tr-performance-bars{position:absolute;left:6%;right:2%;top:17%;bottom:15%;display:grid;grid-template-columns:repeat(7,1fr);gap:2.2%;align-items:end;border-bottom:1px solid rgba(117,129,163,.35)}
+.tr-performance-col{height:100%;display:flex;align-items:center;justify-content:flex-end;flex-direction:column;position:relative;min-width:0}
+.tr-performance-bar-wrap{height:82%;width:72%;display:flex;align-items:flex-end;justify-content:center;position:relative}
+.tr-performance-bar{width:100%;min-height:3px;border-radius:4px 4px 1px 1px;background:linear-gradient(180deg,#168eff,#0874e6);box-shadow:0 0 13px rgba(0,132,255,.17)}
+.tr-performance-time{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);font-size:12px;font-weight:800;color:#e8edf9;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tr-performance-date{height:28px;margin-top:8px;color:#cfd6e8;font-size:12px;font-weight:700;white-space:nowrap;text-align:center}
+.tr-performance-svg{position:absolute;left:5.7%;right:1.7%;top:5%;width:92.6%;height:79%;overflow:visible;pointer-events:none}
+.tr-performance-svg polyline{fill:none;stroke:#c03cff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(192,60,255,.35))}
+.tr-performance-svg circle{fill:#fff;stroke:#c03cff;stroke-width:4;filter:drop-shadow(0 0 6px rgba(192,60,255,.65))}
+.tr-performance-svg text{fill:#e8ddff;font-size:13px;font-weight:800;text-anchor:middle;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+.tr-insights-panel{padding:18px 17px}
+.tr-insights-title{font-size:21px;font-weight:850;margin-bottom:16px}
+.tr-insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid rgba(90,103,148,.25)}
+.tr-insight:last-child{border-bottom:0}.tr-insight-icon{font-size:24px;line-height:1.05;text-align:center}.tr-insight-label{font-size:13px;color:#aeb8d4;margin-bottom:4px}.tr-insight-value{font-size:15px;font-weight:800;color:#f0f3fb;line-height:1.35}.tr-insight-value small{display:block;color:#8f9bc2;font-size:12px;font-weight:650;margin-top:2px}
+.tr-insight.good .tr-insight-value{color:#62e99c}.tr-insight.purple .tr-insight-value{color:#dca0ff}
+@media(max-width:760px){
+  .tr-chart-card{width:96vw;padding:15px;border-radius:22px}
+  .tr-chart-title{font-size:21px}.tr-chart-sub{font-size:12px}
+  .tr-performance-grid{grid-template-columns:1fr}
+  .tr-insights-panel{padding:14px}
+  .tr-performance-chart{height:330px}
+  .tr-performance-bars{left:7%;right:1%;gap:1.4%}
+  .tr-performance-bar-wrap{width:70%}
+  .tr-performance-time{font-size:10px}
+  .tr-performance-date{font-size:10px}
+  .tr-performance-svg{left:6.7%;right:.7%;width:92.6%}
+  .tr-performance-svg text{font-size:10px}
+}
 /* Prevent the page behind Goal Settings from scrolling while the modal is open. */
 html.goal-settings-locked,
 body.goal-settings-locked{
@@ -980,9 +1015,13 @@ body.goal-settings-locked .tr-settings-modal{
 
   <div id="trChartModal" class="tr-chart-modal">
     <div class="tr-chart-card">
-      <button id="trChartClose" class="tr-icon-btn tr-chart-close">×</button>
-      <h2>📊 Study Performance</h2>
-      <p class="tr-sub">Recent daily study time</p>
+      <div class="tr-chart-head">
+        <div>
+          <h2 class="tr-chart-title">7 Days Performance Trend</h2>
+          <p class="tr-chart-sub">Study time and study percentage</p>
+        </div>
+        <button id="trChartClose" class="tr-icon-btn tr-chart-close" aria-label="Close Performance">×</button>
+      </div>
       <div id="trChartRows"></div>
     </div>
   </div>
@@ -1724,11 +1763,86 @@ function trRender(){
 }
 function trRenderChart(){
   const data=trRecords.slice(-7);
-  const max=Math.max(1,...data.map(r=>r.studyMs||0));
-  $("trChartRows").innerHTML=data.length?data.map(r=>{
-    const pct=(r.studyMs||0)/max*100;
-    return `<div class="tr-chart-row"><span>${r.date.slice(5)}</span><div class="tr-chart-bar"><i style="width:${pct}%"></i></div><b>${trFmt(r.studyMs)}</b></div>`;
-  }).join(""):'<div class="tr-empty">No data yet.</div>';
+  const root=$("trChartRows");
+  if(!data.length){
+    root.innerHTML='<div class="tr-empty">No data yet.</div>';
+    return;
+  }
+
+  const maxStudy=Math.max(1,...data.map(r=>Number(r.studyMs)||0));
+  const points=data.map((r,i)=>{
+    const study=Number(r.studyMs)||0;
+    const awake=Number(r.awakeMs)||0;
+    const pct=awake>0?(study/awake*100):0;
+    const sleep=Math.max(0,86400000-awake);
+    return {r,study,awake,pct,sleep,i};
+  });
+
+  const bestDay=points.reduce((a,b)=>b.study>a.study?b:a,points[0]);
+  const highestPct=points.reduce((a,b)=>b.pct>a.pct?b:a,points[0]);
+  const avgSleep=points.reduce((sum,p)=>sum+p.sleep,0)/points.length;
+  const consistent=points.filter(p=>p.study>0).length;
+
+  const chartW=1000, chartH=300, padX=34, topY=38, bottomY=260;
+  const step=data.length===1?0:(chartW-padX*2)/(data.length-1);
+  const maxPct=Math.max(30,Math.ceil(Math.max(...points.map(p=>p.pct),1)/5)*5);
+  const pts=points.map((p,i)=>{
+    const x=data.length===1?chartW/2:padX+i*step;
+    const y=topY+(1-Math.min(100,p.pct)/maxPct)*(bottomY-topY);
+    return {x,y,p};
+  });
+  const line=pts.map(p=>`${p.x},${p.y}`).join(' ');
+
+  const cols=points.map(p=>{
+    const barPct=maxStudy>0?(p.study/maxStudy*100):0;
+    const d=trShortDate(p.r.date);
+    return `<div class="tr-performance-col">
+      <div class="tr-performance-bar-wrap">
+        <div class="tr-performance-time">${trFmt(p.study)}</div>
+        <div class="tr-performance-bar" style="height:${Math.max(1,barPct)}%"></div>
+      </div>
+      <div class="tr-performance-date">${d.num} ${d.mon}</div>
+    </div>`;
+  }).join('');
+
+  const svgPoints=pts.map(pt=>`<circle cx="${pt.x}" cy="${pt.y}" r="7"></circle>`).join('');
+  const svgLabels=pts.map(pt=>`<text x="${pt.x}" y="${Math.max(18,pt.y-15)}">${pt.p.pct.toFixed(0)}%</text>`).join('');
+
+  root.innerHTML=`
+    <div class="tr-performance-grid">
+      <div class="tr-performance-panel">
+        <div class="tr-chart-legend">
+          <span class="tr-legend-item"><i class="tr-legend-dot blue"></i>Study Time (hrs)</span>
+          <span class="tr-legend-item"><i class="tr-legend-dot purple"></i>Study %</span>
+        </div>
+        <div class="tr-performance-chart">
+          <div class="tr-performance-bars">${cols}</div>
+          <svg class="tr-performance-svg" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+            <polyline points="${line}"></polyline>
+            ${svgPoints}${svgLabels}
+          </svg>
+        </div>
+      </div>
+      <aside class="tr-insights-panel">
+        <div class="tr-insights-title">Weekly Insights</div>
+        <div class="tr-insight">
+          <div class="tr-insight-icon">🔥</div>
+          <div><div class="tr-insight-label">Best Day</div><div class="tr-insight-value">${trShortDate(bestDay.r.date).num} ${trShortDate(bestDay.r.date).mon}<small>${trFmt(bestDay.study)} study</small></div></div>
+        </div>
+        <div class="tr-insight purple">
+          <div class="tr-insight-icon">📊</div>
+          <div><div class="tr-insight-label">Highest Study %</div><div class="tr-insight-value">${trShortDate(highestPct.r.date).num} ${trShortDate(highestPct.r.date).mon}<small>${highestPct.pct.toFixed(1)}% of Awake Time</small></div></div>
+        </div>
+        <div class="tr-insight">
+          <div class="tr-insight-icon">😴</div>
+          <div><div class="tr-insight-label">Avg Sleep</div><div class="tr-insight-value">${trFmt(avgSleep)}<small>per day</small></div></div>
+        </div>
+        <div class="tr-insight good">
+          <div class="tr-insight-icon">🎯</div>
+          <div><div class="tr-insight-label">Consistency</div><div class="tr-insight-value">${consistent===7?'Excellent':consistent>=5?'Good':'Needs Work'}<small>(${consistent}/7 Days)</small></div></div>
+        </div>
+      </aside>
+    </div>`;
 }
 
 menuBtn.addEventListener("click",()=>drawerBackdrop.classList.toggle("show"));
@@ -1839,7 +1953,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=30");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=31");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
