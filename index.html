@@ -591,7 +591,7 @@ body{
 .tr-empty{padding:40px;text-align:center;color:#9ca7c8;border:1px dashed #424b70;border-radius:18px}
 .tr-chart-modal{position:fixed;inset:0;z-index:10010;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.74);backdrop-filter:blur(7px)}
 .tr-chart-modal.show{display:flex}
-.tr-chart-card{width:min(1400px,96vw);aspect-ratio:2.55 / 1;max-height:88vh;overflow:hidden;border:1px solid rgba(99,79,220,.72);border-radius:26px;background:linear-gradient(145deg,#071226,#0b1024 58%,#10132c);padding:20px;box-shadow:0 25px 90px rgba(0,0,0,.62),inset 0 0 50px rgba(61,42,170,.08);display:flex;flex-direction:column}
+.tr-chart-card{width:min(1400px,96vw);aspect-ratio:2 / 1;max-height:92vh;overflow:hidden;border:1px solid rgba(99,79,220,.72);border-radius:26px;background:linear-gradient(145deg,#071226,#0b1024 58%,#10132c);padding:20px;box-shadow:0 25px 90px rgba(0,0,0,.62),inset 0 0 50px rgba(61,42,170,.08);display:flex;flex-direction:column}
 .tr-chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px;padding-right:2px;flex:0 0 auto}
 .tr-chart-title{margin:0;font-size:25px;line-height:1.1;font-weight:850;letter-spacing:-.3px}
 .tr-chart-sub{margin:5px 0 0;color:#8f9bc2;font-size:13px}
@@ -602,9 +602,9 @@ body{
 .tr-chart-legend{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin:0 0 3px 4px;color:#d8deef;font-size:13px;font-weight:650}
 .tr-legend-item{display:flex;align-items:center;gap:8px}.tr-legend-dot{width:11px;height:11px;border-radius:50%;display:inline-block}.tr-legend-dot.blue{background:#1599ff;box-shadow:0 0 9px rgba(21,153,255,.5)}.tr-legend-dot.purple{background:#c03cff;box-shadow:0 0 9px rgba(192,60,255,.5)}
 .tr-performance-chart{position:relative;width:100%;height:100%;min-height:0;flex:1}
-.tr-performance-bars{position:absolute;left:6%;right:2%;top:28%;bottom:17%;display:grid;grid-template-columns:repeat(7,1fr);gap:2.2%;align-items:end;border-bottom:1px solid rgba(117,129,163,.35)}
+.tr-performance-bars{position:absolute;left:6%;right:2%;top:22%;bottom:13%;display:grid;grid-template-columns:repeat(7,1fr);gap:2.2%;align-items:end;border-bottom:1px solid rgba(117,129,163,.35)}
 .tr-performance-col{height:100%;display:flex;align-items:center;justify-content:flex-end;flex-direction:column;position:relative;min-width:0}
-.tr-performance-bar-wrap{height:82%;width:72%;display:flex;align-items:flex-end;justify-content:center;position:relative}
+.tr-performance-bar-wrap{height:88%;width:72%;display:flex;align-items:flex-end;justify-content:center;position:relative}
 .tr-performance-bar{width:100%;min-height:3px;border-radius:4px 4px 1px 1px;background:linear-gradient(180deg,#168eff,#0874e6);box-shadow:0 0 13px rgba(0,132,255,.17)}
 .tr-performance-time{position:absolute;bottom:calc(var(--bar-height, 0%) + 7px);left:50%;transform:translateX(-50%);font-size:12px;font-weight:800;color:#e8edf9;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1;z-index:3}
 .tr-performance-date{height:28px;margin-top:8px;color:#cfd6e8;font-size:12px;font-weight:700;white-space:nowrap;text-align:center}
@@ -620,7 +620,7 @@ body{
 /* Tablet/iPad layout: keep the same wide card ratio while scaling the inner
    chart and insights so the complete card always fits vertically. */
 @media (min-width:761px) and (max-width:1100px){
-  .tr-chart-card{width:96vw;aspect-ratio:2.55 / 1;padding:11px;border-radius:22px}
+  .tr-chart-card{width:96vw;aspect-ratio:2 / 1;padding:11px;border-radius:22px}
   .tr-chart-head{gap:10px;margin-bottom:6px}
   .tr-chart-title{font-size:20px}
   .tr-chart-sub{font-size:10px;margin-top:3px}
@@ -629,8 +629,8 @@ body{
   .tr-performance-panel{padding:8px 9px 7px}
   .tr-chart-legend{gap:12px;margin:0 0 2px 2px;font-size:10px}
   .tr-legend-item{gap:5px}.tr-legend-dot{width:8px;height:8px}
-  .tr-performance-bars{left:5.5%;right:1.5%;top:27%;bottom:18%;gap:1.6%}
-  .tr-performance-bar-wrap{width:70%;height:82%}
+  .tr-performance-bars{left:5.5%;right:1.5%;top:23%;bottom:14%;gap:1.6%}
+  .tr-performance-bar-wrap{width:70%;height:88%}
   .tr-performance-time{font-size:9px;bottom:calc(var(--bar-height, 0%) + 5px)}
   .tr-performance-date{height:20px;margin-top:5px;font-size:9px}
   .tr-performance-svg{left:5.2%;right:1.2%;top:5%;width:93.6%;height:55%}
@@ -645,12 +645,12 @@ body{
   .tr-insight-value small{font-size:8px;margin-top:1px}
 }
 @media(max-width:760px){
-  .tr-chart-card{width:96vw;aspect-ratio:2.15 / 1;padding:12px;border-radius:22px}
+  .tr-chart-card{width:96vw;aspect-ratio:1.65 / 1;padding:12px;border-radius:22px}
   .tr-chart-title{font-size:20px}.tr-chart-sub{font-size:11px}
   .tr-performance-grid{grid-template-columns:minmax(0,2.8fr) minmax(205px,1.05fr);gap:10px}
   .tr-insights-panel{padding:11px}
-  .tr-performance-bars{left:7%;right:1%;gap:1.4%;top:29%;bottom:18%}
-  .tr-performance-bar-wrap{width:70%}
+  .tr-performance-bars{left:7%;right:1%;gap:1.4%;top:24%;bottom:14%}
+  .tr-performance-bar-wrap{width:70%;height:88%}
   .tr-performance-time{font-size:9px}
   .tr-performance-date{font-size:9px}
   .tr-performance-svg{left:6.7%;right:.7%;width:92.6%;height:56%}
@@ -669,8 +669,8 @@ body{
   overflow:hidden;
 }
 .tr-chart-card{
-  width:min(1400px,calc(100vw - 28px),calc(255vh - 71.4px));
-  aspect-ratio:2.55 / 1;
+  width:min(1400px,calc(100vw - 28px),calc(200vh - 56px));
+  aspect-ratio:2 / 1;
   max-width:calc(100vw - 28px);
   max-height:calc(100vh - 28px);
   height:auto;
@@ -747,7 +747,7 @@ body{
 /* Short landscape screens: fit the same card ratio using viewport height. */
 @media (max-height:560px){
   .tr-chart-card{
-    width:min(1400px,calc(100vw - 20px),calc(255vh - 51px));
+    width:min(1400px,calc(100vw - 20px),calc(200vh - 40px));
     max-width:calc(100vw - 20px);
     max-height:calc(100vh - 20px);
     padding:8px;
@@ -789,8 +789,8 @@ body{
   .tr-performance-panel{padding:7px 7px 6px}
   .tr-chart-legend{font-size:8px;gap:7px;margin-left:1px}
   .tr-legend-dot{width:7px;height:7px}
-  .tr-performance-bars{left:7%;right:1%;top:27%;bottom:18%;gap:1.2%}
-  .tr-performance-bar-wrap{width:68%}
+  .tr-performance-bars{left:7%;right:1%;top:22%;bottom:14%;gap:1.2%}
+  .tr-performance-bar-wrap{width:68%;height:88%}
   .tr-performance-time{font-size:7px;bottom:calc(var(--bar-height,0%) + 4px)}
   .tr-performance-date{font-size:7px;height:17px;margin-top:3px}
   .tr-performance-svg{left:6.7%;right:.7%;width:92.6%;height:55%}
