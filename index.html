@@ -2110,8 +2110,9 @@ function trRender(){
   $("trImprovement").textContent=(improvement>=0?"+":"")+improvement.toFixed(1)+"%";
   $("trStreak").textContent=trStreak()+" Days";
 
-  const display=trRecords.slice(-10).reverse();
-  $("trListTitle").textContent=`${display.length||10} Days – Daily Records`;
+  // Show every recorded/uploaded day — not just the latest 10 days.
+  const display=trRecords.slice().reverse();
+  $("trListTitle").textContent=`${display.length} Days – Daily Records`;
   if(!display.length){
     historyList.innerHTML='<div class="tr-empty">No track records yet.</div>';
   }else{
@@ -2321,7 +2322,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=49");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=50");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
