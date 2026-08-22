@@ -1482,6 +1482,120 @@ function closeSession(type,end=Date.now()){
   }
 }
 
+/* ================= DAILY RECORD SYNC =================
+   Completed days are uploaded once they become complete.  This is deliberately
+   event/day-change driven, not a per-minute API upload.  If the app was closed
+   overnight, the next app open calculates the finished day from sessionLog and
+   retries the upload automatically. */
+const UPLOAD_STATE_KEY="wake_study_upload_state_v1";
+let uploadState={};
+try{
+  uploadState=JSON.parse(localStorage.getItem(UPLOAD_STATE_KEY)||"{}");
+  if(!uploadState||typeof uploadState!=="object")uploadState={};
+}catch(e){uploadState={};}
+
+function saveUploadState(){
+  localStorage.setItem(UPLOAD_STATE_KEY,JSON.stringify(uploadState));
+}
+
+function syncDayKey(ms){
+  const d=new Date(ms+5.5*60*60*1000);
+  return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");
+}
+
+function syncDayStart(key){
+  const [y,m,d]=key.split("-").map(Number);
+  return Date.UTC(y,m-1,d)-5.5*60*60*1000;
+}
+
+function splitSessions(now=Date.now()){
+  const totals={};
+  const add=(date,type,ms)=>{
+    if(!date||ms<=0)return;
+    if(!totals[date])totals[date]={studyMs:0,awakeMs:0};
+    if(type==="study")totals[date].studyMs+=ms;
+    else if(type==="wake")totals[date].awakeMs+=ms;
+  };
+
+  for(const session of sessionLog){
+    if(!session||!session.type||!Number.isFinite(Number(session.start)))continue;
+    let start=Number(session.start);
+    let end=session.end===null||session.end===undefined?now:Number(session.end);
+    if(!Number.isFinite(end)||end<=start)continue;
+    end=Math.min(end,now);
+
+    while(start<end){
+      const date=syncDayKey(start);
+      const next=syncDayStart(date)+86400000;
+      const sliceEnd=Math.min(end,next);
+      add(date,session.type,sliceEnd-start);
+      start=sliceEnd;
+    }
+  }
+  return totals;
+}
+
+function yesterdaySyncKey(now=Date.now()){
+  return syncDayKey(syncDayStart(syncDayKey(now))-1);
+}
+
+let uploadBusy=false;
+async function uploadCompletedRecords(){
+  if(uploadBusy)return;
+  uploadBusy=true;
+  try{
+    const now=Date.now();
+    const today=syncDayKey(now);
+    const totals=splitSessions(now);
+
+    // Only completed days are uploaded. Today remains local/live until midnight.
+    for(const [date,value] of Object.entries(totals).sort(([a],[b])=>a.localeCompare(b))){
+      if(date>=today)continue;
+      const studyMs=Math.max(0,Math.floor(value.studyMs||0));
+      const awakeMs=Math.max(0,Math.floor(value.awakeMs||0));
+      const signature=studyMs+":"+awakeMs;
+
+      // A successful upload for the same final values needs no second request.
+      if(uploadState[date]===signature)continue;
+
+      try{
+        const res=await fetch(HISTORY_API||"./api/records",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          cache:"no-store",
+          body:JSON.stringify({date,studyMs,awakeMs})
+        });
+        const data=await res.json().catch(()=>null);
+        if(!res.ok||!data||!data.ok)throw new Error((data&&data.error)||"Upload failed");
+        uploadState[date]=signature;
+        saveUploadState();
+      }catch(e){
+        // Keep the date unsynced so the next app open/visibility/day-change retries it.
+        console.error("Daily record upload failed",date,e);
+      }
+    }
+  }finally{
+    uploadBusy=false;
+  }
+}
+
+// Run after the page has initialized.  If yesterday was missed because the app
+// was closed, this is the first place that retries it.
+window.addEventListener("load",()=>{setTimeout(uploadCompletedRecords,0);});
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible")uploadCompletedRecords();
+});
+
+let lastSyncDay=syncDayKey(Date.now());
+setInterval(()=>{
+  const current=syncDayKey(Date.now());
+  if(current!==lastSyncDay){
+    lastSyncDay=current;
+    uploadCompletedRecords();
+  }
+},60000);
+
 const $=id=>document.getElementById(id);
 const wakeTime=$("wakeTime"),studyTime=$("studyTime");
 const wakeToggle=$("wakeToggle"),wakeReset=$("wakeReset");
@@ -2207,7 +2321,7 @@ if ("serviceWorker" in navigator) {
 
       // Cache-bust the worker script itself so browsers stuck on an
       // older registration are forced to fetch the current worker.
-      const registration = await navigator.serviceWorker.register("./sw.js?v=48");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=49");
       try { await registration.update(); } catch(e) {}
     } catch (e) {
       console.error("Service worker update failed:", e);
